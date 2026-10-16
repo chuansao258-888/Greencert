@@ -1,6 +1,6 @@
 # Testing Plan
 
-Testing concentrates on the Producer, Admin and Buyer workflows and the core accounting rules. Python `unittest` covers server behavior with temporary SQLite and upload folders. Solidity test functions target Remix Solidity Unit Testing, the tool used for contract exercises. MetaMask and responsive layout are checked manually because wallet prompts require interaction.
+Testing concentrates on the Producer, Admin and Buyer workflows and the core accounting rules. Python `unittest` covers server behavior with temporary SQLite and upload folders. Solidity test functions target Remix Solidity Unit Testing, the tool used for contract exercises. Sepolia workflow verification is recorded manually because it requires real wallet signatures.
 
 ## Automated checks
 
@@ -38,7 +38,5 @@ npm run test:frontend
 ## Manual acceptance
 
 `tests/manual/sepolia-checklist.md` covers deployment, role registration, submission, withdrawal, rejection, approval, listing, repricing, cancellation, purchase, seller withdrawal and retirement. Use separate wallets for the three roles. Record transaction hash, receipt status, gas used and effective gas price for each successful write in `docs/evidence/gas-results.csv`. Calculate cost as `gasUsed × effectiveGasPrice`.
-
-`tests/manual/mobile-checklist.md` covers the same workflow in MetaMask's mobile browser at 360 px and 390 px. Check touch targets, form layout, wallet prompts, whole-batch quantity and total price. Restart the server after the workflow and confirm that the SQLite metadata and evidence file still load.
 
 Do not mark a manual step or Solidity test as passed before it has been run. The empty deployment addresses and gas CSV are deliberate placeholders until Sepolia deployment.

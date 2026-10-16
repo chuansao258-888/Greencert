@@ -1,10 +1,39 @@
 # GreenCert
 
-GreenCert is a mobile-first coursework prototype for issuing, trading and retiring batches of simulated renewable energy certificates on Sepolia.
+GreenCert is a coursework prototype for issuing, trading and retiring simulated renewable energy certificate (REC) batches on the Sepolia testnet. One REC represents one MWh in this prototype. The application uses test ETH and does not issue accredited certificates.
 
-Buyers and visitors can review a certificate's public evidence-integrity summary before purchase. The summary checks its approved application, on-chain metadata hash, batch fields and locally stored evidence SHA-256 without exposing the uploaded file. The read-only `/audit` page collects these checks and the certificate event timeline. Matching hashes establish record consistency, not independent proof of real electricity generation.
+## Live deployment
+
+Open the public application at [https://greencert.onrender.com](https://greencert.onrender.com).
+
+| Contract | Sepolia address |
+| --- | --- |
+| `RoleRegistry` | [`0xc6ddfdef0eef7b9d2bb6df9e60bf439a2725a369`](https://sepolia.etherscan.io/address/0xc6ddfdef0eef7b9d2bb6df9e60bf439a2725a369) |
+| `CertificateRegistry` | [`0x338c972fcab0892448fa0ee939f3330fb42f6c04`](https://sepolia.etherscan.io/address/0x338c972fcab0892448fa0ee939f3330fb42f6c04) |
+| `CertificateMarket` | [`0xd7f2b6c233e7044ab4a76317b834c58c2ff23f01`](https://sepolia.etherscan.io/address/0xd7f2b6c233e7044ab4a76317b834c58c2ff23f01) |
+
+Certificate ownership, listings, purchases and retirements are stored on Sepolia. The free Render deployment uses local service storage for uploaded evidence and SQLite records; those local records can be cleared when the service restarts or is redeployed.
+
+## Documentation
+
+| Document | Description |
+| --- | --- |
+| [User manual](docs/user-manual.md) | Wallet connection and the Producer, Admin, Buyer and public-audit workflows. |
+| [Product and requirements](docs/development/01-product.md) | Scope, roles, business rules and requirements. |
+| [Architecture and workflow](docs/development/02-architecture-flow.md) | Application components, state flow and transaction sequence. |
+| [Smart contracts](docs/development/03-contracts.md) | Contract responsibilities, permissions, functions and events. |
+| [API](docs/development/04-api.md) | Flask API endpoints and request/response behaviour. |
+| [Data model](docs/development/05-data-model.md) | SQLite records, uploaded evidence and on-chain references. |
+| [Responsive interface](docs/development/06-ui.md) | Pages, navigation, dashboard content and interaction states. |
+| [Testing plan](docs/development/08-testing.md) | Automated and Sepolia workflow checks. |
+| [Test results](docs/evidence/test-results.md) | Recorded local, Remix and Sepolia results. |
+| [Gas measurements](docs/evidence/gas-results.csv) | Mined transaction receipts, gas used and transaction cost. |
+| [Sepolia workflow](tests/manual/sepolia-checklist.md) | Completed on-chain workflow and expected state checks. |
+| [Automated Sepolia run](tests/manual/sepolia-automated-run.md) | Test-wallet setup and resumable workflow runner. |
 
 ## Local setup
+
+Requirements: Python, Node.js, MetaMask and a Sepolia RPC endpoint.
 
 ```powershell
 python -m pip install -r requirements.txt
@@ -15,11 +44,13 @@ python scripts/init_db.py
 python app.py
 ```
 
-Open `http://127.0.0.1:5000`. Copy `.env.example` to `.env`, set `RPC_URL` to a Sepolia endpoint, and enter the three deployed contract addresses and their deployment block numbers in `deployment.json`. The site shows its pages before deployment, but wallet actions and chain reads require those settings.
+Open `http://127.0.0.1:5000`. Copy `.env.example` to `.env` and set `RPC_URL` to a Sepolia endpoint. `deployment.json` contains the deployed contract addresses and their deployment blocks.
 
-Deploy `RoleRegistry` with the Admin wallet address, `CertificateRegistry` with the role registry address, and `CertificateMarket` with both registry addresses. Call `CertificateRegistry.setMarket` once from the Admin wallet. Register separate Producer and Buyer wallets on the account page. All trades use Sepolia test ETH. A listing's quantity is fixed at issuance; the price and purchase cover the full batch.
+For a fresh deployment, deploy `RoleRegistry` with the Admin wallet address, deploy `CertificateRegistry` with the role registry address, then deploy `CertificateMarket` with both registry addresses. The Admin must call `CertificateRegistry.setMarket` once. Register separate Producer and Buyer wallets in the Account page.
 
-Run local checks with:
+## Tests
+
+Run the local checks from the repository root:
 
 ```powershell
 python -m unittest discover -s . -p "test_*.py" -v
@@ -27,8 +58,26 @@ npm run test:contracts:compile
 npm run test:frontend
 ```
 
-Run the Solidity test functions in `tests/contracts` with Remix Solidity Unit Testing. The local contract check compiles the tests but does not execute them. The mobile and Sepolia steps are listed in `tests/manual`.
+Run the Solidity test functions in `tests/contracts` using Remix Solidity Unit Testing. The local Solidity command checks compilation only; it does not execute the Remix test functions.
 
-For the already deployed Sepolia contracts, `python scripts/sepolia_e2e.py check` reads the current on-chain state. The signed, resumable real-chain workflow is documented in [`tests/manual/sepolia-automated-run.md`](tests/manual/sepolia-automated-run.md); it requires dedicated test-wallet keys configured only in the ignored `.sepolia-test.env` file.
+For the deployed Sepolia contracts, run:
 
-This coursework prototype uses simulated certificate records and test ETH; it does not issue accredited certificates. The deployment file has empty addresses until the contracts are deployed.
+```powershell
+python scripts/sepolia_e2e.py check
+```
+
+The signed workflow is documented in [Automated Sepolia run](tests/manual/sepolia-automated-run.md). It uses dedicated test wallets configured only in the ignored `.sepolia-test.env` file. Never commit or share private keys.
+
+## Repository layout
+
+```text
+app.py                 Flask application factory
+backend/               API routes, authentication, chain reads and SQLite access
+contracts/             Solidity contracts and interfaces
+static/                Browser JavaScript, CSS and contract ABIs
+templates/             HTML pages
+tests/                 Backend, frontend, contract and Sepolia workflow tests
+docs/                  Product, technical, testing and user documentation
+deployment.json        Sepolia contract addresses and compiler settings
+render.yaml            Render deployment configuration
+```

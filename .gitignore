@@ -28,6 +28,10 @@ backups/
 artifacts/
 cache/
 
+# Local presentation working files and generated previews
+.ppt-build/
+docs/presentation/
+
 # Editor and operating-system files
 .vscode/
 .idea/

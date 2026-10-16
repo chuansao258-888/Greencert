@@ -69,7 +69,6 @@ greencert/
       test_records.py
       test_transactions.py
     manual/
-      mobile-checklist.md
       sepolia-checklist.md
   scripts/
     compile.cjs
@@ -138,7 +137,7 @@ This layout is fixed for the first implementation. Do not add service layers, a 
 | `tests/contracts/*.sol` | Remix Solidity unit tests and small actor/helper contracts. |
 | `tests/backend/*.py` | Python `unittest` API and service tests using temporary storage. |
 | `tests/frontend/*.cjs` | Small Node.js checks for dashboard rendering. |
-| `tests/manual/*.md` | Repeatable mobile-wallet and Sepolia acceptance checklists. |
+| `tests/manual/*.md` | Repeatable Sepolia acceptance checklists. |
 | `scripts/init_db.py` | Initialise or validate the SQLite schema without deleting existing data. |
 | `scripts/compile.cjs` | Compile the application contracts and produce local artifacts. |
 | `scripts/check_contract_tests.cjs` | Compile Solidity tests before they are run in Remix. |
@@ -162,22 +161,19 @@ This layout is fixed for the first implementation. Do not add service layers, a 
 | P2: Issuance | Implement evidence upload, canonical content, batch quantity, applications, withdrawal and Admin review. | A Producer can obtain a certificate record with an immutable quantity; rejected and withdrawn applications remain traceable. |
 | P3: Market | Implement whole-batch listing, repricing, cancellation, purchase, credit withdrawal and retirement. | Quantity, ownership, listing status and seller balances remain consistent through the full workflow. |
 | P4: Evaluation | Add dashboard, history, receipt verification, functional tests and gas measurements. | All eleven transaction types and critical failure cases have recorded results. |
-| P5: Deployment | Deploy contracts and hosted application; configure persistent storage; exercise mobile workflows. | Public URL works, stored evidence survives a restart, and mobile wallet actions complete. |
+| P5: Deployment | Deploy contracts and hosted application; configure persistent storage. | Public URL works and stored evidence survives a restart. |
 | P6: Submission | Prepare report, user guide, contribution records, slides and demonstration evidence. | Submission materials match the implemented and verified behaviour. |
 
 Complete each core workflow before adding visual polish. Deferred features should remain outside the implementation unless a coursework requirement makes them necessary.
 
 ## Testing
 
-The complete test tools, named files, case ownership, commands and evidence format are defined in the [Testing Plan](08-testing.md). Contract tests use Remix Solidity Unit Testing so the contract workflow stays close to the taught toolchain. Backend tests use Python's built-in `unittest`. Wallet and responsive behaviour use repeatable manual checklists because MetaMask approval cannot be represented faithfully by a Flask unit test.
+The complete test tools, named files, case ownership, commands and evidence format are defined in the [Testing Plan](08-testing.md). Contract tests use Remix Solidity Unit Testing so the contract workflow stays close to the taught toolchain. Backend tests use Python's built-in `unittest`. Sepolia transactions are verified through signed wallet transactions and mined receipts.
 
 ## Gas and Performance Evaluation
 
 Collect transaction hashes, `gasUsed` and effective gas price for all eleven user transaction types. Calculate actual transaction cost as `gasUsed * effectiveGasPrice`. Distinguish gas estimates from mined receipt measurements.
 
-For a focused comparison, use a separate test fixture to compare full on-chain descriptive strings with a bytes32 metadata reference. Keep the business operation, input content, compiler, optimizer settings and network consistent. Explain that off-chain metadata reduces chain storage but introduces hosting and availability dependencies.
-
-Measure response latency for representative reads, such as the market page and certificate details, on a small documented dataset. Report the sample size and environment. A coursework demonstration does not establish production-scale throughput.
 
 ## Deployment Configuration
 

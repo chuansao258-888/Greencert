@@ -20,7 +20,7 @@
 | `RoleRegistry_test.sol` | 2 | 0 |
 | **Total** | **12** | **0** |
 
-The results above were reported by Remix Solidity Unit Testing with the updated tests in `remix-deploy/tests/contracts`. They replace the earlier inconclusive `Passed: 0, Failed: 0` run and include the constructor address checks. Sepolia end-to-end and mobile-wallet checks have not yet been run.
+The results above were reported by Remix Solidity Unit Testing with the updated tests in `remix-deploy/tests/contracts`. They replace the earlier inconclusive `Passed: 0, Failed: 0` run and include the constructor address checks. The automated Sepolia end-to-end workflow is recorded below.
 
 A Sepolia `CertificateRegistry` creation at `0x73ab2452c4ad4d51b64329ece959964efcd39754` succeeded as a transaction but incorrectly pointed to the Admin wallet. It is excluded from `deployment.json` and must not be used. Read-only Sepolia calls confirmed that the updated constructor accepts the deployed `RoleRegistry` and rejects the Admin wallet before a transaction is sent. The replacement `CertificateRegistry` at `0x338c972fcab0892448fa0ee939f3330fb42f6c04` was then deployed successfully; its `roleRegistry()` returned the expected contract address. The `CertificateMarket` at `0xd7f2b6c233e7044ab4a76317b834c58c2ff23f01` was deployed successfully and returned both expected registry addresses.
 
@@ -57,4 +57,4 @@ The signed runner `scripts/sepolia_e2e.py` completed ten direct transactions in 
 | Submit second test application | 11908047 | Application 3 Pending, quantity 3 |
 | Reject second test application | 11908048 | Application 3 Rejected with the expected reason hash |
 
-Final independent reads returned application 1 Approved, application 2 Withdrawn, application 3 Rejected, certificate 1 Retired and owned by Buyer, `listed=false`, `soldCount=1`, and zero Producer credit and Market balance. A new Flask instance using the existing database authenticated Admin, read certificate and application 1, downloaded its 186,794-byte evidence file, and matched its SHA-256 to the saved metadata. The two extra applications and the retirement used on-chain-only test hashes, so their new review/retirement content is not available through the website; the original approved application evidence is available. Mobile-browser UI and MetaMask prompt checks remain manual.
+Final independent reads returned application 1 Approved, application 2 Withdrawn, application 3 Rejected, certificate 1 Retired and owned by Buyer, `listed=false`, `soldCount=1`, and zero Producer credit and Market balance. A new Flask instance using the existing database authenticated Admin, read certificate and application 1, downloaded its 186,794-byte evidence file, and matched its SHA-256 to the saved metadata. The two extra applications and the retirement used on-chain-only test hashes, so their new review/retirement content is not available through the website; the original approved application evidence is available.
