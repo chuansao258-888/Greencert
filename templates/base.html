@@ -19,7 +19,7 @@
     <span class="network-badge" id="networkBadge">Sepolia Testnet</span>
     <button class="button secondary" id="connectWallet" type="button">Connect wallet</button>
   </header>
-  <main class="page-shell">
+  <main class="page-shell{% if request.endpoint == 'pages.dashboard' %} dashboard-shell{% endif %}">
     <div class="notice" id="notice" aria-live="polite" hidden></div>
     {% block content %}{% endblock %}
   </main>
@@ -28,6 +28,7 @@
     <a href="{{ url_for('pages.market') }}" {% if request.endpoint == 'pages.market' %}aria-current="page"{% endif %}>Market</a>
     <a href="{{ url_for('pages.applications') }}" {% if request.endpoint == 'pages.applications' %}aria-current="page"{% endif %}>Applications</a>
     <a href="{{ url_for('pages.my_certificates') }}" {% if request.endpoint == 'pages.my_certificates' %}aria-current="page"{% endif %}>My RECs</a>
+    <a href="{{ url_for('pages.audit') }}" {% if request.endpoint == 'pages.audit' %}aria-current="page"{% endif %}>Audit</a>
     <a href="{{ url_for('pages.activity') }}" {% if request.endpoint == 'pages.activity' %}aria-current="page"{% endif %}>Activity</a>
     <a href="{{ url_for('pages.account') }}" {% if request.endpoint == 'pages.account' %}aria-current="page"{% endif %}>Account</a>
   </nav>

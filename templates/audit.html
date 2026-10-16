@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="audit-hero">
+  <div class="audit-hero-copy">
+    <p class="eyebrow">Public verification · Sepolia</p>
+    <h1>Every certificate,<br>one clear record.</h1>
+    <p>Follow each issued batch from approved application to on-chain history, with a clear view of its evidence checks.</p>
+  </div>
+  <span class="audit-hero-mark" aria-hidden="true">✓</span>
+</section>
+<section class="audit-stat-grid" aria-label="Integrity totals">
+  <article class="audit-stat audit-stat-verified"><span>Verified</span><strong id="auditVerified">—</strong><small>Checks passed</small></article>
+  <article class="audit-stat audit-stat-incomplete"><span>Incomplete</span><strong id="auditIncomplete">—</strong><small>Needs review</small></article>
+  <article class="audit-stat audit-stat-mismatch"><span>Mismatch</span><strong id="auditMismatch">—</strong><small>Check failed</small></article>
+</section>
+<div class="audit-layout">
+  <section class="audit-record-section" aria-labelledby="auditRecordsTitle">
+    <div class="audit-section-heading">
+      <div><p class="eyebrow">Evidence review</p><h2 id="auditRecordsTitle">Issued batches</h2></div>
+      <label class="audit-filter"><span>Show</span>
+        <select id="auditFilter" aria-label="Filter by integrity">
+          <option value="all">All records</option>
+          <option value="verified">Verified</option>
+          <option value="incomplete">Incomplete</option>
+          <option value="mismatch">Mismatch</option>
+        </select>
+      </label>
+    </div>
+    <div class="audit-records" id="auditReports" aria-live="polite"><p>Loading audit…</p></div>
+  </section>
+  <section class="audit-timeline-panel" aria-labelledby="auditTimelineTitle">
+    <div class="audit-section-heading"><div><p class="eyebrow">Chain activity</p><h2 id="auditTimelineTitle">Event timeline</h2></div></div>
+    <div id="auditEvents"><p>Loading events…</p></div>
+  </section>
+</div>
+<p class="audit-disclaimer">Hash checks show record consistency; they do not independently prove electricity generation. Uploaded evidence files remain private.</p>
+{% endblock %}

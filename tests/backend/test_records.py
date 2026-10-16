@@ -2,6 +2,9 @@ from tests.backend.base import AppTestCase
 from unittest.mock import patch
 from types import SimpleNamespace
 from web3 import Web3
+import json
+
+from backend.db import open_database
 
 
 class PageTests(AppTestCase):
@@ -43,6 +46,30 @@ class PageTests(AppTestCase):
         self.assertIn(b'id="statusChart"', dashboard.data)
         owned = self.client.get("/my-certificates")
         self.assertIn(b'aria-current="page">My RECs</a>', owned.data)
+        self.assertIn(b'id="certificateArchive"', self.client.get("/market").data)
+
+    def test_application_list_marks_missing_evidence(self) -> None:
+        address, _ = self.sign_in()
+        chain = self.app.extensions["chain"]
+        chain.configured = lambda: True
+        chain.role_name = lambda wallet_address: "Producer"
+        saved_hash = "0x" + "1" * 64
+        missing_hash = "0x" + "2" * 64
+        chain.applications = lambda: [
+            {"id": "1", "producer": address, "metadataHash": saved_hash, "status": "Approved", "quantity": "5"},
+            {"id": "2", "producer": address, "metadataHash": missing_hash, "status": "Withdrawn", "quantity": "2"},
+        ]
+        with open_database(self.app.config["DATABASE_PATH"]) as database:
+            database.execute("INSERT INTO files VALUES (?, ?, ?, ?, ?, ?, ?, ?)", ("proof-1", address, "evidence.pdf", "stored.pdf", "sha", "application/pdf", 12, 1))
+            database.execute("INSERT INTO contents VALUES (?, ?, ?, ?, ?, ?, ?)", (saved_hash, "application", address, 11155111, "0x" + "a" * 40, json.dumps({"payload": {"siteName": "Demo Solar Site"}}), 1))
+            database.execute("INSERT INTO content_files VALUES (?, ?)", (saved_hash, "proof-1"))
+        response = self.client.get("/api/applications")
+        self.assertEqual(response.status_code, 200)
+        first, second = response.json["data"]
+        self.assertEqual(first["metadata"]["siteName"], "Demo Solar Site")
+        self.assertEqual(first["evidenceFileId"], "proof-1")
+        self.assertIsNone(second["metadata"])
+        self.assertIsNone(second["evidenceFileId"])
 
     # Read a certificate and dashboard totals from a local chain stub.
     def test_certificate_and_dashboard_reads(self) -> None:

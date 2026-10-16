@@ -6,6 +6,22 @@ window.GreenCertPages = {
     const variant = known.includes(label) ? label.toLowerCase() : "other";
     return `<span class="status-badge status-${variant}">${GreenCertApp.escape(label)}</span>`;
   },
+  integrityBadge(status) {
+    const labels = { verified: "Verified", incomplete: "Incomplete", mismatch: "Mismatch" };
+    const known = Object.prototype.hasOwnProperty.call(labels, status);
+    return `<span class="status-badge status-${known ? status : "other"}">${known ? labels[status] : "Unknown"}</span>`;
+  },
+  transactionLink(hash, label = null) {
+    const value = String(hash ?? "");
+    if (!/^0x[0-9a-fA-F]{64}$/.test(value)) return GreenCertApp.escape(value);
+    return `<a class="explorer-link" href="https://sepolia.etherscan.io/tx/${value}" target="_blank" rel="noopener noreferrer" aria-label="View transaction ${value} on Sepolia Etherscan">${label ? GreenCertApp.escape(label) : value}</a>`;
+  },
+  periodDate(value) {
+    const timestamp = Number(value);
+    if (!Number.isFinite(timestamp) || timestamp <= 0) return "Unavailable";
+    const date = new Date(timestamp * 1000);
+    return Number.isNaN(date.getTime()) ? "Unavailable" : date.toISOString().slice(0, 10);
+  },
   // Refresh data for the page currently on screen.
   async refresh() {
     try {
@@ -20,13 +36,14 @@ window.GreenCertPages = {
       if (GreenCertWallet.address && document.getElementById("walletPanel")) await this.wallet();
       if (GreenCertWallet.address && document.getElementById("activityList")) await this.activity();
       if (document.getElementById("certificateDetail")) await this.certificateDetail();
+      if (document.getElementById("auditReports")) await this.audit();
     } catch (error) {
       if (error.message.includes("not configured")) {
         for (const id of ["sourceChart", "statusChart"]) {
           const root = document.getElementById(id);
           if (root) root.innerHTML = '<p class="chart-empty">Configure the Sepolia contracts to load chart data.</p>';
         }
-        for (const id of ["marketList", "certificateEvents"]) {
+        for (const id of ["marketList", "certificateArchive", "certificateEvents", "auditReports", "auditEvents"]) {
           const root = document.getElementById(id);
           if (root) root.innerHTML = "<div class='empty-state'><h2>Contracts not configured</h2><p>Add the Sepolia deployment settings to load live records.</p></div>";
         }
@@ -59,10 +76,14 @@ window.GreenCertPages = {
   },
   // Show available batches and their whole-batch prices.
   async market() {
-    const items = await GreenCertApi.get("/certificates?listed=true");
-    document.getElementById("marketList").innerHTML = items.length ? items.map((item) =>
+    const items = await GreenCertApi.get("/certificates");
+    const listed = items.filter((item) => item.listed);
+    document.getElementById("marketList").innerHTML = listed.length ? listed.map((item) =>
       `<article class="record-card"><h2>${GreenCertApp.escape(item.metadata?.siteName || "Metadata unavailable")}</h2><p>${GreenCertApp.escape(item.metadata?.source || "Unknown")} · ${item.quantity} RECs / ${item.quantity} MWh</p><p>Total price: ${GreenCertApp.eth(item.listing.totalPriceWei)}</p><p><a href="/certificates/${item.id}">View certificate #${item.id}</a></p><div class="button-row"><button class="button primary" data-action="buy" data-id="${item.id}" data-price="${item.listing.totalPriceWei}" data-quantity="${item.quantity}">Buy whole batch</button></div></article>`
     ).join("") : "<div class='empty-state'><h2>No listings yet</h2></div>";
+    document.getElementById("certificateArchive").innerHTML = items.length ? items.slice().reverse().map((item) =>
+      `<article class="record-card"><h2>Certificate #${item.id}</h2><p>${GreenCertApp.escape(item.metadata?.siteName || "Metadata unavailable")} · ${item.quantity} RECs</p><p class="status-row">${this.statusBadge(item.status)}${item.listed ? this.statusBadge("Listed") : ""}</p><p><a href="/certificates/${item.id}">View public record</a></p></article>`
+    ).join("") : "<div class='empty-state'><h2>No certificates issued yet</h2></div>";
   },
   // Show the connected Producer's applications or the Admin queue.
   async applications() {
@@ -81,11 +102,15 @@ window.GreenCertPages = {
       return;
     }
     const items = await GreenCertApi.get("/applications");
-    list.innerHTML = items.length ? items.reverse().map((item) => {
+    list.innerHTML = items.length ? items.slice().reverse().map((item) => {
       const actions = item.status !== "Pending" ? "" : role === "Admin"
         ? `<button class="button primary" data-action="approve" data-id="${item.id}">Approve</button><button class="button secondary" data-action="reject" data-id="${item.id}">Reject</button>`
         : `<button class="button secondary" data-action="withdraw" data-id="${item.id}">Withdraw</button>`;
-      return `<article class="record-card"><h2>Application #${item.id}</h2><p class="status-row">${this.statusBadge(item.status)}<span>· ${item.quantity} RECs</span></p><p>Producer: ${GreenCertApp.escape(item.producer)}</p><div class="button-row"><button class="button secondary" data-action="details" data-id="${item.id}">View evidence</button>${actions}</div></article>`;
+      const site = item.metadata?.siteName ? `<p>Site: ${GreenCertApp.escape(item.metadata.siteName)}</p>` : "<p>Metadata unavailable in this app.</p>";
+      const evidence = item.evidenceFileId
+        ? `<a href="/api/files/${encodeURIComponent(item.evidenceFileId)}" target="_blank" rel="noopener noreferrer">Download evidence</a>`
+        : "<span class=\"muted\">Evidence unavailable</span>";
+      return `<article class="record-card"><h2>Application #${item.id}</h2><p class="status-row">${this.statusBadge(item.status)}<span>· ${item.quantity} RECs</span></p>${site}<p>Producer: ${GreenCertApp.escape(item.producer)}</p><div class="button-row"><button class="button secondary" data-action="details" data-id="${item.id}" aria-expanded="false">View details</button>${actions}</div><div class="application-details" id="applicationDetails${item.id}" hidden></div><p class="evidence-state">${evidence}</p></article>`;
     }).join("") : "<div class='empty-state'><h2>No applications</h2></div>";
   },
   // Show owned certificates and their available actions.
@@ -112,7 +137,7 @@ window.GreenCertPages = {
   async activity() {
     const items = await GreenCertApi.get("/transactions");
     document.getElementById("activityList").innerHTML = items.length ? items.map((item) =>
-      `<article class="record-card"><h2>${GreenCertApp.escape(item.method)}</h2><p class="status-row">${this.statusBadge(item.status)}<span>· gas used ${GreenCertApp.escape(item.gas_used || "pending")}</span></p><p>${GreenCertApp.escape(item.tx_hash)}</p></article>`
+      `<article class="record-card"><h2>${GreenCertApp.escape(item.method)}</h2><p class="status-row">${this.statusBadge(item.status)}<span>· gas used ${GreenCertApp.escape(item.gas_used || "pending")}</span></p><p>${this.transactionLink(item.tx_hash)}</p></article>`
     ).join("") : "<div class='empty-state'><h2>No verified transactions yet</h2></div>";
   },
   // Show a certificate's current state and matching contract events.
@@ -122,10 +147,40 @@ window.GreenCertPages = {
     const item = await GreenCertApi.get(`/certificates/${id}`);
     const metadata = item.metadata || {};
     root.innerHTML = `<h2>${GreenCertApp.escape(metadata.siteName || "Metadata unavailable")}</h2><p>${GreenCertApp.escape(metadata.source || "Unknown")} · ${GreenCertApp.escape(metadata.country || "")}</p><p>Quantity: ${item.quantity} RECs / ${item.quantity} MWh</p><p class="status-row">Status: ${this.statusBadge(item.status)}${item.listed ? this.statusBadge("Listed") : ""}</p><p>Owner: ${GreenCertApp.escape(item.owner)}</p><p>Total listing price: ${item.listed ? GreenCertApp.eth(item.listing.totalPriceWei) : "Not listed"}</p><p>Metadata hash: ${GreenCertApp.escape(item.metadataHash)}</p>${item.retirement ? `<p>Retired for ${GreenCertApp.escape(item.retirement.beneficiary)}: ${GreenCertApp.escape(item.retirement.purpose)}</p>` : ""}`;
+    try {
+      const evidence = await GreenCertApi.get(`/certificates/${id}/evidence-summary`);
+      const checkLabels = { approvedApplication: "Approved application linked", metadataHash: "Stored metadata matches on-chain hash", metadataFields: "Batch details match the application", evidenceFile: "Local evidence file matches SHA-256" };
+      const summary = evidence.summary;
+      document.getElementById("certificateEvidence").innerHTML = `<h2>Evidence integrity</h2><p class="status-row">Record integrity: ${this.integrityBadge(evidence.status)}</p>${summary ? `<p>${GreenCertApp.escape(summary.siteName || "Site unavailable")} · ${GreenCertApp.escape(summary.source || "Unknown source")} · ${GreenCertApp.escape(summary.country || "")}</p><p>Generation period: ${this.periodDate(summary.periodStart)} to ${this.periodDate(summary.periodEnd)}</p><p>Evidence SHA-256: <code>${GreenCertApp.escape(summary.proofSha256 || "Unavailable")}</code></p>` : "<p>A verified metadata summary is unavailable.</p>"}<ul class="integrity-checks">${Object.entries(checkLabels).map(([key, label]) => `<li><span>${label}</span><strong class="check-${GreenCertApp.escape(evidence.checks[key])}">${GreenCertApp.escape(evidence.checks[key])}</strong></li>`).join("")}</ul><p>Hash checks show record consistency; they do not independently prove generation. Uploaded files remain private.</p><p><a class="text-link" href="/audit">Open public audit →</a></p>`;
+    } catch (error) {
+      document.getElementById("certificateEvidence").innerHTML = `<h2>Evidence integrity</h2><p>Integrity checks are temporarily unavailable.</p>`;
+    }
     const events = await GreenCertApi.get(`/certificates/${id}/events`);
     document.getElementById("certificateEvents").innerHTML = events.length ? events.map((event) =>
-      `<p><strong>${GreenCertApp.escape(event.event)}</strong> · block ${GreenCertApp.escape(event.blockNumber)}<br><small>${GreenCertApp.escape(event.transactionHash)}</small></p>`
+      `<p><strong>${GreenCertApp.escape(event.event)}</strong> · block ${GreenCertApp.escape(event.blockNumber)}<br><small>${this.transactionLink(event.transactionHash)}</small></p>`
     ).join("") : "<p>No matching events found.</p>";
+  },
+  // Show cross-certificate checks and the on-chain lifecycle timeline.
+  async audit() {
+    const data = await GreenCertApi.get("/audit");
+    this.auditData = data;
+    document.getElementById("auditVerified").textContent = data.totals.verified;
+    document.getElementById("auditIncomplete").textContent = data.totals.incomplete;
+    document.getElementById("auditMismatch").textContent = data.totals.mismatch;
+    this.renderAuditReports();
+    document.getElementById("auditEvents").innerHTML = data.eventStatus === "unavailable"
+      ? "<p>Event history is temporarily unavailable from the Sepolia RPC provider.</p>"
+      : data.events.length ? `<div class="audit-timeline">${data.events.map((event) =>
+        `<article class="audit-event"><div class="audit-event-card"><p class="audit-event-title">${GreenCertApp.escape(String(event.event).replace(/([a-z])([A-Z])/g, "$1 $2"))}</p><p class="audit-event-meta"><span>Certificate #${GreenCertApp.escape(event.certificateId)}</span><span>Block ${GreenCertApp.escape(event.blockNumber)}</span></p><div class="audit-event-actions"><a class="text-link" href="/certificates/${encodeURIComponent(event.certificateId)}">View record</a>${this.transactionLink(event.transactionHash, "View transaction ↗")}</div></div></article>`
+      ).join("")}</div>` : "<p>No certificate events found.</p>";
+  },
+  renderAuditReports() {
+    if (!this.auditData) return;
+    const filter = document.getElementById("auditFilter").value;
+    const items = this.auditData.reports.filter((report) => filter === "all" || report.status === filter);
+    document.getElementById("auditReports").innerHTML = items.length ? items.map((report) =>
+      `<article class="audit-record"><div class="audit-record-top"><h3>Certificate #${GreenCertApp.escape(report.certificateId)}</h3>${this.integrityBadge(report.status)}</div><p class="audit-record-site">${GreenCertApp.escape(report.summary?.siteName || "Metadata summary unavailable")}</p><p class="audit-record-meta"><span>Application #${GreenCertApp.escape(report.applicationId)}</span><span>Evidence: ${GreenCertApp.escape(report.checks.evidenceFile)}</span></p><a class="audit-record-link" href="/certificates/${encodeURIComponent(report.certificateId)}"><span>Review checks and history</span><span aria-hidden="true">→</span></a></article>`
+    ).join("") : `<div class="empty-state"><h2>${filter === "all" ? "No certificates issued yet" : "No matching records"}</h2></div>`;
   },
   // Parse an English-format calendar date without locale-dependent browser controls.
   parsePeriodDate(value, endOfDay = false) {
@@ -160,17 +215,26 @@ window.GreenCertPages = {
   },
   // Execute one application, market or retirement action.
   async action(name, id, button) {
+    if (name === "details") {
+      const root = document.getElementById(`applicationDetails${id}`);
+      if (!root.hidden) {
+        root.hidden = true;
+        button.setAttribute("aria-expanded", "false");
+        button.textContent = "View details";
+        return;
+      }
+      const item = await GreenCertApi.get(`/applications/${id}`);
+      const metadata = item.metadata;
+      root.innerHTML = metadata ? `<h3>Application details</h3><dl><div><dt>Site code</dt><dd>${GreenCertApp.escape(metadata.siteCode || "Unavailable")}</dd></div><div><dt>Site name</dt><dd>${GreenCertApp.escape(metadata.siteName || "Unavailable")}</dd></div><div><dt>Energy source</dt><dd>${GreenCertApp.escape(metadata.source || "Unavailable")}</dd></div><div><dt>Country code</dt><dd>${GreenCertApp.escape(metadata.country || "Unavailable")}</dd></div><div><dt>Period</dt><dd>${this.periodDate(metadata.periodStart)} to ${this.periodDate(metadata.periodEnd)}</dd></div><div><dt>Batch index</dt><dd>${GreenCertApp.escape(metadata.batchIndex ?? "Unavailable")}</dd></div><div><dt>Quantity</dt><dd>${GreenCertApp.escape(item.quantity)} RECs</dd></div></dl><p>Metadata hash: ${GreenCertApp.escape(item.metadataHash)}</p>`
+        : `<h3>Application details</h3><p>This application exists on Sepolia, but its metadata and evidence were not stored in this app.</p><p>Metadata hash: ${GreenCertApp.escape(item.metadataHash)}</p>`;
+      root.hidden = false;
+      button.setAttribute("aria-expanded", "true");
+      button.textContent = "Hide details";
+      return;
+    }
     const market = GreenCertContracts.contracts.certificateMarket;
     const registry = GreenCertContracts.contracts.certificateRegistry;
     if (!market || !registry) throw new Error("Connect a wallet first.");
-    if (name === "details") {
-      const item = await GreenCertApi.get(`/applications/${id}`);
-      const metadata = item.metadata || {};
-      const summary = `${metadata.siteName || "Metadata unavailable"} · ${metadata.source || "Unknown"} · ${item.quantity} RECs`;
-      GreenCertApp.notice(summary);
-      if (item.evidenceFileId) window.open(`/api/files/${encodeURIComponent(item.evidenceFileId)}`, "_blank", "noopener");
-      return;
-    }
     if (name === "approve") await GreenCertTransactions.send("Approve application", () => registry.approveApplication(id));
     if (name === "withdraw") await GreenCertTransactions.send("Withdraw application", () => registry.withdrawApplication(id));
     if (name === "buy") {
@@ -210,6 +274,10 @@ document.addEventListener("click", async (event) => {
   const button = event.target.closest("[data-register-role], [data-action], #withdrawProceeds");
   if (!button) return;
   try {
+    if (button.dataset.action === "details") {
+      await GreenCertPages.action("details", button.dataset.id, button);
+      return;
+    }
     if (!GreenCertWallet.signer) throw new Error("Connect a wallet first.");
     if (!GreenCertContracts.contracts.roleRegistry) await GreenCertContracts.load(GreenCertWallet.signer);
     if (button.dataset.registerRole) {
@@ -241,6 +309,10 @@ document.addEventListener("submit", async (event) => {
 
 // Show the chosen evidence filename without browser-localized file-input text.
 document.addEventListener("change", (event) => {
+  if (event.target.id === "auditFilter") {
+    GreenCertPages.renderAuditReports();
+    return;
+  }
   if (event.target.id !== "evidenceFile") return;
   document.getElementById("selectedEvidence").textContent = event.target.files?.[0]?.name || "No file selected";
 });

@@ -5,6 +5,7 @@ from web3 import Web3
 
 from backend.auth import error, require_session
 from backend.db import open_database
+from backend.verification import evidence_report
 
 
 records_blueprint = Blueprint("records_api", __name__, url_prefix="/api")
@@ -44,6 +45,8 @@ def applications():
     status = request.args.get("status")
     if status:
         items = [item for item in items if item["status"] == status]
+    for item in items:
+        _enrich_application(item)
     return jsonify({"data": items})
 
 
@@ -60,10 +63,7 @@ def application_detail(application_id: int):
         return error("Application was not found.", 404, "NOT_FOUND")
     if chain.role_name(g.wallet_address) != "Admin" and item["producer"].lower() != g.wallet_address:
         return error("Application is not visible to this wallet.", 403, "FORBIDDEN")
-    item["metadata"] = _content(item["metadataHash"])
-    with open_database(current_app.config["DATABASE_PATH"]) as database:
-        evidence = database.execute("SELECT file_id FROM content_files WHERE content_hash = ?", (item["metadataHash"],)).fetchone()
-    item["evidenceFileId"] = evidence["file_id"] if evidence else None
+    _enrich_application(item)
     return jsonify({"data": item})
 
 
@@ -99,6 +99,42 @@ def certificate_detail(certificate_id: int):
     item["metadata"] = _content(item["metadataHash"])
     item["retirement"] = _content(item["retirementHash"])
     return jsonify({"data": item})
+
+
+# Publish a hash-based evidence summary without exposing the original file.
+@records_blueprint.get("/certificates/<int:certificate_id>/evidence-summary")
+def certificate_evidence_summary(certificate_id: int):
+    chain = current_app.extensions["chain"]
+    if not chain.configured():
+        return error("Contracts are not configured.", 503, "CHAIN_UNAVAILABLE")
+    certificate = next((item for item in chain.certificates() if item["id"] == str(certificate_id)), None)
+    if not certificate:
+        return error("Certificate was not found.", 404, "NOT_FOUND")
+    application = next((item for item in chain.applications() if item["id"] == certificate["applicationId"]), None)
+    return jsonify({"data": _evidence_report(certificate, application)})
+
+
+# Give visitors a read-only integrity and lifecycle audit of issued batches.
+@records_blueprint.get("/audit")
+def audit():
+    chain = current_app.extensions["chain"]
+    if not chain.configured():
+        return error("Contracts are not configured.", 503, "CHAIN_UNAVAILABLE")
+    applications_by_id = {item["id"]: item for item in chain.applications()}
+    certificates = chain.certificates()
+    reports = [_evidence_report(item, applications_by_id.get(item["applicationId"])) for item in certificates]
+    totals = {status: sum(report["status"] == status for report in reports) for status in ("verified", "incomplete", "mismatch")}
+    events = []
+    event_status = "available"
+    try:
+        for item in certificates:
+            for event in chain.certificate_events(int(item["id"])):
+                events.append({**event, "certificateId": item["id"]})
+        events.sort(key=lambda event: (int(event["blockNumber"]), int(event["logIndex"])), reverse=True)
+    except Exception:
+        events = []
+        event_status = "unavailable"
+    return jsonify({"data": {"reports": reports, "totals": totals, "events": events, "eventStatus": event_status}})
 
 
 # Return the on-chain event trail for one certificate.
@@ -170,3 +206,17 @@ def _content(content_hash: str) -> dict | None:
         return None
     import json
     return json.loads(row["canonical_json"])["payload"]
+
+
+def _enrich_application(item: dict) -> None:
+    item["metadata"] = _content(item["metadataHash"])
+    with open_database(current_app.config["DATABASE_PATH"]) as database:
+        evidence = database.execute("SELECT file_id FROM content_files WHERE content_hash = ?", (item["metadataHash"],)).fetchone()
+    item["evidenceFileId"] = evidence["file_id"] if evidence else None
+
+
+def _evidence_report(certificate: dict, application: dict | None) -> dict:
+    return evidence_report(
+        certificate, application, current_app.config["DATABASE_PATH"], current_app.config["UPLOAD_DIR"],
+        current_app.config["CHAIN_ID"], current_app.extensions["chain"].contract_address("certificateRegistry"),
+    )

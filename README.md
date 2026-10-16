@@ -2,6 +2,8 @@
 
 GreenCert is a mobile-first coursework prototype for issuing, trading and retiring batches of simulated renewable energy certificates on Sepolia.
 
+Buyers and visitors can review a certificate's public evidence-integrity summary before purchase. The summary checks its approved application, on-chain metadata hash, batch fields and locally stored evidence SHA-256 without exposing the uploaded file. The read-only `/audit` page collects these checks and the certificate event timeline. Matching hashes establish record consistency, not independent proof of real electricity generation.
+
 ## Local setup
 
 ```powershell

@@ -11,9 +11,9 @@ The proposed problem is fragmented evidence: a buyer needs to understand where a
 | Role | Responsibilities |
 |---|---|
 | Producer | Upload evidence; submit or withdraw pending applications; list, reprice or cancel listings; withdraw sales proceeds. |
-| Buyer | Browse available certificates; purchase; view holdings; retire owned certificates. |
+| Buyer | Browse available certificates and evidence-integrity summaries; purchase; view holdings; retire owned certificates. |
 | Admin | Review generation evidence and approve or reject pending applications. |
-| Visitor | Browse public certificate records, market listings and dashboard data. |
+| Visitor | Browse public certificate records, evidence-integrity summaries, market listings, dashboard data and the read-only audit. |
 
 The Admin address is fixed at deployment. Other addresses may register once as Producer or Buyer. Registration does not verify a person's identity or an organisation's legal status. Roles cannot be changed in this version, and users cannot self-register as Admin.
 
@@ -33,6 +33,8 @@ The Admin address is fixed at deployment. Other addresses may register once as P
 | FR-10 | Dashboard | Issued, listed, sold and retired totals and two labeled charts reflect contract records. The source chart sums REC quantity by energy source; the status chart counts Active and Retired batches. |
 | FR-11 | Mobile access | The complete role workflows work in a mobile wallet browser. |
 | FR-12 | Recovery | Refreshing the browser or restarting the server does not lose confirmed business records or stored evidence. |
+| FR-13 | Evidence integrity | A certificate's public summary distinguishes matching, missing and inconsistent application, metadata and evidence-file hashes without releasing the uploaded file. |
+| FR-14 | Read-only audit | The public audit lists certificate integrity results and on-chain certificate events with transaction links and a status filter. |
 
 ## Business Rules
 
@@ -48,6 +50,8 @@ The Admin address is fixed at deployment. Other addresses may register once as P
 10. The Admin has no arbitrary ownership transfer, balance withdrawal or retirement reversal function.
 
 The batch key prevents an exact duplicate submission under the same identifiers. It cannot detect fabricated generation, overlapping batches, changed batch indices or site identifiers, submissions from other wallets or registration in external systems. The Admin must confirm that the evidence supports the declared quantity and that it has not already been accepted in another batch.
+
+Evidence-integrity checks establish that the locally available file and metadata match their stored and on-chain hashes. They do not independently establish that the claimed energy was generated. Raw evidence downloads remain limited to the uploading Producer and Admin.
 
 ## Coursework Coverage
 

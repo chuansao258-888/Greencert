@@ -41,6 +41,12 @@ def activity():
     return render_template("activity.html", page_title="Activity")
 
 
+# Render the public read-only certificate integrity audit.
+@pages_blueprint.get("/audit")
+def audit():
+    return render_template("audit.html", page_title="Audit")
+
+
 # Render a public certificate record and event trail.
 @pages_blueprint.get("/certificates/<int:certificate_id>")
 def certificate_detail(certificate_id: int):
