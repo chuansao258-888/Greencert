@@ -13,11 +13,18 @@
     <label>Site name<input name="siteName" required maxlength="80"></label>
     <label>Energy source<select name="source"><option>Solar</option><option>Wind</option><option>Hydro</option></select></label>
     <label>Country code<input name="country" required maxlength="2" placeholder="SG"></label>
-    <label>Period start<input name="periodStart" type="date" required></label>
-    <label>Period end<input name="periodEnd" type="date" required></label>
+    <label>Period start<input name="periodStart" type="text" inputmode="numeric" placeholder="YYYY-MM-DD" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" title="Enter a date as YYYY-MM-DD" required></label>
+    <label>Period end<input name="periodEnd" type="text" inputmode="numeric" placeholder="YYYY-MM-DD" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" title="Enter a date as YYYY-MM-DD" required></label>
     <label>Batch index<input name="batchIndex" type="number" min="1" required value="1"></label>
     <label>Quantity (1–100 RECs)<input name="quantity" type="number" min="1" max="100" required value="1"></label>
-    <label class="full-width">Evidence (PDF, PNG or JPEG, up to 5 MiB)<input name="evidence" type="file" accept=".pdf,.png,.jpg,.jpeg" required></label>
+    <div class="full-width">
+      <label for="evidenceFile">Evidence (PDF, PNG or JPEG, up to 5 MiB)</label>
+      <div class="file-picker">
+        <span class="button secondary" aria-hidden="true">Choose file</span>
+        <span id="selectedEvidence" aria-live="polite">No file selected</span>
+        <input id="evidenceFile" name="evidence" type="file" accept=".pdf,.png,.jpg,.jpeg" aria-label="Choose evidence file" required>
+      </div>
+    </div>
     <button class="button primary" type="submit">Upload and submit</button>
   </form>
 </section>

@@ -9,7 +9,7 @@ Before signing each deployment, compare the full constructor arguments with `dep
 - [x] Register Producer and Buyer roles.
 - [ ] Submit and withdraw an application.
 - [ ] Submit and reject a second application.
-- [ ] Submit and approve a multi-unit batch application.
+- [x] Submit and approve a multi-unit batch application.
 - [ ] List, reprice and cancel the certificate listing.
 - [ ] List again and buy the complete batch for the exact total price.
 - [ ] Withdraw the Producer's sale proceeds.

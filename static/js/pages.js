@@ -109,19 +109,35 @@ window.GreenCertPages = {
       `<p><strong>${GreenCertApp.escape(event.event)}</strong> · block ${GreenCertApp.escape(event.blockNumber)}<br><small>${GreenCertApp.escape(event.transactionHash)}</small></p>`
     ).join("") : "<p>No matching events found.</p>";
   },
+  // Parse an English-format calendar date without locale-dependent browser controls.
+  parsePeriodDate(value, endOfDay = false) {
+    const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(value));
+    if (!match) throw new Error("Enter dates as YYYY-MM-DD.");
+    const year = Number(match[1]);
+    const month = Number(match[2]);
+    const day = Number(match[3]);
+    const date = new Date(Date.UTC(year, month - 1, day));
+    if (date.getUTCFullYear() !== year || date.getUTCMonth() !== month - 1 || date.getUTCDate() !== day) {
+      throw new Error("Enter a valid calendar date.");
+    }
+    return String(Math.floor(date.getTime() / 1000) + (endOfDay ? 86399 : 0));
+  },
   // Upload evidence and submit its certificate application.
   async submitApplication(form) {
     const values = new FormData(form);
+    const periodStart = this.parsePeriodDate(values.get("periodStart"));
+    const periodEnd = this.parsePeriodDate(values.get("periodEnd"), true);
     const evidence = await GreenCertApi.upload(values.get("evidence"));
     const payload = Object.fromEntries(["siteCode", "siteName", "source", "country", "batchIndex", "quantity"].map((key) => [key, values.get(key)]));
-    payload.periodStart = String(Math.floor(new Date(`${values.get("periodStart")}T00:00:00Z`).getTime() / 1000));
-    payload.periodEnd = String(Math.floor(new Date(`${values.get("periodEnd")}T23:59:59Z`).getTime() / 1000));
+    payload.periodStart = periodStart;
+    payload.periodEnd = periodEnd;
     payload.proofFileId = evidence.fileId;
     const content = await GreenCertApi.post("/content", { kind: "application", payload });
     if (ethers.keccak256(ethers.toUtf8Bytes(content.canonicalJson)) !== content.contentHash) throw new Error("Metadata hash does not match.");
     const args = content.chainArgs;
     await GreenCertTransactions.send("Submit application", () => GreenCertContracts.contracts.certificateRegistry.submitApplication(args.siteHash, args.periodStart, args.periodEnd, args.batchIndex, args.quantity, args.metadataHash));
     form.reset();
+    document.getElementById("selectedEvidence").textContent = "No file selected";
     await this.refresh();
   },
   // Execute one application, market or retirement action.
@@ -203,4 +219,10 @@ document.addEventListener("submit", async (event) => {
   } catch (error) {
     GreenCertApp.notice(error.message || "Application failed.", true);
   }
+});
+
+// Show the chosen evidence filename without browser-localized file-input text.
+document.addEventListener("change", (event) => {
+  if (event.target.id !== "evidenceFile") return;
+  document.getElementById("selectedEvidence").textContent = event.target.files?.[0]?.name || "No file selected";
 });

@@ -46,4 +46,14 @@ function testDashboardCharts() {
 }
 
 testDashboardCharts();
-process.stdout.write("Dashboard chart rendering passed.\n");
+
+function testApplicationDates() {
+  const pages = context.window.GreenCertPages;
+  assert.equal(pages.parsePeriodDate("2024-02-29"), String(Date.UTC(2024, 1, 29) / 1000));
+  assert.equal(pages.parsePeriodDate("2024-02-29", true), String(Date.UTC(2024, 1, 29) / 1000 + 86399));
+  assert.throws(() => pages.parsePeriodDate("2026-02-29"), /valid calendar date/);
+  assert.throws(() => pages.parsePeriodDate("29/02/2024"), /YYYY-MM-DD/);
+}
+
+testApplicationDates();
+process.stdout.write("Dashboard chart and application date checks passed.\n");
