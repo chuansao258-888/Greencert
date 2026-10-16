@@ -15,6 +15,52 @@ METHODS = {
     "listCertificate", "updatePrice", "cancelListing", "buyCertificate", "withdraw", "retireCertificate",
 }
 
+WORKFLOW_EVENTS = {
+    "roleRegistry": {"RoleRegistered": ("register", None)},
+    "certificateRegistry": {
+        "ApplicationSubmitted": ("submitApplication", "applicationId"),
+        "ApplicationWithdrawn": ("withdrawApplication", "applicationId"),
+        "ApplicationRejected": ("rejectApplication", "applicationId"),
+        "CertificateIssued": ("approveApplication", "applicationId"),
+        "CertificateRetired": ("retireCertificate", "certificateId"),
+    },
+    "certificateMarket": {
+        "CertificateListed": ("listCertificate", "certificateId"),
+        "ListingPriceUpdated": ("updatePrice", "certificateId"),
+        "ListingCancelled": ("cancelListing", "certificateId"),
+        "CertificatePurchased": ("buyCertificate", "certificateId"),
+        "Withdrawal": ("withdraw", None),
+    },
+}
+
+
+def _hex_argument(value) -> str:
+    """Normalise a bytes32 argument from a decoded call or event."""
+    if isinstance(value, bytes):
+        return "0x" + value.hex()
+    return str(value)
+
+
+def _wrapped_workflow_event(chain, receipt: dict) -> dict | None:
+    """Identify one GreenCert action emitted by a wallet-wrapper transaction."""
+    matches = []
+    for contract_name, events in WORKFLOW_EVENTS.items():
+        contract = chain.contract(contract_name)
+        for event_name, (method, entity_key) in events.items():
+            event = getattr(contract.events, event_name)()
+            for log in receipt["logs"]:
+                if log["address"].lower() != contract.address.lower():
+                    continue
+                try:
+                    arguments = dict(event.process_log(log)["args"])
+                except Exception:
+                    continue
+                matches.append({
+                    "target": contract.address.lower(), "method": method, "arguments": arguments,
+                    "entityKey": entity_key,
+                })
+    return matches[0] if len(matches) == 1 else None
+
 
 # Decode and save a wallet transaction after its receipt is available.
 @transactions_blueprint.post("/verify")
@@ -34,33 +80,44 @@ def verify_transaction():
         return error("Transaction sender does not match this wallet.", 403, "FORBIDDEN")
     target = (transaction.get("to") or "").lower()
     name = next((key for key in ("roleRegistry", "certificateRegistry", "certificateMarket") if chain.contract_address(key).lower() == target), None)
-    if not name:
-        return error("Transaction targets a different contract.", 422, "INVALID_TARGET")
-    try:
-        function, arguments = chain.contract(name).decode_function_input(transaction["input"])
-    except Exception:
-        return error("Transaction input is not recognized.", 422, "INVALID_METHOD")
-    method = function.fn_name
-    if method not in METHODS:
-        return error("Method is not part of the GreenCert workflow.", 422, "INVALID_METHOD")
-    content_hash = next((arguments[key].hex() for key in ("metadataHash", "reasonHash", "retirementHash") if key in arguments), None)
+    wrapped = name is None
+    if wrapped:
+        if receipt is None or receipt["status"] != 1:
+            return error("Transaction targets a different contract.", 422, "INVALID_TARGET")
+        wrapped_event = _wrapped_workflow_event(chain, receipt)
+        if not wrapped_event:
+            return error("No unambiguous GreenCert action was found in this wallet transaction.", 422, "INVALID_TARGET")
+        target = wrapped_event["target"]
+        method = wrapped_event["method"]
+        arguments = wrapped_event["arguments"]
+        entity_key = wrapped_event["entityKey"]
+    else:
+        try:
+            function, arguments = chain.contract(name).decode_function_input(transaction["input"])
+        except Exception:
+            return error("Transaction input is not recognized.", 422, "INVALID_METHOD")
+        method = function.fn_name
+        entity_key = next((key for key in ("certificateId", "applicationId") if key in arguments), None)
+        if method not in METHODS:
+            return error("Method is not part of the GreenCert workflow.", 422, "INVALID_METHOD")
+    expected_kind = {"submitApplication": "application", "rejectApplication": "rejection", "retireCertificate": "retirement"}.get(method)
+    content_hash = next((_hex_argument(arguments[key]) for key in ("metadataHash", "reasonHash", "retirementHash") if key in arguments), None) if expected_kind else None
     if content_hash:
         content_hash = "0x" + content_hash.removeprefix("0x")
         with open_database(current_app.config["DATABASE_PATH"]) as database:
             content = database.execute("SELECT * FROM contents WHERE content_hash = ?", (content_hash,)).fetchone()
-        expected_kind = {"submitApplication": "application", "rejectApplication": "rejection", "retireCertificate": "retirement"}.get(method)
         if not content or content["creator"] != g.wallet_address or content["kind"] != expected_kind or content["target_contract"] != target:
             return error("Transaction metadata does not match stored content.", 422, "INVALID_CONTENT")
     status = "pending" if receipt is None else "confirmed" if receipt["status"] == 1 else "failed"
-    if status == "confirmed" and not any(log["address"].lower() == target for log in receipt["logs"]):
+    if status == "confirmed" and not wrapped and not any(log["address"].lower() == target for log in receipt["logs"]):
         return error("Expected contract event was not found.", 422, "MISSING_EVENT")
-    entity_id = next((str(arguments[key]) for key in ("certificateId", "applicationId") if key in arguments), None)
+    entity_id = str(arguments[entity_key]) if entity_key else None
     with open_database(current_app.config["DATABASE_PATH"]) as database:
         database.execute(
             "INSERT OR REPLACE INTO verified_transactions (chain_id, tx_hash, sender, target, method, entity_type, entity_id, status, value_wei, gas_used, block_number, block_hash, content_hash, verified_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             (
                 current_app.config["CHAIN_ID"], tx_hash.lower(), g.wallet_address, target, method,
-                "certificate" if "certificateId" in arguments else "application" if "applicationId" in arguments else None,
+                "certificate" if entity_key == "certificateId" else "application" if entity_key == "applicationId" else None,
                 entity_id, status, str(transaction["value"]), str(receipt["gasUsed"]) if receipt else None,
                 str(receipt["blockNumber"]) if receipt else None, "0x" + receipt["blockHash"].hex().removeprefix("0x") if receipt else None,
                 content_hash, int(time.time()),
