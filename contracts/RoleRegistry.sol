@@ -12,12 +12,14 @@ contract RoleRegistry is IRoleRegistry {
     error AlreadyRegistered();
     error InvalidRegistrationRole();
 
+    // Assign the initial administrator.
     constructor(address adminAddress) {
         require(adminAddress != address(0), "Admin is required");
         admin = adminAddress;
         roles[adminAddress] = Role.Admin;
     }
 
+    // Register a wallet as a Producer or Buyer once.
     function register(uint8 requestedRole) external {
         if (roles[msg.sender] != Role.None) revert AlreadyRegistered();
         if (requestedRole != uint8(Role.Producer) && requestedRole != uint8(Role.Buyer)) {
@@ -29,6 +31,7 @@ contract RoleRegistry is IRoleRegistry {
         emit RoleRegistered(msg.sender, selectedRole);
     }
 
+    // Return the role assigned to a wallet.
     function roleOf(address account) external view override returns (Role) {
         return roles[account];
     }

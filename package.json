@@ -1,0 +1,19 @@
+{
+  "name": "greencert",
+  "version": "1.0.0",
+  "description": "GreenCert is a mobile-first coursework prototype for issuing, trading and retiring batches of simulated renewable energy certificates on Sepolia.",
+  "private": true,
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "compile": "node scripts/compile.cjs",
+    "test:contracts:compile": "node scripts/check_contract_tests.cjs"
+  },
+  "license": "UNLICENSED",
+  "type": "commonjs",
+  "devDependencies": {
+    "solc": "^0.8.30"
+  }
+}

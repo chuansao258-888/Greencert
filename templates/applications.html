@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="page-heading">
+  <p class="eyebrow">Issuance</p>
+  <h1>Applications</h1>
+  <p>Submit a generation batch with evidence, or review pending batches as Admin.</p>
+</section>
+<section class="panel" id="applicationFormPanel" hidden>
+  <h2>New batch application</h2>
+  <form id="applicationForm" class="form-grid">
+    <label>Site code<input name="siteCode" required maxlength="40" placeholder="SOLAR-01"></label>
+    <label>Site name<input name="siteName" required maxlength="80"></label>
+    <label>Energy source<select name="source"><option>Solar</option><option>Wind</option><option>Hydro</option></select></label>
+    <label>Country code<input name="country" required maxlength="2" placeholder="SG"></label>
+    <label>Period start<input name="periodStart" type="date" required></label>
+    <label>Period end<input name="periodEnd" type="date" required></label>
+    <label>Batch index<input name="batchIndex" type="number" min="1" required value="1"></label>
+    <label>Quantity (1–100 RECs)<input name="quantity" type="number" min="1" max="100" required value="1"></label>
+    <label class="full-width">Evidence (PDF, PNG or JPEG, up to 5 MiB)<input name="evidence" type="file" accept=".pdf,.png,.jpg,.jpeg" required></label>
+    <button class="button primary" type="submit">Upload and submit</button>
+  </form>
+</section>
+<section class="card-grid" id="applicationList"><p>Connect a wallet to view applications.</p></section>
+{% endblock %}

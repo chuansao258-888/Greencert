@@ -9,6 +9,8 @@ interface IRoleRegistry {
         Admin
     }
 
+    // Return the role assigned to an account.
     function roleOf(address account) external view returns (Role);
+    // Return the original administrator.
     function admin() external view returns (address);
 }

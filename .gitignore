@@ -14,6 +14,7 @@ __pycache__/
 .venv/
 venv/
 .pytest_cache/
+node_modules/
 
 # Runtime data and secrets
 .env
@@ -24,7 +25,6 @@ backups/
 # Generated contract files
 artifacts/
 cache/
-*.abi.json
 
 # Editor and operating-system files
 .vscode/
