@@ -1,4 +1,5 @@
 Flask>=3.1,<4
+gunicorn>=23,<24
 web3>=7,<8
 eth-account>=0.13,<1
 python-dotenv>=1,<2
