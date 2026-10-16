@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="page-heading">
+  <p class="eyebrow">Public record</p>
+  <h1>Certificate #{{ certificate_id }}</h1>
+  <p>Quantity, current owner and status are read from the certificate contract.</p>
+</section>
+<section class="panel" id="certificateDetail" data-certificate-id="{{ certificate_id }}"><p>Loading certificate…</p></section>
+<section class="panel">
+  <h2>On-chain history</h2>
+  <div id="certificateEvents"><p>Loading events…</p></div>
+</section>
+{% endblock %}

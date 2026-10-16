@@ -1,172 +1,59 @@
 # API Design
 
-## Conventions
+Flask serves the pages and same-origin JSON endpoints under `/api`. MetaMask submits business transactions; the server reads contract state, stores supporting files and metadata, and checks submitted receipts. Successful JSON responses use `{"data": ...}`; errors use `{"error":{"code":"...","message":"..."}}`. Contract IDs and wei amounts are decimal strings. Bytes32 hashes use `0x` plus 64 hexadecimal characters.
 
-Flask serves same-origin endpoints under `/api`. Requests and responses use UTF-8 JSON unless an endpoint explicitly accepts a file. The server reads blockchain state and verifies receipts; MetaMask submits all business transactions.
+## Configuration and authentication
 
-Successful responses use `{"data": ...}`. Collections include `meta` with `nextCursor` and, for chain-derived results, `snapshotBlock`. Related contract reads use the same snapshot block where supported. A snapshot identifies when the data was read; it is not a guarantee of finality.
-
-- Encode wei amounts, uint256 identifiers and block numbers as decimal strings. Chain IDs and small enum values may be JSON numbers.
-- Return API timestamps in UTC ISO 8601 format. Contract arguments use Unix seconds represented as decimal strings.
-- Validate addresses, store them in lowercase and return checksummed addresses for display.
-- Represent bytes32 hashes as `0x` followed by 64 hexadecimal characters.
-- Collection limits default to 20 and must not exceed 50. ID-based lists use descending IDs and an exclusive cursor. Apply filters before filling a page.
-- Reject unknown fields on write requests. Bound user text and uploaded file sizes.
-
-```json
-{
-  "error": {
-    "code": "WRONG_ROLE",
-    "message": "A Producer account is required."
-  }
-}
-```
-
-| HTTP status | Meaning |
-|---|---|
-| 400 | Invalid request or field format. |
-| 401 | Missing or expired authenticated session. |
-| 403 | Wrong role, ownership failure or invalid origin/CSRF token. |
-| 404 | Record not found. |
-| 409 | Conflicting state or consumed challenge. |
-| 413 | File exceeds the size limit. |
-| 415 | Unsupported file type. |
-| 422 | Transaction or metadata does not match the expected chain record. |
-| 503 | RPC or required storage is unavailable. |
-
-Logs must not contain session cookies, signing secrets or authentication signatures.
-
-## Configuration
-
-| Method and path | Access | Result |
+| Method | Path | Purpose |
 |---|---|---|
-| `GET /health` | Public | Application health and database/configuration readiness; 503 if a required component is unavailable. |
-| `GET /config` | Public | Chain ID, currency, contract addresses, deployment blocks, ABI URLs and explorer base URL. |
+| GET | `/api/health` | Report whether RPC and all contract deployment settings are present. |
+| GET | `/api/config` | Return chain ID, currency, addresses and configuration status. |
+| POST | `/api/auth/challenge` | Create a five-minute signing message for `address`. |
+| POST | `/api/auth/verify` | Check `address`, `nonce` and `signature`; set an eight-hour session cookie. |
+| GET | `/api/auth/me` | Return the session wallet, current role, CSRF token and expiry. |
+| POST | `/api/auth/logout` | Revoke the session and clear the cookie. |
 
-`/config` returns Sepolia chain ID `11155111` and currency `ETH`. It must not expose a private RPC credential, server secret or filesystem path.
+The challenge message includes the origin, chain ID, wallet address, nonce and expiry. Signed requests use an HttpOnly, SameSite=Lax cookie. Authenticated writes also send `X-CSRF-Token`. The frontend connects MetaMask and signs in again after a page reload.
 
-## Wallet Authentication
+## Evidence and immutable content
 
-| Method and path | Request | Result |
-|---|---|---|
-| `POST /auth/challenge` | `address` | `nonce`, exact signing `message`, `expiresAt`. |
-| `POST /auth/verify` | `address`, `nonce`, `signature` | Set session cookie; return `address`, chain-derived `role`, `csrfToken`, `expiresAt`. |
-| `GET /auth/me` | Session cookie | Current account, role, CSRF token and session expiry. |
-| `POST /auth/logout` | Session cookie and CSRF header | Revoke session and clear cookie. |
+| Method | Path | Access | Purpose |
+|---|---|---|---|
+| POST | `/api/files` | Producer | Upload multipart `file`; return `fileId`, SHA-256, size and media type. |
+| GET | `/api/files/{fileId}` | Uploader or Admin | Download the original evidence. |
+| POST | `/api/content` | Producer, Admin or Buyer | Store canonical application, rejection or retirement content. |
+| GET | `/api/content/{contentHash}` | Public | Return the exact canonical JSON and hash. |
 
-The signing message binds the application origin, chain ID, address, nonce, issue time and expiry. A challenge expires after five minutes. Recover the signer from the stored message and consume the nonce atomically; a challenge cannot authenticate twice.
+Evidence is limited to 5 MiB and PDF, PNG or JPEG file headers. The server generates stored filenames. Producer application payloads contain `siteCode`, `siteName`, `source`, `country`, `periodStart`, `periodEnd`, `batchIndex`, `quantity` and `proofFileId`. Quantity is an integer from 1 to 100; one REC represents 1 MWh in this simulation. The evidence file must belong to the signed-in Producer.
 
-Sessions expire after eight hours. Store a hash of a random session token in SQLite. Use an HttpOnly, SameSite=Lax cookie and enable Secure on the deployed HTTPS site. Authenticated writes require a matching `Origin` and `X-CSRF-Token`. The frontend ends the session when the wallet account or network changes.
+An Admin rejection payload contains `applicationId` and `reason`. A Buyer retirement payload contains `certificateId`, `beneficiary` and `purpose`. The server checks the relevant pending application or owned active certificate before preparing these content records; the contract rechecks state when the transaction executes.
 
-This is a small personal-sign authentication flow. An unregistered address may sign in to reach role registration, but it cannot use role-restricted endpoints. Registration itself occurs on-chain.
+For all kinds, the canonical envelope contains `schemaVersion`, `kind`, `chainId`, `targetContract`, `creator` and normalized `payload`. JSON keys are sorted and serialized without optional whitespace. `contentHash = keccak256(UTF8(canonicalJson))`. The browser checks the returned hash before sending it to the contract. An application payload stores the proof SHA-256 instead of its local file ID. The response also returns `chainArgs` for the matching contract method.
 
-## Evidence Files
+## Contract records
 
-| Method and path | Access | Behaviour |
-|---|---|---|
-| `POST /files` | Producer, authenticated write | Multipart field `file`; return `fileId`, `sha256`, `size`, `mediaType`. |
-| `GET /files/{fileId}` | Uploader or Admin | Download the evidence as an attachment. |
+| Method | Path | Access | Purpose |
+|---|---|---|---|
+| GET | `/api/applications` | Producer or Admin | List own applications or the Admin queue; optional `status`. |
+| GET | `/api/applications/{id}` | Applicant or Admin | Return application state, metadata and evidence file ID. |
+| GET | `/api/certificates` | Public | List certificates; optional `owner`, `status`, `listed=true`. |
+| GET | `/api/certificates/{id}` | Public | Return certificate, listing, metadata and retirement statement. |
+| GET | `/api/certificates/{id}/events` | Public | Return matching issue, market and retirement events. |
+| GET | `/api/dashboard` | Public | Return issued, active, listed, sold and retired totals, total MWh and source chart data. |
+| GET | `/api/wallet` | Signed-in wallet | Return role, ETH balance and claimable sale proceeds. |
 
-Accept PDF, PNG and JPEG files up to 5 MiB. Check actual file bytes as well as the declared MIME type. Generate storage names on the server; never use an uploaded filename as a path. HTML and SVG uploads are not accepted. Original filenames are display metadata only. Public certificate pages do not expose evidence files.
+Contract state is authoritative for quantity, status, ownership, price and proceeds. The backend joins on-chain metadata hashes to its saved content. Missing content is returned as `null`; the on-chain record remains visible. Event reads start at the configured deployment blocks and query at most 1,000 blocks per RPC request.
 
-## Immutable Content
+The dashboard response adds `totalMWh` as a decimal string and `sourceBreakdown` as an array in the order Solar, Wind, Hydro, Unknown. Each source entry has `source`, `quantityMWh` (decimal string) and `batches` (number). The source chart uses the immutable quantity of every issued certificate, including retired ones. If saved metadata is absent or has an unrecognized source, its quantity goes under Unknown rather than disappearing from the total. The status chart uses `active` and `retired`; a listed batch is still Active. The dashboard does not invent chart values before contract deployment.
 
-### POST /content
+## Transactions
 
-Authenticated write. Request fields: `kind` and `payload`. Return `contentHash`, the exact `canonicalJson` string and contract-ready `chainArgs`. A newly stored object returns 201; identical existing content returns 200.
+| Method | Path | Access | Purpose |
+|---|---|---|---|
+| POST | `/api/transactions/verify` | Signed-in wallet | Decode and save a submitted `txHash`. |
+| GET | `/api/transactions` | Signed-in wallet | Return up to 50 saved transactions. |
+| GET | `/api/transactions/{txHash}` | Transaction sender | Return one saved transaction. |
 
-| Kind | Role and state | Payload |
-|---|---|---|
-| `application` | Producer; evidence file belongs to caller. | `siteCode`, `siteName`, `source`, `country`, `periodStart`, `periodEnd`, `batchIndex`, `quantity`, `proofFileId` |
-| `rejection` | Admin; referenced application is Pending. | `applicationId`, `reason` |
-| `retirement` | Buyer owns referenced Active certificate. | `certificateId`, `beneficiary`, `purpose` |
+Verification checks the transaction sender, deployed target, allowed contract method, receipt status and a log from the target contract. For application, rejection and retirement calls, the content hash must resolve to a matching saved content kind, creator and target. Pending transactions receive HTTP 202; confirmed or failed receipts receive HTTP 200. The activity page displays saved hashes and gas used. This coursework version does not run a background indexer or claim chain finality.
 
-Validation rules:
-
-- Normalise `siteCode` to uppercase ASCII letters, digits and hyphens; length 1 to 40.
-- Limit `siteName` to 80 characters and `beneficiary` to 100 characters.
-- Limit `reason` and `purpose` to 500 characters. Required strings cannot be empty after trimming; reject control characters.
-- `source` is `Solar`, `Wind` or `Hydro`. `country` is a two-letter uppercase country code.
-- Validate the generation period, a positive uint32 `batchIndex` and an integer `quantity` from 1 to 100 before producing contract arguments.
-- These checks improve the form workflow. Contracts recheck their own authoritative permissions and state when a transaction executes.
-
-Canonical content uses the following envelope:
-
-```text
-{
-  schemaVersion: 1,
-  kind: application | rejection | retirement,
-  chainId: configured chain ID,
-  targetContract: lower-case registry address,
-  creator: lower-case caller address,
-  payload: normalised content
-}
-```
-
-This is a schematic description, not a JSON request example. Before serialisation, replace `proofFileId` with the file's `proofSha256` and add `energyMWh` equal to the normalised quantity string. Convert IDs, quantity, batch index and generation timestamps to decimal strings. Sort object keys recursively and serialise compact UTF-8 JSON without ASCII escaping or optional whitespace.
-
-Calculate `contentHash = keccak256(UTF8(canonicalJson))`. The frontend hashes the exact returned string and compares it with `contentHash`; it must not parse and reserialise it before hashing.
-
-| Kind | Returned chainArgs |
-|---|---|
-| application | siteHash, periodStart, periodEnd, batchIndex, quantity, metadataHash |
-| rejection | applicationId, reasonHash |
-| retirement | certificateId, retirementHash |
-
-### GET /content/{contentHash}
-
-Public. Return the immutable envelope and exact canonical JSON. Do not return evidence download paths or session data. Use fictitious organisations and non-sensitive content in the demonstration because certificate metadata is public.
-
-Metadata cannot be edited after creation. A corrected object has a different hash; it does not alter a previously submitted application. The initial version does not support replacing a submitted application's metadata.
-
-## Application and Certificate Reads
-
-| Method and path | Access | Filters and response |
-|---|---|---|
-| `GET /applications` | Producer or Admin | `status`, `cursor`, `limit`; own applications for Producer, all for Admin. Buyer receives 403. |
-| `GET /applications/{id}` | Applicant or Admin | Contract fields, metadata integrity, review information and permitted evidence link. |
-| `GET /certificates` | Public | `owner`, `status`, `listed`, `source`, `cursor`, `limit`; certificate summaries including quantity and total listing price. |
-| `GET /certificates/{id}` | Public | Certificate quantity, total MWh, listing total price, source metadata, retirement declaration and snapshot block. |
-| `GET /dashboard` | Public | Issued, active, listed, sold and retired counts; totalSalesWei; source breakdown. |
-| `GET /wallet` | Authenticated | Role, owned certificate counts, claimableWei and wallet balanceWei. |
-
-API status filters use the enum names defined in the contract specification. Each certificate response includes `metadataIntegrity` as `valid`, `missing` or `mismatch`. Missing metadata does not erase the on-chain certificate. The interface blocks purchase confirmation until the metadata can be verified.
-
-Dashboard sales totals come from cumulative contract values. They must not be derived from only the most recent event page. Certificates with unavailable source metadata appear under `Unknown` in the source chart.
-
-## Events and Activity
-
-### GET /events
-
-Public. Accept `certificateId`, `cursor` and `limit`. Each event includes `eventId`, contract address, event name, decoded arguments, transaction hash, log index, block number, block hash and `occurredAt`.
-
-Read only the configured three contracts from their deployment blocks. Scan at most 1,000 blocks per RPC call and 5,000 blocks per API request. Use an opaque cursor containing the scan position and log position. Return `nextCursor`, `hasMore`, `scannedFrom` and `scannedTo`, including when a scan finds no matching events. A page limit must resume from the last consumed log without skipping the remainder of its block.
-
-For a certificate's complete history, include its originating application events as well as issuance, listing, purchase and retirement events. Never accept a client-selected contract address to expand the scan.
-
-### GET /transactions
-
-Authenticated. Return the caller's server-verified transaction references, ordered by `verified_at DESC, tx_hash DESC`. Use an opaque cursor containing both values and the same exclusive ordering on subsequent pages. Return `nextCursor`; limits follow the general collection rules. Records may move when reverification changes their verification time, so clients merge pages by chain ID and transaction hash.
-
-## Transaction Verification
-
-### POST /transactions/verify
-
-Authenticated write. The request contains only `txHash`. The server derives the sender, target, method, entity ID and amounts from the transaction rather than accepting client assertions.
-
-1. Read the transaction and receipt on the configured chain.
-2. Require the sender to match the session address and the target to be one of the deployed contracts.
-3. Decode the input using the configured ABI and require an allowed user method.
-4. If mined successfully, check the expected event, emitting contract, arguments and receipt status.
-5. For application, rejection and retirement methods, load the referenced immutable content. Verify its creator, chain, target, kind and relevant entity or application fields.
-6. Store the verified reference under the unique `(chain_id, tx_hash)` key.
-
-Return 202 for a known pending transaction and 200 for a verified mined result. Repeated verification is idempotent. A reverted receipt is stored as `failed` and must not create successful content or business bindings. A successful on-chain transaction with incompatible metadata returns 422 and explicitly states that backend rejection does not reverse the transaction.
-
-One mined receipt is sufficient for the classroom interface to display `confirmed`; this is not a claim of finality.
-
-### GET /transactions/{txHash}
-
-Authenticated and limited to the transaction sender. Recheck the current receipt and return `pending`, `confirmed`, `failed` or `orphaned`. A stored block hash that no longer matches the chain marks the reference as orphaned; refresh the affected business state from contracts. If the RPC request fails, return 503 instead of reporting cached information as a fresh confirmation.
-
-The browser retains a submitted hash until a definite result is available. If verification is interrupted, it offers `Check transaction` rather than resubmitting the business operation.
+Typical errors use HTTP 400 for malformed input, 401 for missing login, 403 for a wrong role or wallet, 404 for a missing record, 409 for an invalid lifecycle state, 413 for an oversized file, 415 for an unsupported file, 422 for a transaction/content mismatch and 503 when contract configuration or RPC access is unavailable.

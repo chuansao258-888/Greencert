@@ -100,7 +100,20 @@ def certificate_detail(certificate_id: int):
     return jsonify({"data": item})
 
 
-# Return simple totals from the current contract state.
+# Return the on-chain event trail for one certificate.
+@records_blueprint.get("/certificates/<int:certificate_id>/events")
+def certificate_events(certificate_id: int):
+    chain = current_app.extensions["chain"]
+    if not chain.configured():
+        return error("Contracts are not configured.", 503, "CHAIN_UNAVAILABLE")
+    try:
+        events = chain.certificate_events(certificate_id)
+    except Exception:
+        return error("Event history is unavailable from the RPC provider.", 503, "RPC_UNAVAILABLE")
+    return jsonify({"data": events})
+
+
+# Return dashboard totals and chart data from issued certificates.
 @records_blueprint.get("/dashboard")
 def dashboard():
     chain = current_app.extensions["chain"]
@@ -108,12 +121,28 @@ def dashboard():
         return error("Contracts are not configured.", 503, "CHAIN_UNAVAILABLE")
     items = chain.certificates()
     market = chain.contract("certificateMarket")
+    source_totals = {source: {"quantity": 0, "batches": 0} for source in ("Solar", "Wind", "Hydro", "Unknown")}
+    total_mwh = 0
+    for item in items:
+        quantity = int(item["quantity"])
+        metadata = _content(item["metadataHash"])
+        source = metadata.get("source") if metadata else None
+        if source not in source_totals:
+            source = "Unknown"
+        source_totals[source]["quantity"] += quantity
+        source_totals[source]["batches"] += 1
+        total_mwh += quantity
     return jsonify({"data": {
         "issued": len(items), "active": sum(item["status"] == "Active" for item in items),
         "listed": sum(item["listed"] for item in items),
         "retired": sum(item["status"] == "Retired" for item in items),
         "sold": market.functions.soldCount().call(),
         "totalSalesWei": str(market.functions.totalSalesWei().call()),
+        "totalMWh": str(total_mwh),
+        "sourceBreakdown": [
+            {"source": source, "quantityMWh": str(values["quantity"]), "batches": values["batches"]}
+            for source, values in source_totals.items()
+        ],
     }})
 
 

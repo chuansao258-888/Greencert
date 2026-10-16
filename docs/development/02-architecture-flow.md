@@ -26,6 +26,21 @@ HTML, CSS and JavaScript provide the interface. Flask serves pages, stores evide
 
 The contracts are the authoritative source for roles, application status, ownership, listings, prices, balances and retirement. SQLite stores supporting content and verified transaction references. A database record cannot override a contract result.
 
+## Dashboard Data Flow
+
+```mermaid
+flowchart LR
+    Registry[Issued certificates on chain] --> API[GET /api/dashboard]
+    Market[Sale and listing state on chain] --> API
+    Metadata[(Saved immutable metadata)] --> API
+    API --> Source[REC quantity by source]
+    API --> Status[Active and Retired batch counts]
+    Source --> Browser[Responsive dashboard]
+    Status --> Browser
+```
+
+Flask sums each certificate's on-chain quantity once. Its stored metadata supplies only the source label; missing metadata is grouped as Unknown. The source chart includes active and retired certificates, while the status chart counts each batch in its current state. The browser renders labeled bars from this response without an additional charting package.
+
 ## Technology Choices
 
 | Layer | Technology | Purpose |

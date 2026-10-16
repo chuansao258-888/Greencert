@@ -31,7 +31,9 @@ class ChainService:
 
     # Report whether all contract reads are available.
     def configured(self) -> bool:
-        return bool(self.web3 and all(self.contract_address(name) for name in ("roleRegistry", "certificateRegistry", "certificateMarket")))
+        names = ("roleRegistry", "certificateRegistry", "certificateMarket")
+        blocks = self.deployment.get("deploymentBlocks", {})
+        return bool(self.web3 and all(self.contract_address(name) and isinstance(blocks.get(name), int) and blocks[name] > 0 for name in names))
 
     # Bind a deployed contract to its browser ABI.
     def contract(self, name: str):
@@ -94,3 +96,26 @@ class ChainService:
         except Exception:
             receipt = None
         return transaction, receipt
+
+    # Read certificate events in provider-friendly block ranges.
+    def certificate_events(self, certificate_id: int) -> list[dict]:
+        registry = self.contract("certificateRegistry")
+        market = self.contract("certificateMarket")
+        latest = self.web3.eth.block_number
+        events = []
+        for contract_name, contract, names in (
+            ("certificateRegistry", registry, ("CertificateIssued", "CertificateRetired")),
+            ("certificateMarket", market, ("CertificateListed", "ListingPriceUpdated", "ListingCancelled", "CertificatePurchased")),
+        ):
+            start = int(self.deployment.get("deploymentBlocks", {}).get(contract_name, 0))
+            for name in names:
+                event = getattr(contract.events, name)()
+                for from_block in range(start, latest + 1, 1000):
+                    to_block = min(from_block + 999, latest)
+                    for log in event.get_logs(from_block=from_block, to_block=to_block, argument_filters={"certificateId": certificate_id}):
+                        events.append({
+                            "event": name, "transactionHash": "0x" + log["transactionHash"].hex().removeprefix("0x"),
+                            "blockNumber": str(log["blockNumber"]), "logIndex": log["logIndex"],
+                            "args": {key: str(value) if isinstance(value, int) else "0x" + value.hex() if isinstance(value, bytes) else value for key, value in log["args"].items()},
+                        })
+        return sorted(events, key=lambda item: (int(item["blockNumber"]), item["logIndex"]))

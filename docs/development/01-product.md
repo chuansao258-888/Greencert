@@ -30,7 +30,7 @@ The Admin address is fixed at deployment. Other addresses may register once as P
 | FR-07 | Proceeds withdrawal | A seller can withdraw their credited proceeds without changing another seller's balance. |
 | FR-08 | Retirement | A Buyer can permanently retire a complete active certificate batch they own, with a beneficiary and purpose. |
 | FR-09 | Traceability | Certificate details show issuance, sale and retirement records with transaction links. |
-| FR-10 | Dashboard | Totals and charts reflect contract records and verified metadata. |
+| FR-10 | Dashboard | Issued, listed, sold and retired totals and two labeled charts reflect contract records. The source chart sums REC quantity by energy source; the status chart counts Active and Retired batches. |
 | FR-11 | Mobile access | The complete role workflows work in a mobile wallet browser. |
 | FR-12 | Recovery | Refreshing the browser or restarting the server does not lose confirmed business records or stored evidence. |
 

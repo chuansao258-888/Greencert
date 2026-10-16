@@ -35,12 +35,9 @@ greencert/
     market.html
     certificate_detail.html
     applications.html
-    application_form.html
-    application_detail.html
     my_certificates.html
     activity.html
     account.html
-    error.html
   static/
     css/
       app.css
@@ -56,6 +53,8 @@ greencert/
       CertificateRegistry.json
       CertificateMarket.json
   tests/
+    frontend/
+      dashboard.test.cjs
     contracts/
       TestActors.sol
       RoleRegistry_test.sol
@@ -73,6 +72,8 @@ greencert/
       mobile-checklist.md
       sepolia-checklist.md
   scripts/
+    compile.cjs
+    check_contract_tests.cjs
     init_db.py
     export_abi.py
     backup_data.py
@@ -112,40 +113,40 @@ This layout is fixed for the first implementation. Do not add service layers, a 
 | `backend/routes/api_files.py` | Upload, validate and authorise evidence-file downloads. |
 | `backend/routes/api_records.py` | Configuration, applications, certificates, dashboard, wallet and event read endpoints. |
 | `backend/routes/api_transactions.py` | Verify transaction hashes and return personal transaction records. |
-| `backend/routes/pages.py` | Render the nine documented Jinja pages and error pages. |
+| `backend/routes/pages.py` | Render the application pages. |
 | `contracts/RoleRegistry.sol` | Immutable Admin and one-time Producer or Buyer registration. |
 | `contracts/CertificateRegistry.sol` | Application review, certificate ownership and retirement. |
 | `contracts/CertificateMarket.sol` | Listings, exact-price purchases, seller credits and withdrawals. |
 | `contracts/interfaces/IRoleRegistry.sol` | Minimum role queries required by the other contracts. |
 | `contracts/interfaces/ICertificateRegistry.sol` | Minimum listing and sale hooks required by the market. |
 | `templates/base.html` | Shared document structure, status banner and responsive navigation. |
-| `templates/dashboard.html` | Public totals, chart and next actions. |
-| `templates/market.html` | Filtered active listings and pagination. |
-| `templates/certificate_detail.html` | Certificate metadata, listing, ownership, actions and history. |
-| `templates/applications.html` | Producer application list or Admin review queue. |
-| `templates/application_form.html` | Evidence upload and new application form. |
-| `templates/application_detail.html` | Application evidence, integrity, withdrawal and review actions. |
+| `templates/dashboard.html` | Public certificate totals, source/status charts and workflow overview. |
+| `templates/market.html` | Active whole-batch listings. |
+| `templates/certificate_detail.html` | Certificate metadata, ownership and event history. |
+| `templates/applications.html` | Producer application form and Admin review queue. |
 | `templates/my_certificates.html` | Producer and Buyer holdings with permitted actions. |
-| `templates/activity.html` | Personal verified transactions and retry controls. |
+| `templates/activity.html` | Personal verified transactions. |
 | `templates/account.html` | Wallet, network, role registration, session and proceeds. |
-| `templates/error.html` | Consistent 4xx and 5xx page. |
 | `static/css/app.css` | All responsive layout, component and accessibility styles. |
 | `static/js/api.js` | Same-origin API client, error parsing and CSRF header handling. |
 | `static/js/app.js` | Shared page initialisation, notices and common formatting. |
 | `static/js/contracts.js` | ABI loading, deployed contract instances and read helpers. |
 | `static/js/pages.js` | Page-specific form binding and rendering for this small application. |
 | `static/js/transactions.js` | Wallet submission, receipt waiting and backend verification state. |
-| `static/js/wallet.js` | MetaMask connection, signer, network switching and account-change handling. |
+| `static/js/wallet.js` | MetaMask connection, signer and network switching. |
 | `static/contracts/*.json` | Compiled ABI only; no bytecode is required by the browser. |
 | `tests/contracts/*.sol` | Remix Solidity unit tests and small actor/helper contracts. |
 | `tests/backend/*.py` | Python `unittest` API and service tests using temporary storage. |
+| `tests/frontend/*.cjs` | Small Node.js checks for dashboard rendering. |
 | `tests/manual/*.md` | Repeatable mobile-wallet and Sepolia acceptance checklists. |
 | `scripts/init_db.py` | Initialise or validate the SQLite schema without deleting existing data. |
+| `scripts/compile.cjs` | Compile the application contracts and produce local artifacts. |
+| `scripts/check_contract_tests.cjs` | Compile Solidity tests before they are run in Remix. |
 | `scripts/export_abi.py` | Copy only the three contract ABIs into `static/contracts`. |
 | `scripts/backup_data.py` | Use SQLite backup and copy uploads into a named backup directory. |
 | `instance/` | Runtime database and uploads; never committed. |
 | `docs/evidence/README.md` | Explain evidence naming and distinguish planned from completed results. |
-| `docs/evidence/gas-results.csv` | Actual receipt measurements for the eleven transaction types. |
+| `docs/evidence/gas-results.csv` | Receipt measurements entered after Sepolia checks. |
 | `docs/evidence/test-results.md` | Test run commands, environment, results and links to supporting evidence. |
 | `deployment.json` | Chain, addresses, deployment blocks, compiler and optimizer settings. |
 | `requirements.txt` | Runtime Python packages with compatible pinned versions. |

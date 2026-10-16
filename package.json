@@ -9,7 +9,8 @@
   },
   "scripts": {
     "compile": "node scripts/compile.cjs",
-    "test:contracts:compile": "node scripts/check_contract_tests.cjs"
+    "test:contracts:compile": "node scripts/check_contract_tests.cjs",
+    "test:frontend": "node tests/frontend/dashboard.test.cjs"
   },
   "license": "UNLICENSED",
   "type": "commonjs",

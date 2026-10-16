@@ -39,3 +39,9 @@ def my_certificates():
 @pages_blueprint.get("/activity")
 def activity():
     return render_template("activity.html", page_title="Activity")
+
+
+# Render a public certificate record and event trail.
+@pages_blueprint.get("/certificates/<int:certificate_id>")
+def certificate_detail(certificate_id: int):
+    return render_template("certificate_detail.html", page_title=f"Certificate #{certificate_id}", certificate_id=certificate_id)

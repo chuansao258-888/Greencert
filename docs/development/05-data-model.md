@@ -80,7 +80,7 @@ Each application content object links to one evidence file. The same generation 
 | method | TEXT | Decoded allowed contract method. |
 | entity_type | TEXT | Nullable application or certificate reference. |
 | entity_id | TEXT | Nullable uint256 as decimal string. |
-| status | TEXT | pending, confirmed, failed or orphaned. |
+| status | TEXT | pending, confirmed or failed. |
 | value_wei | TEXT | Nonnegative decimal string. |
 | gas_used | TEXT | Nullable until a receipt is available. |
 | block_number | TEXT | Nullable decimal string. |
