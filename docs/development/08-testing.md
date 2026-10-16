@@ -33,7 +33,7 @@ python scripts/export_abi.py
 npm run test:frontend
 ```
 
-`test:contracts:compile` checks Solidity syntax and imports. It does not execute the test functions. Run the files in `tests/contracts` through Remix Solidity Unit Testing for execution results. The payable market tests use Remix's `#value` directive to supply 100 wei to the test function. Record the observed pass/fail results in `docs/evidence/test-results.md`.
+`test:contracts:compile` checks Solidity syntax and imports using a local compilation stub for Remix's `Assert` library. It does not execute the test functions. Run the files in `tests/contracts` through Remix Solidity Unit Testing for execution results. Each test emits a Remix assertion event; a result of `Passed: 0, Failed: 0` means no test was counted. The payable market tests use Remix's `#value` directive to supply 100 wei to the test function. Record the observed pass/fail results in `docs/evidence/test-results.md`.
 
 ## Manual acceptance
 

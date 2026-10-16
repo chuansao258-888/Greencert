@@ -2,6 +2,7 @@
 pragma solidity ^0.8.20;
 
 import "./TestActors.sol";
+import "remix_tests.sol";
 
 contract CertificateRegistryTest {
     // Create a registry with one registered Producer.
@@ -18,7 +19,7 @@ contract CertificateRegistryTest {
         producer.submit(registry, 1, 25);
         CertificateRegistry.Application memory application = registry.getApplication(1);
         require(application.quantity == 25, "Wrong quantity");
-        require(application.status == CertificateRegistry.ApplicationStatus.Pending, "Not pending");
+        Assert.ok(application.status == CertificateRegistry.ApplicationStatus.Pending, "Not pending");
     }
 
     // Preserve separate Withdrawn and Rejected decisions.
@@ -29,7 +30,7 @@ contract CertificateRegistryTest {
         producer.submit(registry, 2, 10);
         registry.rejectApplication(2, bytes32(uint256(4)));
         require(registry.getApplication(1).status == CertificateRegistry.ApplicationStatus.Withdrawn, "Not withdrawn");
-        require(registry.getApplication(2).status == CertificateRegistry.ApplicationStatus.Rejected, "Not rejected");
+        Assert.ok(registry.getApplication(2).status == CertificateRegistry.ApplicationStatus.Rejected, "Not rejected");
     }
 
     // Issue one certificate with the approved application's quantity.
@@ -40,7 +41,7 @@ contract CertificateRegistryTest {
         CertificateRegistry.Certificate memory certificate = registry.getCertificate(1);
         require(certificate.quantity == 40, "Quantity changed");
         require(certificate.owner == address(producer), "Wrong owner");
-        require(certificate.status == CertificateRegistry.CertificateStatus.Active, "Not active");
+        Assert.ok(certificate.status == CertificateRegistry.CertificateStatus.Active, "Not active");
     }
 
     // Reject a repeat review after the certificate has been issued.
@@ -48,9 +49,10 @@ contract CertificateRegistryTest {
         (CertificateRegistry registry, TestActor producer) = fixture();
         producer.submit(registry, 1, 8);
         registry.approveApplication(1);
-        try registry.approveApplication(1) {
-            revert("Repeat approval succeeded");
-        } catch {}
-        require(registry.certificateCount() == 1, "Duplicate certificate");
+        bool rejected;
+        try registry.approveApplication(1) {} catch {
+            rejected = true;
+        }
+        Assert.ok(rejected && registry.certificateCount() == 1, "Repeat approval was accepted");
     }
 }

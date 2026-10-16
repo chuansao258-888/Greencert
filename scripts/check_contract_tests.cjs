@@ -16,8 +16,13 @@ function collect(directory) {
 
 const input = {
   language: "Solidity",
-  sources: Object.fromEntries([...collect(path.join(root, "contracts")), ...collect(path.join(root, "tests", "contracts"))]),
-  settings: { optimizer: { enabled: true, runs: 200 }, outputSelection: { "*": { "*": ["abi"] } } }
+  sources: {
+    ...Object.fromEntries([...collect(path.join(root, "contracts")), ...collect(path.join(root, "tests", "contracts"))]),
+    "remix_tests.sol": {
+      content: "pragma solidity ^0.8.20; library Assert { event AssertionEvent(bool result, string message, string method); function ok(bool condition, string memory message) internal returns (bool) { emit AssertionEvent(condition, message, 'ok'); return condition; } }"
+    }
+  },
+  settings: { evmVersion: "prague", optimizer: { enabled: true, runs: 200 }, outputSelection: { "*": { "*": ["abi"] } } }
 };
 const output = JSON.parse(solc.compile(JSON.stringify(input)));
 const errors = (output.errors || []).filter((item) => item.severity === "error");

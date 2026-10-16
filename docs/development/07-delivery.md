@@ -148,7 +148,7 @@ This layout is fixed for the first implementation. Do not add service layers, a 
 | `docs/evidence/README.md` | Explain evidence naming and distinguish planned from completed results. |
 | `docs/evidence/gas-results.csv` | Receipt measurements entered after Sepolia checks. |
 | `docs/evidence/test-results.md` | Test run commands, environment, results and links to supporting evidence. |
-| `deployment.json` | Chain, addresses, deployment blocks, compiler and optimizer settings. |
+| `deployment.json` | Chain, addresses, deployment blocks, compiler, Prague EVM target and optimizer settings. |
 | `requirements.txt` | Runtime Python packages with compatible pinned versions. |
 | `requirements-dev.txt` | Test-only Python packages, if any; keep `unittest` in the standard library. |
 | `.env.example` | Safe variable names and non-secret examples. |

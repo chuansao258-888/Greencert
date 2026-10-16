@@ -2,6 +2,7 @@
 pragma solidity ^0.8.20;
 
 import "./TestActors.sol";
+import "remix_tests.sol";
 
 contract CertificateMarketTest {
     // Deploy a listed batch and separate Producer and Buyer actors.
@@ -25,7 +26,7 @@ contract CertificateMarketTest {
         producer.updatePrice(market, 1, 120);
         require(market.getListing(1).totalPriceWei == 120, "Price not updated");
         producer.cancel(market, 1);
-        require(!registry.getCertificate(1).listed, "Listing not cancelled");
+        Assert.ok(!registry.getCertificate(1).listed, "Listing not cancelled");
     }
 
     // Purchase the complete batch for its exact total price.
@@ -37,7 +38,7 @@ contract CertificateMarketTest {
         CertificateRegistry.Certificate memory certificate = registry.getCertificate(1);
         require(certificate.owner == address(buyer), "Ownership not transferred");
         require(certificate.quantity == 25, "Quantity changed");
-        require(market.credits(address(producer)) == 100, "Seller credit missing");
+        Assert.ok(market.credits(address(producer)) == 100, "Seller credit missing");
     }
 
     // Pay the seller after a completed sale.
@@ -48,7 +49,7 @@ contract CertificateMarketTest {
         buyer.buy{value: 100}(market, 1, 100);
         producer.withdrawProceeds(market);
         require(address(producer).balance == 100, "Proceeds not paid");
-        require(market.credits(address(producer)) == 0, "Credit not cleared");
+        Assert.ok(market.credits(address(producer)) == 0, "Credit not cleared");
     }
 
     // Retire the purchased batch while keeping its quantity.
@@ -60,6 +61,6 @@ contract CertificateMarketTest {
         buyer.retire(registry, 1);
         CertificateRegistry.Certificate memory certificate = registry.getCertificate(1);
         require(certificate.status == CertificateRegistry.CertificateStatus.Retired, "Not retired");
-        require(certificate.quantity == 25, "Quantity changed");
+        Assert.ok(certificate.quantity == 25, "Quantity changed");
     }
 }

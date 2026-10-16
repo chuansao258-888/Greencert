@@ -21,6 +21,7 @@ const input = {
   language: "Solidity",
   sources: Object.fromEntries(sourcesFrom(contractsDir)),
   settings: {
+    evmVersion: "prague",
     optimizer: { enabled: true, runs: 200 },
     outputSelection: { "*": { "*": ["abi", "evm.bytecode.object"] } }
   }

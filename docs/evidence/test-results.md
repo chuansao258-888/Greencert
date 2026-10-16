@@ -11,4 +11,13 @@
 | Dashboard chart rendering | Passed with the Node.js frontend check |
 | Local browser layout preview | Navigation, market empty state and dashboard chart panels rendered; chart panels showed the configuration message while contracts were unavailable |
 
-The Solidity test functions have not yet been executed in Remix. Sepolia and mobile-wallet checks have not been run because contract addresses are not configured.
+## Remix Solidity Unit Testing
+
+| Suite | Passed | Failed |
+|---|---:|---:|
+| `CertificateMarket_test.sol` | 4 | 0 |
+| `CertificateRegistry_test.sol` | 4 | 0 |
+| `RoleRegistry_test.sol` | 2 | 0 |
+| **Total** | **10** | **0** |
+
+The results above were reported by Remix Solidity Unit Testing with the tests in `remix-upload/tests/contracts`. They replace the earlier inconclusive `Passed: 0, Failed: 0` run. Sepolia and mobile-wallet checks have not been run because contract addresses are not configured.
