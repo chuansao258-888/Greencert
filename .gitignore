@@ -18,6 +18,8 @@ node_modules/
 
 # Runtime data and secrets
 .env
+.sepolia-test.env
+instance/sepolia-e2e-state.json
 instance/*.db
 instance/uploads/
 backups/

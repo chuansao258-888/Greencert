@@ -27,4 +27,6 @@ npm run test:frontend
 
 Run the Solidity test functions in `tests/contracts` with Remix Solidity Unit Testing. The local contract check compiles the tests but does not execute them. The mobile and Sepolia steps are listed in `tests/manual`.
 
+For the already deployed Sepolia contracts, `python scripts/sepolia_e2e.py check` reads the current on-chain state. The signed, resumable real-chain workflow is documented in [`tests/manual/sepolia-automated-run.md`](tests/manual/sepolia-automated-run.md); it requires dedicated test-wallet keys configured only in the ignored `.sepolia-test.env` file.
+
 This coursework prototype uses simulated certificate records and test ETH; it does not issue accredited certificates. The deployment file has empty addresses until the contracts are deployed.

@@ -39,3 +39,22 @@ Producer then submitted the saved five-unit batch directly to `CertificateRegist
 Admin approved application `1` directly through Remix in transaction `0xed15b7ff0a37f5a81a144fdc101847007f329bf82297507a01038b7a22ef9e29`. Its receipt status was `0x1` in block 11907893. `getApplication(1)` returned `Approved` and certificate ID `1`; `certificateCount()` returned `1`; `getCertificate(1)` returned the Producer as owner, quantity `5`, and status `Active`. Gas used was 926,995, costing 1,390,492,513,904,925 wei.
 
 Producer listed certificate `1` directly through Remix in transaction `0xbef6a00ab752e5ac6c32c407ac87014565646c29c9ab1243584a21f24ba42c48`. Its receipt status was `0x1` in block 11907923. `getListing(1)` returned the Producer as seller, total batch price `100000000000000` wei, and `active=true`; `getCertificate(1)` returned `listed=true` with quantity `5`. Gas used was 488,232, costing 732,348,007,323,480 wei.
+
+## Automated Sepolia execution
+
+The signed runner `scripts/sepolia_e2e.py` completed ten direct transactions in blocks 11908037–11908048. Each step passed a pre-send read-only call and gas estimate, then a successful receipt, expected event and immediate contract-state check before the next transaction was sent. An independent read-only pass checked all ten receipts and final storage again. Exact transaction hashes, gas used, gas price and costs are in `gas-results.csv`; the ten transactions together used 2,997,934 gas and cost 2,997,978,969,010 wei (0.00000299797896901 SepoliaETH).
+
+| Step | Block | Verified result |
+|---|---:|---|
+| Reprice | 11908037 | Active total batch price became 200,000,000,000,000 wei |
+| Cancel | 11908039 | Listing inactive; certificate no longer listed |
+| Relist | 11908041 | Listing active again at 100,000,000,000,000 wei |
+| Buy | 11908042 | Buyer owns all 5 units; seller credit and sale total equal the exact price |
+| Withdraw proceeds | 11908043 | Producer credit, total credits and Market balance are zero |
+| Retire | 11908044 | Buyer-owned certificate remains 5 units and is Retired |
+| Submit first test application | 11908045 | Application 2 Pending, quantity 2 |
+| Withdraw first test application | 11908046 | Application 2 Withdrawn |
+| Submit second test application | 11908047 | Application 3 Pending, quantity 3 |
+| Reject second test application | 11908048 | Application 3 Rejected with the expected reason hash |
+
+Final independent reads returned application 1 Approved, application 2 Withdrawn, application 3 Rejected, certificate 1 Retired and owned by Buyer, `listed=false`, `soldCount=1`, and zero Producer credit and Market balance. A new Flask instance using the existing database authenticated Admin, read certificate and application 1, downloaded its 186,794-byte evidence file, and matched its SHA-256 to the saved metadata. The two extra applications and the retirement used on-chain-only test hashes, so their new review/retirement content is not available through the website; the original approved application evidence is available. Mobile-browser UI and MetaMask prompt checks remain manual.

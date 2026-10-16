@@ -7,13 +7,13 @@ Before signing each deployment, compare the full constructor arguments with `dep
 - [x] Deploy RoleRegistry, CertificateRegistry and CertificateMarket.
 - [x] Bind CertificateMarket with CertificateRegistry.setMarket.
 - [x] Register Producer and Buyer roles.
-- [ ] Submit and withdraw an application.
-- [ ] Submit and reject a second application.
+- [x] Submit and withdraw an application.
+- [x] Submit and reject a second application.
 - [x] Submit and approve a multi-unit batch application.
-- [ ] List, reprice and cancel the certificate listing.
-- [ ] List again and buy the complete batch for the exact total price.
-- [ ] Withdraw the Producer's sale proceeds.
-- [ ] Retire the complete batch as Buyer.
-- [ ] Confirm final owner, quantity, status and evidence access after server restart.
+- [x] List, reprice and cancel the certificate listing.
+- [x] List again and buy the complete batch for the exact total price.
+- [x] Withdraw the Producer's sale proceeds.
+- [x] Retire the complete batch as Buyer.
+- [x] Confirm final owner, quantity, status and evidence access from a fresh server instance.
 
-The boxes remain unchecked until the transactions have been completed on Sepolia.
+The final persistence check created a fresh Flask instance against the existing on-disk database and evidence folder, then authenticated Admin and downloaded the approved evidence. The mobile-browser checklist remains separate.
