@@ -5,6 +5,18 @@ import "./TestActors.sol";
 import "remix_tests.sol";
 
 contract CertificateMarketTest {
+    // Reject certificate and role registries that refer to different deployments.
+    function test_rejects_mismatched_registries() public {
+        RoleRegistry roles = new RoleRegistry(address(this));
+        RoleRegistry otherRoles = new RoleRegistry(address(this));
+        CertificateRegistry registry = new CertificateRegistry(address(roles));
+        bool rejected;
+        try new CertificateMarket(address(otherRoles), address(registry)) {} catch {
+            rejected = true;
+        }
+        Assert.ok(rejected, "Mismatched registries were accepted");
+    }
+
     // Deploy a listed batch and separate Producer and Buyer actors.
     function fixture() private returns (CertificateRegistry registry, CertificateMarket market, TestActor producer, TestActor buyer) {
         RoleRegistry roles = new RoleRegistry(address(this));

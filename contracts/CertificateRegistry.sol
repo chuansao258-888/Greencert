@@ -73,8 +73,11 @@ contract CertificateRegistry is ICertificateRegistry {
 
     // Bind the role registry used by all certificate operations.
     constructor(address roleRegistryAddress) {
-        require(roleRegistryAddress != address(0), "Role registry is required");
-        roleRegistry = IRoleRegistry(roleRegistryAddress);
+        require(roleRegistryAddress.code.length > 0, "Role registry contract required");
+        IRoleRegistry roles = IRoleRegistry(roleRegistryAddress);
+        address adminAddress = roles.admin();
+        require(adminAddress != address(0) && roles.roleOf(adminAddress) == IRoleRegistry.Role.Admin, "Invalid role registry");
+        roleRegistry = roles;
     }
 
     // Bind the market once after all contracts are deployed.

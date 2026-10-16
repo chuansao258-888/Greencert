@@ -11,6 +11,8 @@ Deploy in this order:
 3. `CertificateMarket(roleRegistry, certificateRegistry)`
 4. The Admin calls `CertificateRegistry.setMarket(market)`.
 
+The certificate registry constructor rejects wallet addresses and checks that its role contract reports an Admin. The market constructor rejects wallet addresses and checks that the certificate registry points to the same role contract. Before approving either deployment in MetaMask, compare each constructor address with the previously recorded contract address rather than the currently selected wallet address. After deployment, read back the public registry references before continuing.
+
 `setMarket` succeeds once. It checks a nonzero contract address and verifies that the market's registry and role references match. Certificate and market operations remain unavailable until binding is complete.
 
 | Enum | Values |

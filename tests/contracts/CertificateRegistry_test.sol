@@ -5,6 +5,15 @@ import "./TestActors.sol";
 import "remix_tests.sol";
 
 contract CertificateRegistryTest {
+    // Reject a wallet address in place of the role contract.
+    function test_rejects_wallet_as_role_registry() public {
+        bool rejected;
+        try new CertificateRegistry(address(0x1234)) {} catch {
+            rejected = true;
+        }
+        Assert.ok(rejected, "Wallet address was accepted as role registry");
+    }
+
     // Create a registry with one registered Producer.
     function fixture() private returns (CertificateRegistry registry, TestActor producer) {
         RoleRegistry roles = new RoleRegistry(address(this));

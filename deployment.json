@@ -2,11 +2,11 @@
   "chainId": 11155111,
   "network": "sepolia",
   "contracts": {
-    "roleRegistry": "",
-    "certificateRegistry": "",
-    "certificateMarket": ""
+    "roleRegistry": "0xc6ddfdef0eef7b9d2bb6df9e60bf439a2725a369",
+    "certificateRegistry": "0x338c972fcab0892448fa0ee939f3330fb42f6c04",
+    "certificateMarket": "0xd7f2b6c233e7044ab4a76317b834c58c2ff23f01"
   },
-  "deploymentBlocks": {},
+  "deploymentBlocks": {"roleRegistry": 11907439, "certificateRegistry": 11907610, "certificateMarket": 11907629},
   "compiler": "0.8.30",
   "evmVersion": "prague",
   "optimizer": {"enabled": true, "runs": 200}

@@ -4,6 +4,11 @@ pragma solidity ^0.8.20;
 import "./interfaces/IRoleRegistry.sol";
 import "./interfaces/ICertificateRegistry.sol";
 
+interface IRegistryBinding {
+    // Return the role contract used by a certificate registry.
+    function roleRegistry() external view returns (address);
+}
+
 contract CertificateMarket {
     struct Listing {
         uint256 certificateId;
@@ -29,7 +34,8 @@ contract CertificateMarket {
 
     // Bind the role and certificate registries.
     constructor(address roleRegistryAddress, address certificateRegistryAddress) {
-        require(roleRegistryAddress != address(0) && certificateRegistryAddress != address(0), "Registry is required");
+        require(roleRegistryAddress.code.length > 0 && certificateRegistryAddress.code.length > 0, "Registry contracts required");
+        require(IRegistryBinding(certificateRegistryAddress).roleRegistry() == roleRegistryAddress, "Registry role mismatch");
         roleRegistry = IRoleRegistry(roleRegistryAddress);
         certificateRegistry = ICertificateRegistry(certificateRegistryAddress);
     }

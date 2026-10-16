@@ -2,9 +2,11 @@
 
 Record transaction hash, receipt status and gas used for every successful write.
 
-- [ ] Deploy RoleRegistry, CertificateRegistry and CertificateMarket.
-- [ ] Bind CertificateMarket with CertificateRegistry.setMarket.
-- [ ] Register Producer and Buyer roles.
+Before signing each deployment, compare the full constructor arguments with `deployment.json`. For `CertificateRegistry`, `roleRegistryAddress` must be the deployed `RoleRegistry` contract, not the Admin wallet. For `CertificateMarket`, verify both contract addresses. After each deployment, read back `roleRegistry()` and `certificateRegistry()` where available; a successful receipt alone does not prove the contracts were linked correctly.
+
+- [x] Deploy RoleRegistry, CertificateRegistry and CertificateMarket.
+- [x] Bind CertificateMarket with CertificateRegistry.setMarket.
+- [x] Register Producer and Buyer roles.
 - [ ] Submit and withdraw an application.
 - [ ] Submit and reject a second application.
 - [ ] Submit and approve a multi-unit batch application.
