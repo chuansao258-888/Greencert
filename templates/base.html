@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ page_title }} · GreenCert</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.5/dist/ethers.umd.min.js" defer></script>
+  <script src="{{ url_for('static', filename='js/api.js') }}" defer></script>
+  <script src="{{ url_for('static', filename='js/contracts.js') }}" defer></script>
+  <script src="{{ url_for('static', filename='js/wallet.js') }}" defer></script>
+  <script src="{{ url_for('static', filename='js/transactions.js') }}" defer></script>
+  <script src="{{ url_for('static', filename='js/pages.js') }}" defer></script>
+  <script src="{{ url_for('static', filename='js/app.js') }}" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="{{ url_for('pages.dashboard') }}">GreenCert</a>
+    <span class="network-badge" id="networkBadge">Sepolia Testnet</span>
+    <button class="button secondary" id="connectWallet" type="button">Connect wallet</button>
+  </header>
+  <main class="page-shell">
+    <div class="notice" id="notice" aria-live="polite" hidden></div>
+    {% block content %}{% endblock %}
+  </main>
+  <nav class="bottom-nav" aria-label="Main navigation">
+    <a href="{{ url_for('pages.dashboard') }}">Home</a>
+    <a href="{{ url_for('pages.market') }}">Market</a>
+    <a href="{{ url_for('pages.account') }}">Account</a>
+  </nav>
+</body>
+</html>

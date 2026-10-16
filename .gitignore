@@ -1,0 +1,40 @@
+# Local course and reference material
+tmp/
+docs/Additional Notes/
+docs/Examples if solidity and html/
+docs/Week 1/
+docs/Week 2/
+docs/Week 3 & 4/
+docs/Week 5/
+docs/SC6113 Group Project.docx
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+
+# Runtime data and secrets
+.env
+instance/*.db
+instance/uploads/
+backups/
+
+# Generated contract files
+artifacts/
+cache/
+*.abi.json
+
+# Editor and operating-system files
+.vscode/
+.idea/
+*.swp
+Thumbs.db
+.DS_Store
+
+# Test output
+docs/evidence/*.xml
+docs/evidence/*.json
+docs/evidence/*.png
+docs/evidence/*.log

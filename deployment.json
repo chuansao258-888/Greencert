@@ -1,0 +1,12 @@
+{
+  "chainId": 11155111,
+  "network": "sepolia",
+  "contracts": {
+    "roleRegistry": "",
+    "certificateRegistry": "",
+    "certificateMarket": ""
+  },
+  "deploymentBlocks": {},
+  "compiler": "0.8.20",
+  "optimizer": {"enabled": true, "runs": 200}
+}

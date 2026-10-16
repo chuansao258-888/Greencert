@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero">
+  <p class="eyebrow">Simulated renewable energy certificates</p>
+  <h1>Trace a REC batch from evidence to retirement.</h1>
+  <p>GreenCert supports simple, whole-batch issuance, trading and retirement using Sepolia test ETH.</p>
+  <a class="button primary" href="{{ url_for('pages.market') }}">Browse market</a>
+</section>
+<section class="stat-grid" aria-label="Certificate totals">
+  <article class="stat-card"><span>Issued</span><strong>—</strong></article>
+  <article class="stat-card"><span>Listed</span><strong>—</strong></article>
+  <article class="stat-card"><span>Sold</span><strong>—</strong></article>
+  <article class="stat-card"><span>Retired</span><strong>—</strong></article>
+</section>
+<section class="panel">
+  <h2>How it works</h2>
+  <ol class="steps">
+    <li>Producer submits generation evidence for a REC batch.</li>
+    <li>Admin reviews the evidence and issues the batch.</li>
+    <li>Buyer purchases and may permanently retire the complete batch.</li>
+  </ol>
+</section>
+{% endblock %}
