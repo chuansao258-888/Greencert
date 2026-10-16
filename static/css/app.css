@@ -14,6 +14,8 @@
 * { box-sizing: border-box; }
 body { margin: 0; min-width: 320px; color: var(--ink); background: var(--paper); }
 a { color: inherit; text-decoration: none; }
+.brand:hover { color: var(--green); }
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px solid var(--green); outline-offset: 3px; }
 .site-header { min-height: 64px; display: flex; align-items: center; gap: 12px; padding: 12px max(20px, calc((100% - 1120px) / 2)); background: var(--surface); border-bottom: 1px solid var(--line); }
 .brand { font-size: 1.25rem; font-weight: 800; letter-spacing: -0.04em; margin-right: auto; }
 .network-badge { padding: 5px 8px; background: var(--sand); border-radius: 999px; color: #7b5800; font-size: .75rem; font-weight: 700; }
@@ -25,9 +27,12 @@ a { color: inherit; text-decoration: none; }
 .button { border: 1px solid transparent; border-radius: 10px; padding: 11px 15px; cursor: pointer; font: inherit; font-weight: 750; min-height: 44px; }
 .primary { display: inline-flex; justify-content: center; align-items: center; background: var(--green); color: white; }
 .primary:hover { background: var(--green-dark); }
+.primary:active { background: var(--green-dark); }
 .secondary { background: var(--surface); border-color: var(--line); color: var(--ink); }
+.secondary:hover, .secondary:active { background: #e7f6ee; border-color: var(--green); color: var(--green-dark); }
 .stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 18px 0 24px; }
 .stat-card, .panel, .empty-state { padding: 18px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; }
+.panel p { overflow-wrap: anywhere; }
 .stat-card span { display: block; color: var(--muted); font-size: .85rem; }
 .stat-card strong { display: block; margin-top: 6px; font-size: 2rem; }
 .chart-grid { display: grid; gap: 14px; margin-bottom: 24px; }
@@ -53,6 +58,14 @@ a { color: inherit; text-decoration: none; }
 .record-card { padding: 18px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; }
 .record-card h2 { margin: 0 0 8px; font-size: 1.1rem; }
 .record-card p { margin: 5px 0; color: var(--muted); overflow-wrap: anywhere; }
+.status-row { display: flex; align-items: center; flex-wrap: wrap; gap: 7px; }
+.status-badge { display: inline-flex; align-items: center; padding: 3px 9px; border: 1px solid currentColor; border-radius: 999px; font-size: .8rem; font-weight: 800; line-height: 1.4; }
+.status-approved, .status-active, .status-confirmed { color: #0d593d; background: #e7f6ee; }
+.status-rejected, .status-failed { color: #a12d27; background: #fee8e7; }
+.status-pending, .status-listed { color: #7b5800; background: #fff3d8; }
+.status-withdrawn, .status-retired, .status-other { color: #465a55; background: #edf2ef; }
+.record-card a { color: var(--green-dark); font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
+.record-card a:hover, .record-card a:active { color: var(--green); text-decoration-thickness: 2px; }
 .record-card .button-row { margin-top: 14px; }
 .form-grid { display: grid; gap: 12px; }
 .form-grid label { display: grid; gap: 6px; font-size: .9rem; font-weight: 700; }
@@ -65,4 +78,6 @@ a { color: inherit; text-decoration: none; }
 .panel + .card-grid { margin-top: 18px; }
 .bottom-nav { position: fixed; inset: auto 0 0; display: grid; grid-template-columns: repeat(3, 1fr); padding: 8px 14px max(8px, env(safe-area-inset-bottom)); background: rgba(255,255,255,.96); border-top: 1px solid var(--line); backdrop-filter: blur(10px); }
 .bottom-nav a { min-height: 44px; display: grid; place-items: center; color: var(--muted); font-size: .86rem; font-weight: 700; }
+.bottom-nav a:hover, .bottom-nav a:active { color: var(--green-dark); background: #e7f6ee; border-radius: 10px; }
+.bottom-nav a[aria-current="page"] { color: var(--green-dark); background: #e7f6ee; border-radius: 10px; }
 @media (min-width: 720px) { .stat-grid { grid-template-columns: repeat(4, 1fr); } .chart-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .form-grid { grid-template-columns: repeat(2, 1fr); } .card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .page-shell { padding-bottom: 40px; } .bottom-nav { position: static; display: flex; justify-content: center; gap: 32px; padding: 18px; background: transparent; border: 0; } }

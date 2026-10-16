@@ -1,4 +1,11 @@
 window.GreenCertPages = {
+  // Keep status text visible while adding a predictable color for known states.
+  statusBadge(status) {
+    const label = String(status ?? "Unknown");
+    const known = ["Approved", "Active", "confirmed", "Rejected", "failed", "Pending", "pending", "Listed", "Withdrawn", "Retired"];
+    const variant = known.includes(label) ? label.toLowerCase() : "other";
+    return `<span class="status-badge status-${variant}">${GreenCertApp.escape(label)}</span>`;
+  },
   // Refresh data for the page currently on screen.
   async refresh() {
     try {
@@ -8,7 +15,7 @@ window.GreenCertPages = {
         this.dashboard(totals);
       }
       if (document.getElementById("marketList")) await this.market();
-      if (GreenCertWallet.address && document.getElementById("applicationList")) await this.applications();
+      if (document.getElementById("applicationList")) await this.applications();
       if (GreenCertWallet.address && document.getElementById("ownedList")) await this.owned();
       if (GreenCertWallet.address && document.getElementById("walletPanel")) await this.wallet();
       if (GreenCertWallet.address && document.getElementById("activityList")) await this.activity();
@@ -60,14 +67,25 @@ window.GreenCertPages = {
   // Show the connected Producer's applications or the Admin queue.
   async applications() {
     const role = GreenCertWallet.role;
+    const list = document.getElementById("applicationList");
     document.getElementById("applicationFormPanel").hidden = role !== "Producer";
-    if (!["Producer", "Admin"].includes(role)) return;
+    if (!GreenCertWallet.address) {
+      list.innerHTML = "<div class='empty-state'><p>Connect a wallet to view applications.</p></div>";
+      return;
+    }
+    if (!["Producer", "Admin"].includes(role)) {
+      const message = role === "Buyer"
+        ? "Connected as Buyer. Applications are available to Producer and Admin accounts."
+        : "Register as a Producer to submit applications, or use an Admin account to review them.";
+      list.innerHTML = `<div class="empty-state"><h2>Producer or Admin only</h2><p>${message}</p><a class="button secondary" href="${role === "Buyer" ? "/my-certificates" : "/account"}">${role === "Buyer" ? "View my certificates" : "Open account"}</a></div>`;
+      return;
+    }
     const items = await GreenCertApi.get("/applications");
-    document.getElementById("applicationList").innerHTML = items.length ? items.reverse().map((item) => {
+    list.innerHTML = items.length ? items.reverse().map((item) => {
       const actions = item.status !== "Pending" ? "" : role === "Admin"
         ? `<button class="button primary" data-action="approve" data-id="${item.id}">Approve</button><button class="button secondary" data-action="reject" data-id="${item.id}">Reject</button>`
         : `<button class="button secondary" data-action="withdraw" data-id="${item.id}">Withdraw</button>`;
-      return `<article class="record-card"><h2>Application #${item.id}</h2><p>${item.status} · ${item.quantity} RECs</p><p>Producer: ${GreenCertApp.escape(item.producer)}</p><div class="button-row"><button class="button secondary" data-action="details" data-id="${item.id}">View evidence</button>${actions}</div></article>`;
+      return `<article class="record-card"><h2>Application #${item.id}</h2><p class="status-row">${this.statusBadge(item.status)}<span>· ${item.quantity} RECs</span></p><p>Producer: ${GreenCertApp.escape(item.producer)}</p><div class="button-row"><button class="button secondary" data-action="details" data-id="${item.id}">View evidence</button>${actions}</div></article>`;
     }).join("") : "<div class='empty-state'><h2>No applications</h2></div>";
   },
   // Show owned certificates and their available actions.
@@ -79,7 +97,7 @@ window.GreenCertPages = {
         ? `<button class="button secondary" data-action="reprice" data-id="${item.id}">Change price</button><button class="button secondary" data-action="cancel" data-id="${item.id}">Cancel listing</button>`
         : `<button class="button primary" data-action="list" data-id="${item.id}">List batch</button>`;
       if (item.status === "Active" && GreenCertWallet.role === "Buyer") actions = `<button class="button primary" data-action="retire" data-id="${item.id}">Retire whole batch</button>`;
-      return `<article class="record-card"><h2>Certificate #${item.id}</h2><p>${GreenCertApp.escape(item.metadata?.siteName || "Metadata unavailable")} · ${item.quantity} RECs</p><p>${item.status}${item.listed ? " · Listed" : ""}</p>${item.listed ? `<p>Total price: ${GreenCertApp.eth(item.listing.totalPriceWei)}</p>` : ""}<p><a href="/certificates/${item.id}">View public record</a></p><div class="button-row">${actions}</div></article>`;
+      return `<article class="record-card"><h2>Certificate #${item.id}</h2><p>${GreenCertApp.escape(item.metadata?.siteName || "Metadata unavailable")} · ${item.quantity} RECs</p><p class="status-row">${this.statusBadge(item.status)}${item.listed ? this.statusBadge("Listed") : ""}</p>${item.listed ? `<p>Total price: ${GreenCertApp.eth(item.listing.totalPriceWei)}</p>` : ""}<p><a href="/certificates/${item.id}">View public record</a></p><div class="button-row">${actions}</div></article>`;
     }).join("") : "<div class='empty-state'><h2>No certificates owned</h2></div>";
   },
   // Display the connected wallet's balance and sale proceeds.
@@ -94,7 +112,7 @@ window.GreenCertPages = {
   async activity() {
     const items = await GreenCertApi.get("/transactions");
     document.getElementById("activityList").innerHTML = items.length ? items.map((item) =>
-      `<article class="record-card"><h2>${GreenCertApp.escape(item.method)}</h2><p>${GreenCertApp.escape(item.status)} · gas used ${GreenCertApp.escape(item.gas_used || "pending")}</p><p>${GreenCertApp.escape(item.tx_hash)}</p></article>`
+      `<article class="record-card"><h2>${GreenCertApp.escape(item.method)}</h2><p class="status-row">${this.statusBadge(item.status)}<span>· gas used ${GreenCertApp.escape(item.gas_used || "pending")}</span></p><p>${GreenCertApp.escape(item.tx_hash)}</p></article>`
     ).join("") : "<div class='empty-state'><h2>No verified transactions yet</h2></div>";
   },
   // Show a certificate's current state and matching contract events.
@@ -103,7 +121,7 @@ window.GreenCertPages = {
     const id = root.dataset.certificateId;
     const item = await GreenCertApi.get(`/certificates/${id}`);
     const metadata = item.metadata || {};
-    root.innerHTML = `<h2>${GreenCertApp.escape(metadata.siteName || "Metadata unavailable")}</h2><p>${GreenCertApp.escape(metadata.source || "Unknown")} · ${GreenCertApp.escape(metadata.country || "")}</p><p>Quantity: ${item.quantity} RECs / ${item.quantity} MWh</p><p>Status: ${GreenCertApp.escape(item.status)}${item.listed ? " · Listed" : ""}</p><p>Owner: ${GreenCertApp.escape(item.owner)}</p><p>Total listing price: ${item.listed ? GreenCertApp.eth(item.listing.totalPriceWei) : "Not listed"}</p><p>Metadata hash: ${GreenCertApp.escape(item.metadataHash)}</p>${item.retirement ? `<p>Retired for ${GreenCertApp.escape(item.retirement.beneficiary)}: ${GreenCertApp.escape(item.retirement.purpose)}</p>` : ""}`;
+    root.innerHTML = `<h2>${GreenCertApp.escape(metadata.siteName || "Metadata unavailable")}</h2><p>${GreenCertApp.escape(metadata.source || "Unknown")} · ${GreenCertApp.escape(metadata.country || "")}</p><p>Quantity: ${item.quantity} RECs / ${item.quantity} MWh</p><p class="status-row">Status: ${this.statusBadge(item.status)}${item.listed ? this.statusBadge("Listed") : ""}</p><p>Owner: ${GreenCertApp.escape(item.owner)}</p><p>Total listing price: ${item.listed ? GreenCertApp.eth(item.listing.totalPriceWei) : "Not listed"}</p><p>Metadata hash: ${GreenCertApp.escape(item.metadataHash)}</p>${item.retirement ? `<p>Retired for ${GreenCertApp.escape(item.retirement.beneficiary)}: ${GreenCertApp.escape(item.retirement.purpose)}</p>` : ""}`;
     const events = await GreenCertApi.get(`/certificates/${id}/events`);
     document.getElementById("certificateEvents").innerHTML = events.length ? events.map((event) =>
       `<p><strong>${GreenCertApp.escape(event.event)}</strong> · block ${GreenCertApp.escape(event.blockNumber)}<br><small>${GreenCertApp.escape(event.transactionHash)}</small></p>`

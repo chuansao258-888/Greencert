@@ -17,21 +17,39 @@ window.GreenCertApp = {
   }
 };
 
-// Connect the shared wallet button and refresh the active page.
-document.addEventListener("DOMContentLoaded", () => {
+// Show the authenticated wallet on every page.
+function showConnectedWallet() {
+  const connectButton = document.getElementById("connectWallet");
+  if (connectButton) connectButton.textContent = window.GreenCertWallet.shortAddress();
+  const status = document.getElementById("walletStatus");
+  if (status) status.textContent = `Connected: ${window.GreenCertWallet.address}`;
+  const rolePanel = document.getElementById("rolePanel");
+  if (rolePanel) rolePanel.hidden = window.GreenCertWallet.role !== "None";
+}
+
+// Restore the existing session before loading wallet-specific page data.
+document.addEventListener("DOMContentLoaded", async () => {
   const connectButton = document.getElementById("connectWallet");
   connectButton?.addEventListener("click", async () => {
     try {
-      const address = await window.GreenCertWallet.connect();
-      connectButton.textContent = window.GreenCertWallet.shortAddress();
-      const status = document.getElementById("walletStatus");
-      if (status) status.textContent = `Connected: ${address}`;
-      if (document.getElementById("rolePanel") && window.GreenCertWallet.role === "None") document.getElementById("rolePanel").hidden = false;
+      await window.GreenCertWallet.connect();
+      showConnectedWallet();
       await window.GreenCertPages?.refresh();
       window.GreenCertApp.notice(`Connected as ${window.GreenCertWallet.role}.`);
     } catch (error) {
       window.GreenCertApp.notice(error.message || "Wallet connection failed.", true);
     }
   });
-  window.GreenCertPages?.refresh();
+  window.ethereum?.on?.("accountsChanged", (accounts) => {
+    if (window.GreenCertWallet.address && accounts[0]?.toLowerCase() !== window.GreenCertWallet.address.toLowerCase()) window.location.reload();
+  });
+  window.ethereum?.on?.("chainChanged", () => {
+    if (window.GreenCertWallet.address) window.location.reload();
+  });
+  try {
+    if (await window.GreenCertWallet.restore()) showConnectedWallet();
+  } catch (error) {
+    window.GreenCertApp.notice(error.message || "Wallet session could not be restored.", true);
+  }
+  await window.GreenCertPages?.refresh();
 });

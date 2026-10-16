@@ -2,6 +2,30 @@ window.GreenCertWallet = {
   provider: null,
   signer: null,
   address: null,
+  role: null,
+
+  // Restore a valid server session for the wallet currently selected in MetaMask.
+  async restore() {
+    if (!window.ethereum) return false;
+    const accounts = await window.ethereum.request({ method: "eth_accounts" });
+    if (!accounts.length) return false;
+    let session;
+    try {
+      session = await window.GreenCertApi.get("/auth/me");
+    } catch (error) {
+      return false;
+    }
+    if (accounts[0].toLowerCase() !== session.address.toLowerCase()) return false;
+    const config = await window.GreenCertApi.get("/config");
+    const activeChain = await window.ethereum.request({ method: "eth_chainId" });
+    if (Number(activeChain) !== Number(config.chainId)) return false;
+    this.provider = new ethers.BrowserProvider(window.ethereum);
+    this.signer = await this.provider.getSigner(accounts[0]);
+    this.address = await this.signer.getAddress();
+    this.role = session.role;
+    window.GreenCertApi.csrfToken = session.csrfToken;
+    return true;
+  },
 
   // Connect MetaMask and select the expected test network.
   async connect() {

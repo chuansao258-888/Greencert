@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from flask import Blueprint, current_app, g, jsonify, request
+from web3 import Web3
 
 from backend.auth import error, require_session
 from backend.db import open_database
@@ -153,8 +154,9 @@ def wallet():
     chain = current_app.extensions["chain"]
     if not chain.configured():
         return error("Contracts are not configured.", 503, "CHAIN_UNAVAILABLE")
-    balance = chain.web3.eth.get_balance(g.wallet_address)
-    claimable = chain.contract("certificateMarket").functions.credits(g.wallet_address).call()
+    checksum_address = Web3.to_checksum_address(g.wallet_address)
+    balance = chain.web3.eth.get_balance(checksum_address)
+    claimable = chain.contract("certificateMarket").functions.credits(checksum_address).call()
     return jsonify({"data": {"address": g.wallet_address, "role": chain.role_name(g.wallet_address), "balanceWei": str(balance), "claimableWei": str(claimable)}})
 
 

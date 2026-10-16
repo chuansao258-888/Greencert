@@ -1,8 +1,37 @@
 from tests.backend.base import AppTestCase
 from unittest.mock import patch
+from types import SimpleNamespace
+from web3 import Web3
 
 
 class PageTests(AppTestCase):
+    # Pass checksum addresses to Web3 contract calls after session lookup.
+    def test_wallet_summary_uses_checksum_address(self) -> None:
+        address, _ = self.sign_in()
+        chain = self.app.extensions["chain"]
+        chain.configured = lambda: True
+
+        def balance(wallet_address):
+            self.assertTrue(Web3.is_checksum_address(wallet_address))
+            self.assertEqual(wallet_address.lower(), address)
+            return 123
+
+        class Credits:
+            def credits(self, wallet_address):
+                self_outer.assertTrue(Web3.is_checksum_address(wallet_address))
+                return self
+
+            def call(self):
+                return 0
+
+        self_outer = self
+        chain.web3 = SimpleNamespace(eth=SimpleNamespace(get_balance=balance))
+        chain.contract = lambda name: SimpleNamespace(functions=Credits())
+        chain.role_name = lambda wallet_address: "Buyer"
+        response = self.client.get("/api/wallet")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json["data"]["balanceWei"], "123")
+
     # Check that the public and wallet pages render.
     def test_foundation_pages_render(self) -> None:
         for path in ("/", "/dashboard", "/market", "/account", "/applications", "/my-certificates", "/activity", "/certificates/1"):
@@ -12,6 +41,8 @@ class PageTests(AppTestCase):
         dashboard = self.client.get("/dashboard")
         self.assertIn(b'id="sourceChart"', dashboard.data)
         self.assertIn(b'id="statusChart"', dashboard.data)
+        owned = self.client.get("/my-certificates")
+        self.assertIn(b'aria-current="page">My RECs</a>', owned.data)
 
     # Read a certificate and dashboard totals from a local chain stub.
     def test_certificate_and_dashboard_reads(self) -> None:
