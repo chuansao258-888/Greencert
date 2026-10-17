@@ -17,10 +17,20 @@
   <header class="site-header">
     <a class="brand" href="{{ url_for('pages.dashboard') }}">GreenCert</a>
     <span class="network-badge" id="networkBadge">Sepolia Testnet</span>
+    <button class="button secondary network-switch" id="switchNetwork" type="button" hidden>Switch to Sepolia</button>
     <button class="button secondary" id="connectWallet" type="button">Connect wallet</button>
   </header>
   <main class="page-shell{% if request.endpoint == 'pages.dashboard' %} dashboard-shell{% endif %}">
     <div class="notice" id="notice" aria-live="polite" hidden></div>
+    <section class="wallet-help" id="walletHelp" aria-labelledby="walletHelpTitle" hidden>
+      <h2 id="walletHelpTitle">Open this page in MetaMask</h2>
+      <p>This browser has not exposed MetaMask. Open the same page in the MetaMask mobile app before connecting a wallet or approving a transaction.</p>
+      <div class="button-row">
+        <a class="button primary" id="openMetaMask" href="#">Open in MetaMask</a>
+        <button class="button secondary" id="copyPageLink" type="button">Copy page link</button>
+      </div>
+      <p class="wallet-help-note">If the app does not open, copy this page link and open it from MetaMask’s browser.</p>
+    </section>
     {% block content %}{% endblock %}
   </main>
   <nav class="bottom-nav" aria-label="Main navigation">

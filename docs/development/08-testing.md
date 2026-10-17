@@ -16,6 +16,9 @@ Testing concentrates on the Producer, Admin and Buyer workflows and the core acc
 | `tests/backend/test_records.py` | Page rendering, certificate reads, dashboard totals and chart breakdown, and event endpoint. |
 | `tests/backend/test_transactions.py` | Confirmed transaction decoding and saved activity. |
 | `tests/frontend/dashboard.test.cjs` | Labeled chart values, Unknown source and no-certificate empty state. |
+| `tests/frontend/wallet_session.test.cjs` | Restored wallet sessions, changed accounts and wrong-chain session rejection. |
+| `tests/frontend/wallet_mobile.test.cjs` | MetaMask mobile deep link preserves the current route, query string and fragment. |
+| `tests/frontend/transaction_state.test.cjs` | Submission hash recording, receipt/event verification stages and pending-timeout guidance. |
 
 Run the Python suite from the repository root:
 

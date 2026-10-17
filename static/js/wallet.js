@@ -3,6 +3,41 @@ window.GreenCertWallet = {
   signer: null,
   address: null,
   role: null,
+  chainId: null,
+  targetChainId: null,
+
+  // Build MetaMask's official mobile-browser link for the exact page in view.
+  deepLinkUrl() {
+    const page = `${window.location.host}${window.location.pathname}${window.location.search}${window.location.hash}`;
+    return `https://link.metamask.io/dapp/${encodeURI(page)}`;
+  },
+
+  // Read the configured network once per wallet operation.
+  async configuration() {
+    const config = await window.GreenCertApi.get("/config");
+    this.targetChainId = Number(config.chainId);
+    return config;
+  },
+
+  // Check the wallet's actual network, optionally asking MetaMask to switch it.
+  async ensureTargetNetwork({ switchNetwork = false } = {}) {
+    if (!window.ethereum) throw new Error("MetaMask is not available in this browser. Open this page in MetaMask to continue.");
+    const config = await this.configuration();
+    let activeChainId = Number(await window.ethereum.request({ method: "eth_chainId" }));
+    if (activeChainId !== this.targetChainId && switchNetwork) {
+      const chainId = `0x${this.targetChainId.toString(16)}`;
+      try {
+        await window.ethereum.request({ method: "wallet_switchEthereumChain", params: [{ chainId }] });
+      } catch (error) {
+        if (Number(error?.code) === 4902) throw new Error("Sepolia is not configured in MetaMask. Add Sepolia, then try again.");
+        throw error;
+      }
+      activeChainId = Number(await window.ethereum.request({ method: "eth_chainId" }));
+    }
+    this.chainId = activeChainId;
+    if (activeChainId !== this.targetChainId) throw new Error("Switch MetaMask to the Sepolia test network before continuing.");
+    return config;
+  },
 
   // Restore a valid server session for the wallet currently selected in MetaMask.
   async restore() {
@@ -16,9 +51,11 @@ window.GreenCertWallet = {
       return false;
     }
     if (accounts[0].toLowerCase() !== session.address.toLowerCase()) return false;
-    const config = await window.GreenCertApi.get("/config");
-    const activeChain = await window.ethereum.request({ method: "eth_chainId" });
-    if (Number(activeChain) !== Number(config.chainId)) return false;
+    try {
+      await this.ensureTargetNetwork();
+    } catch (error) {
+      return false;
+    }
     this.provider = new ethers.BrowserProvider(window.ethereum);
     this.signer = await this.provider.getSigner(accounts[0]);
     this.address = await this.signer.getAddress();
@@ -27,14 +64,13 @@ window.GreenCertWallet = {
     return true;
   },
 
-  // Connect MetaMask and select the expected test network.
+  // Connect MetaMask, then validate its actual network before creating a session.
   async connect() {
-    if (!window.ethereum) throw new Error("Install MetaMask to connect a wallet.");
-    const config = await window.GreenCertApi.get("/config");
-    const chainId = `0x${config.chainId.toString(16)}`;
-    await window.ethereum.request({ method: "wallet_switchEthereumChain", params: [{ chainId }] });
+    if (!window.ethereum) throw new Error("MetaMask is not available in this browser. Open this page in MetaMask to continue.");
+    const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+    if (!accounts.length) throw new Error("MetaMask did not provide an account.");
+    await this.ensureTargetNetwork({ switchNetwork: true });
     this.provider = new ethers.BrowserProvider(window.ethereum);
-    await this.provider.send("eth_requestAccounts", []);
     this.signer = await this.provider.getSigner();
     this.address = await this.signer.getAddress();
     const challenge = await window.GreenCertApi.post("/auth/challenge", { address: this.address });

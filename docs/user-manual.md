@@ -10,6 +10,12 @@ Each certificate is traded and retired as a whole batch. The application does no
 
 You need MetaMask, a Sepolia wallet, the correct role, and Sepolia test ETH for transactions. A Buyer also needs enough test ETH to cover the total listing price. Visitors can open Home, Market, certificate details and Audit without connecting a wallet.
 
+### Mobile browser access
+
+On a phone, use the MetaMask in-app browser. If a normal mobile browser does not expose MetaMask, GreenCert shows **Open in MetaMask** and **Copy page link**. The first option opens MetaMask’s official deep link for the current page, so a certificate record or Market page is preserved. If the browser blocks the link, copy the page link and open it manually from MetaMask’s browser.
+
+The header reports the wallet's actual network. **Wallet: Sepolia** means the connected wallet is on the required network. **Wallet: wrong network** means switch MetaMask to Sepolia before connecting, reading wallet-controlled contract data or sending a transaction. Select **Switch to Sepolia** to request the change from MetaMask.
+
 ## Connect a wallet and register a role
 
 1. Open the application and select the wallet button in the header.
@@ -39,6 +45,8 @@ Open **Applications** and complete the New batch application form.
 | Evidence | A PDF, PNG or JPEG file up to 5 MiB. |
 
 Select **Upload and submit**, then review and confirm the MetaMask transaction. The application stores the file and creates its metadata before MetaMask opens. A successful upload alone does not mean that the application was submitted.
+
+The status message follows the transaction through wallet and network checks, MetaMask approval, submission, receipt confirmation and contract-event verification. A submitted hash is recorded before the receipt is available. If confirmation takes too long, do not submit the form again; check the transaction in MetaMask or Etherscan, then refresh the page.
 
 `CertificateRegistry.submitApplication` creates a Pending application, reserves its batch key, stores the quantity and metadata hash, and emits `ApplicationSubmitted`. The original evidence file is not stored on-chain. After a successful receipt, the application appears as **Pending**.
 
@@ -145,7 +153,11 @@ After connecting a wallet, open **Activity** to view transactions that the serve
 | Issue | What to check |
 | --- | --- |
 | Wallet connection fails | Confirm MetaMask is unlocked and the selected network is Sepolia. |
+| MetaMask is unavailable in a phone browser | Select **Open in MetaMask**, or copy the current page link and open it from MetaMask’s browser. |
+| Wallet: wrong network | Switch the wallet to Sepolia, then retry the action. |
+| MetaMask says a request is pending | Open MetaMask and approve or reject the existing request before starting another action. |
 | Transaction is rejected | Check the MetaMask confirmation window, account balance and role. |
+| Transaction stays pending | Do not submit again. Keep the transaction hash, inspect it in MetaMask or Etherscan, and refresh after it is confirmed. |
 | A listing cannot be purchased | Refresh Market. The listing may have been cancelled, purchased or repriced. |
 | An application cannot be submitted | Check the date range, quantity, batch index and evidence file type and size. A previously used batch key cannot be submitted again. |
 | Evidence integrity is Incomplete | The on-chain certificate may exist while matching local metadata or a file is unavailable. |

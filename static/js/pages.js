@@ -278,20 +278,23 @@ document.addEventListener("click", async (event) => {
       await GreenCertPages.action("details", button.dataset.id, button);
       return;
     }
-    if (!GreenCertWallet.signer) throw new Error("Connect a wallet first.");
-    if (!GreenCertContracts.contracts.roleRegistry) await GreenCertContracts.load(GreenCertWallet.signer);
-    if (button.dataset.registerRole) {
-      await GreenCertTransactions.send("Register role", () => GreenCertContracts.contracts.roleRegistry.register(Number(button.dataset.registerRole)));
-      GreenCertWallet.role = Number(button.dataset.registerRole) === 1 ? "Producer" : "Buyer";
-      document.getElementById("rolePanel").hidden = true;
-    } else if (button.id === "withdrawProceeds") {
-      await GreenCertTransactions.send("Withdraw proceeds", () => GreenCertContracts.contracts.certificateMarket.withdraw());
-    } else {
-      await GreenCertPages.action(button.dataset.action, button.dataset.id, button);
-    }
-    await GreenCertPages.refresh();
+    await GreenCertApp.withWalletRequest(button, async () => {
+      if (!GreenCertWallet.signer) throw new Error("Connect a wallet first.");
+      await GreenCertWallet.ensureTargetNetwork();
+      if (!GreenCertContracts.contracts.roleRegistry) await GreenCertContracts.load(GreenCertWallet.signer);
+      if (button.dataset.registerRole) {
+        await GreenCertTransactions.send("Register role", () => GreenCertContracts.contracts.roleRegistry.register(Number(button.dataset.registerRole)));
+        GreenCertWallet.role = Number(button.dataset.registerRole) === 1 ? "Producer" : "Buyer";
+        document.getElementById("rolePanel").hidden = true;
+      } else if (button.id === "withdrawProceeds") {
+        await GreenCertTransactions.send("Withdraw proceeds", () => GreenCertContracts.contracts.certificateMarket.withdraw());
+      } else {
+        await GreenCertPages.action(button.dataset.action, button.dataset.id, button);
+      }
+      await GreenCertPages.refresh();
+    });
   } catch (error) {
-    GreenCertApp.notice(error.message || "Transaction failed.", true);
+    GreenCertApp.notice(GreenCertApp.walletError(error), true);
   }
 });
 
@@ -300,10 +303,15 @@ document.addEventListener("submit", async (event) => {
   if (event.target.id !== "applicationForm") return;
   event.preventDefault();
   try {
-    if (!GreenCertContracts.contracts.certificateRegistry) await GreenCertContracts.load(GreenCertWallet.signer);
-    await GreenCertPages.submitApplication(event.target);
+    const submitButton = event.target.querySelector('button[type="submit"]');
+    await GreenCertApp.withWalletRequest(submitButton, async () => {
+      if (!GreenCertWallet.signer) throw new Error("Connect a wallet first.");
+      await GreenCertWallet.ensureTargetNetwork();
+      if (!GreenCertContracts.contracts.certificateRegistry) await GreenCertContracts.load(GreenCertWallet.signer);
+      await GreenCertPages.submitApplication(event.target);
+    });
   } catch (error) {
-    GreenCertApp.notice(error.message || "Application failed.", true);
+    GreenCertApp.notice(GreenCertApp.walletError(error), true);
   }
 });
 
