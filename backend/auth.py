@@ -86,7 +86,7 @@ def session_from_request():
 
 
 # Require a wallet session and a CSRF token for writes.
-def require_session(write: bool = False):
+def require_session(write: bool = False, registered: bool = False):
     # Wrap a route with the shared authentication checks.
     def decorator(view):
         # Resolve the session before running the route.
@@ -95,6 +95,8 @@ def require_session(write: bool = False):
             session = session_from_request()
             if not session:
                 return error("Sign in with your wallet first.", 401, "AUTH_REQUIRED")
+            if registered and current_app.extensions["chain"].role_name(session["address"]) not in ("Producer", "Buyer", "Admin"):
+                return error("Register as Producer or Buyer before continuing.", 403, "REGISTRATION_REQUIRED")
             if write:
                 origin = request.headers.get("Origin")
                 csrf_token = request.headers.get("X-CSRF-Token")

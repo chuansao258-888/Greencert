@@ -89,9 +89,13 @@ window.GreenCertPages = {
   async applications() {
     const role = GreenCertWallet.role;
     const list = document.getElementById("applicationList");
-    document.getElementById("applicationFormPanel").hidden = !GreenCertWallet.address;
+    document.getElementById("applicationFormPanel").hidden = !GreenCertWallet.address || !["Producer", "Buyer", "Admin"].includes(role);
     if (!GreenCertWallet.address) {
       list.innerHTML = "<div class='empty-state'><p>Connect a wallet to view or submit applications.</p></div>";
+      return;
+    }
+    if (!["Producer", "Buyer", "Admin"].includes(role)) {
+      list.innerHTML = "<div class='empty-state'><p>Register as Producer or Buyer to submit applications.</p><button class='button primary' data-open-registration>Choose role</button></div>";
       return;
     }
     const items = await GreenCertApi.get("/applications");
@@ -266,6 +270,14 @@ window.GreenCertPages = {
 
 // Bind certificate and proceeds actions.
 document.addEventListener("click", async (event) => {
+  if (event.target.closest("[data-open-registration]")) {
+    GreenCertApp.openRegistration();
+    return;
+  }
+  if (event.target.closest("[data-close-registration]")) {
+    document.getElementById("registrationDialog").close();
+    return;
+  }
   const button = event.target.closest("[data-register-role], [data-action], #withdrawProceeds");
   if (!button) return;
   try {
@@ -283,9 +295,14 @@ document.addEventListener("click", async (event) => {
         const roleName = role === 1 ? "Producer" : "Buyer";
         if (!confirm(`Register this wallet as ${roleName}? This cannot be changed and requires a network fee. Both roles can apply and buy.`)) return;
         await GreenCertTransactions.send("Register role", () => GreenCertContracts.contracts.roleRegistry.register(role));
+        const session = await GreenCertApi.get("/auth/me");
+        GreenCertWallet.role = session.role;
+        GreenCertApp.renderRole();
       } else if (button.id === "withdrawProceeds") {
+        await GreenCertWallet.requireRegistration();
         await GreenCertTransactions.send("Withdraw proceeds", () => GreenCertContracts.contracts.certificateMarket.withdraw());
       } else {
+        await GreenCertWallet.requireRegistration();
         await GreenCertPages.action(button.dataset.action, button.dataset.id, button);
       }
       await GreenCertPages.refresh();
@@ -304,6 +321,7 @@ document.addEventListener("submit", async (event) => {
     await GreenCertApp.withWalletRequest(submitButton, async () => {
       if (!GreenCertWallet.signer) throw new Error("Connect a wallet first.");
       await GreenCertWallet.ensureTargetNetwork();
+      await GreenCertWallet.requireRegistration();
       if (!GreenCertContracts.contracts.certificateRegistry) await GreenCertContracts.load(GreenCertWallet.signer);
       await GreenCertPages.submitApplication(event.target);
     });

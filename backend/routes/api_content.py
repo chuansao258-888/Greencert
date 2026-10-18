@@ -14,7 +14,7 @@ content_blueprint = Blueprint("content_api", __name__, url_prefix="/api/content"
 
 # Store canonical metadata for an application.
 @content_blueprint.post("")
-@require_session(write=True)
+@require_session(write=True, registered=True)
 def create_content():
     payload = request.get_json(silent=True) or {}
     kind = payload.get("kind")

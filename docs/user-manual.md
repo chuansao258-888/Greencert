@@ -23,15 +23,15 @@ The header reports the wallet's actual network. **Wallet: Sepolia** means the co
 3. Switch MetaMask to Sepolia if prompted.
 4. Sign the login message.
 
-The login signature creates an application session. It does not send a blockchain transaction or consume gas. Any signed-in wallet can submit an application, sell a certificate it owns, buy a listing and retire an unlisted certificate it owns. The Admin account is set when `RoleRegistry` is deployed and is the only account allowed to approve or reject applications.
+The login signature creates an application session. It does not send a blockchain transaction or consume gas. An unregistered wallet is then prompted to choose Producer or Buyer. Until registration is confirmed, it can only browse public information. The Admin account is set when `RoleRegistry` is deployed and is the only account allowed to approve or reject applications.
 
 ## Register a role
 
-Open **Account** after signing in. An unregistered wallet can select **Register as Producer** or **Register as Buyer**. Review the permanent choice, then confirm the transaction in MetaMask. Registration costs Sepolia gas and can be performed only once per wallet. The page reads the registered role from the server's on-chain lookup after confirmation and on subsequent visits.
+After signing in, an unregistered wallet sees a role selection dialog. Select **Register as Producer** or **Register as Buyer**, review the permanent choice, then confirm the transaction in MetaMask. Registration costs Sepolia gas and can be performed only once per wallet. Choose **Browse only** to dismiss the dialog without registering; business actions remain blocked. Account also provides registration buttons. The page reads the registered role from the server's on-chain lookup after confirmation and on subsequent visits.
 
-Producer and Buyer describe the wallet's primary participation; both may apply, buy and manage their own certificates. Registration is optional for these operations. Admin is assigned at deployment and cannot be selected through registration. Only Admin can approve or reject applications. The header continues to show the shortened wallet address.
+Producer and Buyer describe the wallet's primary participation; both may apply, buy and manage their own certificates after registration. Admin is assigned at deployment and cannot be selected through registration. Only Admin can approve or reject applications. The header continues to show the shortened wallet address.
 
-## Any signed-in wallet
+## Registered wallets
 
 ### Submit a batch application
 

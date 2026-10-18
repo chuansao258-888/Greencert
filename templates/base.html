@@ -14,6 +14,18 @@
   <script src="{{ url_for('static', filename='js/app.js') }}" defer></script>
 </head>
 <body>
+  <dialog id="registrationDialog" aria-labelledby="registrationTitle">
+    <h2 id="registrationTitle">Choose your role</h2>
+    <div class="notice" id="registrationNotice" aria-live="polite" hidden></div>
+    <p>Register once before applying, buying or managing certificates. Both roles can apply and buy.</p>
+    <p>Producer: primarily submit generation evidence. Buyer: primarily purchase certificates. Your choice is permanent for this wallet and requires a Sepolia transaction.</p>
+    <div class="button-row">
+      <button class="button primary" type="button" data-register-role="1">Register as Producer</button>
+      <button class="button primary" type="button" data-register-role="2">Register as Buyer</button>
+      <button class="button secondary" type="button" data-close-registration>Browse only</button>
+    </div>
+    <p>Review registration requests and pending transactions in MetaMask.</p>
+  </dialog>
   <header class="site-header">
     <a class="brand" href="{{ url_for('pages.dashboard') }}">GreenCert</a>
     <span class="network-badge" id="networkBadge">Sepolia Testnet</span>

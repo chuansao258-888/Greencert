@@ -59,6 +59,12 @@ contract CertificateRegistry is ICertificateRegistry {
     event CertificateIssued(uint256 indexed certificateId, uint256 indexed applicationId, address indexed producer, uint32 quantity, bytes32 metadataHash);
     event CertificateRetired(uint256 indexed certificateId, address indexed owner, bytes32 retirementHash, uint64 retiredAt);
 
+    // Require on-chain registration for ordinary wallet operations.
+    modifier onlyRegistered() {
+        require(roleRegistry.roleOf(msg.sender) != IRoleRegistry.Role.None, "Register a role first");
+        _;
+    }
+
     // Restrict a call to the original administrator.
     modifier onlyAdmin() {
         require(msg.sender == roleRegistry.admin(), "Admin only");
@@ -89,7 +95,7 @@ contract CertificateRegistry is ICertificateRegistry {
         market = marketAddress;
     }
 
-    // Submit a unique generation batch for review from any wallet.
+    // Submit a unique generation batch for review from a registered wallet.
     function submitApplication(
         bytes32 siteHash,
         uint64 periodStart,
@@ -97,7 +103,7 @@ contract CertificateRegistry is ICertificateRegistry {
         uint32 batchIndex,
         uint32 quantity,
         bytes32 metadataHash
-    ) external returns (uint256 applicationId) {
+    ) external onlyRegistered returns (uint256 applicationId) {
         require(siteHash != bytes32(0) && metadataHash != bytes32(0), "Hashes are required");
         require(periodStart < periodEnd && periodEnd <= block.timestamp, "Invalid period");
         require(batchIndex > 0 && quantity > 0 && quantity <= 100, "Invalid batch");
@@ -125,7 +131,7 @@ contract CertificateRegistry is ICertificateRegistry {
     }
 
     // Withdraw a pending application owned by the caller.
-    function withdrawApplication(uint256 applicationId) external {
+    function withdrawApplication(uint256 applicationId) external onlyRegistered {
         Application storage application = applicationFor(applicationId);
         require(application.producer == msg.sender, "Application owner only");
         require(application.status == ApplicationStatus.Pending, "Application is not pending");
@@ -168,7 +174,7 @@ contract CertificateRegistry is ICertificateRegistry {
     }
 
     // Retire the complete batch held by its current owner.
-    function retireCertificate(uint256 certificateId, bytes32 retirementHash) external {
+    function retireCertificate(uint256 certificateId, bytes32 retirementHash) external onlyRegistered {
         Certificate storage certificate = certificateFor(certificateId);
         require(certificate.owner == msg.sender, "Certificate owner only");
         require(certificate.status == CertificateStatus.Active && !certificate.listed, "Certificate is unavailable");

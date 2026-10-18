@@ -32,6 +32,12 @@ contract CertificateMarket {
     event CertificatePurchased(uint256 indexed certificateId, address indexed seller, address indexed buyer, uint32 quantity, uint256 totalPriceWei);
     event Withdrawal(address indexed seller, uint256 amountWei);
 
+    // Require on-chain registration for market operations.
+    modifier onlyRegistered() {
+        require(roleRegistry.roleOf(msg.sender) != IRoleRegistry.Role.None, "Register a role first");
+        _;
+    }
+
     // Bind the role and certificate registries.
     constructor(address roleRegistryAddress, address certificateRegistryAddress) {
         require(roleRegistryAddress.code.length > 0 && certificateRegistryAddress.code.length > 0, "Registry contracts required");
@@ -41,7 +47,7 @@ contract CertificateMarket {
     }
 
     // List an owned batch at one total price.
-    function listCertificate(uint256 certificateId, uint256 totalPriceWei) external {
+    function listCertificate(uint256 certificateId, uint256 totalPriceWei) external onlyRegistered {
         require(totalPriceWei > 0, "Price is required");
         require(!listings[certificateId].active, "Certificate already listed");
 
@@ -51,7 +57,7 @@ contract CertificateMarket {
     }
 
     // Change the total price of an active listing.
-    function updatePrice(uint256 certificateId, uint256 newTotalPriceWei) external {
+    function updatePrice(uint256 certificateId, uint256 newTotalPriceWei) external onlyRegistered {
         Listing storage listing = activeListing(certificateId);
         require(listing.seller == msg.sender, "Seller only");
         require(newTotalPriceWei > 0, "Price is required");
@@ -61,7 +67,7 @@ contract CertificateMarket {
     }
 
     // Remove a listing without changing ownership.
-    function cancelListing(uint256 certificateId) external {
+    function cancelListing(uint256 certificateId) external onlyRegistered {
         Listing storage listing = activeListing(certificateId);
         require(listing.seller == msg.sender, "Seller only");
         listing.active = false;
@@ -70,7 +76,7 @@ contract CertificateMarket {
     }
 
     // Exchange exact payment for the whole listed batch.
-    function buyCertificate(uint256 certificateId, uint256 expectedPriceWei) external payable {
+    function buyCertificate(uint256 certificateId, uint256 expectedPriceWei) external payable onlyRegistered {
         Listing storage listing = activeListing(certificateId);
         require(listing.seller != msg.sender, "Seller cannot buy");
         require(listing.totalPriceWei == expectedPriceWei && msg.value == expectedPriceWei, "Exact current price required");
@@ -91,7 +97,7 @@ contract CertificateMarket {
     }
 
     // Withdraw proceeds accumulated from certificate sales.
-    function withdraw() external {
+    function withdraw() external onlyRegistered {
         require(!withdrawing, "Withdrawal in progress");
         uint256 amount = credits[msg.sender];
         require(amount > 0, "No proceeds available");

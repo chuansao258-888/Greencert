@@ -17,11 +17,13 @@ contract CertificateMarketTest {
         Assert.ok(rejected, "Mismatched registries were accepted");
     }
 
-    // Deploy a listed batch and separate unregistered wallet actors.
+    // Both registered roles may sell and buy; ownership governs the operation.
     function fixture() private returns (CertificateRegistry registry, CertificateMarket market, TestActor producer, TestActor buyer) {
         RoleRegistry roles = new RoleRegistry(address(this));
         producer = new TestActor();
         buyer = new TestActor();
+        producer.register(roles, 2);
+        buyer.register(roles, 1);
         registry = new CertificateRegistry(address(roles));
         market = new CertificateMarket(address(roles), address(registry));
         registry.setMarket(address(market));
@@ -41,7 +43,7 @@ contract CertificateMarketTest {
 
     // Purchase the complete batch for its exact total price.
     /// #value: 100
-    function test_any_other_wallet_purchases_complete_batch() public payable {
+    function test_registered_producer_purchases_complete_batch() public payable {
         (CertificateRegistry registry, CertificateMarket market, TestActor producer, TestActor buyer) = fixture();
         producer.list(market, 1, 100);
         buyer.buy{value: 100}(market, 1, 100);
@@ -49,6 +51,17 @@ contract CertificateMarketTest {
         require(certificate.owner == address(buyer), "Ownership not transferred");
         require(certificate.quantity == 25, "Quantity changed");
         Assert.ok(market.credits(address(producer)) == 100, "Seller credit missing");
+    }
+
+    /// #value: 100
+    function test_unregistered_purchase_reverts() public payable {
+        (CertificateRegistry registry, CertificateMarket market, TestActor producer, ) = fixture();
+        producer.list(market, 1, 100);
+        TestActor stranger = new TestActor();
+        bool rejected;
+        try stranger.buy{value: 100}(market, 1, 100) {} catch { rejected = true; }
+        require(market.getListing(1).active && market.totalCredits() == 0, "Sale state changed");
+        Assert.ok(rejected && registry.getCertificate(1).owner == address(producer), "Unregistered purchase accepted");
     }
 
     // Pay the seller after a completed sale.

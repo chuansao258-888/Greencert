@@ -14,20 +14,30 @@ contract CertificateRegistryTest {
         Assert.ok(rejected, "Wallet address was accepted as role registry");
     }
 
-    // Create a registry and an unregistered application wallet.
+    // Create a registry and a registered application wallet.
     function fixture() private returns (CertificateRegistry registry, TestActor producer) {
         RoleRegistry roles = new RoleRegistry(address(this));
         producer = new TestActor();
+        producer.register(roles, 2);
         registry = new CertificateRegistry(address(roles));
     }
 
     // Store the quantity and Pending status of a submitted batch.
-    function test_any_wallet_submits_batch_application() public {
+    function test_registered_buyer_submits_batch_application() public {
         (CertificateRegistry registry, TestActor producer) = fixture();
         producer.submit(registry, 1, 25);
         CertificateRegistry.Application memory application = registry.getApplication(1);
         require(application.quantity == 25, "Wrong quantity");
         Assert.ok(application.status == CertificateRegistry.ApplicationStatus.Pending, "Not pending");
+    }
+
+    function test_unregistered_wallet_cannot_submit() public {
+        RoleRegistry roles = new RoleRegistry(address(this));
+        CertificateRegistry registry = new CertificateRegistry(address(roles));
+        TestActor stranger = new TestActor();
+        bool rejected;
+        try stranger.submit(registry, 1, 5) {} catch { rejected = true; }
+        Assert.ok(rejected && registry.applicationCount() == 0, "Unregistered submission accepted");
     }
 
     // Preserve separate Withdrawn and Rejected decisions.

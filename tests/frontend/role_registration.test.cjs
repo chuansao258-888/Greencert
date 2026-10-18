@@ -3,7 +3,7 @@ const fs = require("node:fs");
 const vm = require("node:vm");
 const path = require("node:path");
 
-const elements = { walletRole: {}, roleRegistration: { hidden: true }, walletPanel: {}, walletBalance: {}, walletProceeds: {}, withdrawProceeds: {} };
+const elements = { registrationDialog: { open: false, showModal() { this.open = true; }, close() { this.open = false; } }, walletRole: {}, roleRegistration: { hidden: true }, walletPanel: {}, walletBalance: {}, walletProceeds: {}, withdrawProceeds: {} };
 const wallet = { address: "0x1234", role: "None", signer: {}, async ensureTargetNetwork() {} };
 let click;
 let registeredRole = null;
@@ -32,11 +32,13 @@ async function run() {
     context.GreenCertApp.renderRole();
     assert.equal(elements.roleRegistration.hidden, role !== "None");
     assert.equal(elements.walletRole.textContent, `Role: ${role === "None" ? "Not registered" : role}`);
+    context.GreenCertApp.openRegistration();
+    assert.equal(elements.registrationDialog.open, role === "None");
   }
   for (const role of [1, 2]) {
     wallet.role = chainRole = "None";
     const button = { dataset: { registerRole: String(role) } };
-    await click({ target: { closest() { return button; } } });
+    await click({ target: { closest(selector) { return selector.includes("[data-register-role]") ? button : null; } } });
     assert.equal(registeredRole, role);
     assert.equal(wallet.role, role === 1 ? "Producer" : "Buyer");
     assert.equal(elements.roleRegistration.hidden, true);
@@ -44,8 +46,17 @@ async function run() {
   }
   registeredRole = null;
   context.confirm = () => false;
-  await click({ target: { closest() { return { dataset: { registerRole: "1" } }; } } });
+  await click({ target: { closest(selector) { return selector.includes("[data-register-role]") ? { dataset: { registerRole: "1" } } : null; } } });
   assert.equal(registeredRole, null);
+  let blockedAction = false;
+  wallet.requireRegistration = async () => { throw new Error("Register first"); };
+  context.GreenCertPages.action = async () => { blockedAction = true; };
+  for (const action of ["buy", "list", "retire", "withdraw", "cancel", "reprice"]) {
+    const button = { dataset: { action } };
+    await click({ target: { closest(selector) { return selector.includes("[data-action]") ? button : null; } } });
+    assert.equal(button.disabled, false);
+  }
+  assert.equal(blockedAction, false, "unregistered business actions must not run");
   process.stdout.write("Role display, registration and cancellation checks passed.\n");
 }
 run().catch(error => { process.stderr.write(`${error.stack}\n`); process.exitCode = 1; });

@@ -50,7 +50,9 @@ For a fresh deployment, deploy `RoleRegistry` with the Admin wallet address, dep
 
 ## Tests
 
-After signing in, Account offers optional one-time on-chain registration as Producer or Buyer. Both roles retain the same application and trading permissions; the Admin role alone grants approval and rejection authority. The account page displays the role read from the chain.
+After signing in, unregistered wallets are prompted to register on-chain as Producer or Buyer. Registration is required for application and trading actions. Both roles share ordinary business permissions; Admin alone grants approval and rejection authority. The account page displays the role read from the chain.
+
+Deployment transition: the website and API enforce registration, but the addresses currently in `deployment.json` still refer to the earlier open-wallet contracts. The new Solidity registration guards require replacement Registry and Market deployments before direct on-chain calls are also restricted. See [registration deployment steps](docs/development/09-registration-deployment.md).
 
 Run the local checks from the repository root:
 

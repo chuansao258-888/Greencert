@@ -25,6 +25,8 @@ Identifiers start at 1. Zero denotes an absent record. The Admin is immutable. T
 
 ## User Transactions
 
+All ordinary state-changing user operations require a registered Producer, Buyer or Admin. Owner, price and lifecycle checks apply in addition. This source-level restriction requires the deployment transition described in 09-registration-deployment.md; the previous deployed contracts remain open-wallet.
+
 | ID | Contract method | Permission and preconditions | Result |
 |---|---|---|---|
 | TX-01 | `RoleRegistry.register(uint8 role)` | Unregistered address; role must be Producer or Buyer. | Register a permanent primary participation role from Account; emit `RoleRegistered`. Ordinary operations remain open to all wallets. |

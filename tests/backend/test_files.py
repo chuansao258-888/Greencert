@@ -14,7 +14,7 @@ class FileTests(AppTestCase):
     # Upload a PDF and download it with the same wallet.
     def test_evidence_upload_and_download(self) -> None:
         address, csrf = self.sign_in()
-        self.app.extensions["chain"].role_name = lambda wallet: "None"
+        self.app.extensions["chain"].role_name = lambda wallet: "Producer"
         response = self.client.post("/api/files", data={"file": (BytesIO(b"%PDF-1.4\ndemo"), "evidence.pdf")}, headers={"X-CSRF-Token": csrf})
         self.assertEqual(response.status_code, 201)
         file_id = response.json["data"]["fileId"]
@@ -22,3 +22,15 @@ class FileTests(AppTestCase):
         self.assertEqual(download.status_code, 200)
         self.assertEqual(download.data, b"%PDF-1.4\ndemo")
         download.close()
+
+    def test_unregistered_wallet_cannot_create_files_or_content(self) -> None:
+        _, csrf = self.sign_in()
+        self.app.extensions["chain"].role_name = lambda wallet: "None"
+        headers = {"X-CSRF-Token": csrf}
+        response = self.client.post("/api/files", data={"file": (BytesIO(b"%PDF-1.4\ndemo"), "evidence.pdf")}, headers=headers)
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.json["error"]["code"], "REGISTRATION_REQUIRED")
+        for kind in ("application", "retirement", "rejection"):
+            response = self.client.post("/api/content", json={"kind": kind, "payload": {}}, headers=headers)
+            self.assertEqual(response.status_code, 403)
+            self.assertEqual(response.json["error"]["code"], "REGISTRATION_REQUIRED")

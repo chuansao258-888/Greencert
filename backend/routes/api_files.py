@@ -33,7 +33,7 @@ def current_role() -> str:
 
 # Save an evidence file and its SHA-256 digest for the signed-in wallet.
 @files_blueprint.post("")
-@require_session(write=True)
+@require_session(write=True, registered=True)
 def upload_file():
     uploaded = request.files.get("file")
     if not uploaded or not uploaded.filename:

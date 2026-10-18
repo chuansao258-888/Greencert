@@ -56,15 +56,15 @@ async function run() {
 
   wallet.role = "None";
   await applications();
-  assert.equal(form.hidden, false);
-  assert.match(list.innerHTML, /No applications/);
-  assert.equal(requests, 2);
+  assert.equal(form.hidden, true);
+  assert.match(list.innerHTML, /Register as Producer or Buyer/);
+  assert.equal(requests, 1);
 
   wallet.role = "Producer";
   await applications();
   assert.equal(form.hidden, false);
   assert.match(list.innerHTML, /No applications/);
-  assert.equal(requests, 3);
+  assert.equal(requests, 2);
 
   applicationItems = [
     { id: "1", status: "Approved", quantity: "5", producer: wallet.address, metadataHash: "0xabc", metadata: { siteName: "Demo Solar Site", periodStart: "1790812800", periodEnd: "1790985599" }, evidenceFileId: "proof-1" },
@@ -78,7 +78,7 @@ async function run() {
   assert.match(list.innerHTML, /Approved<\/span>/);
   assert.match(list.innerHTML, /Download evidence/);
   assert.match(list.innerHTML, /Evidence unavailable/);
-  assert.equal(requests, 4);
+  assert.equal(requests, 3);
 
   const pages = context.window.GreenCertPages;
   const button = { dataset: {}, textContent: "View details", setAttribute(name, value) { this[name] = value; } };

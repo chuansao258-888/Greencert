@@ -1,5 +1,9 @@
 window.GreenCertApp = {
   walletRequestActive: false,
+  openRegistration() {
+    const dialog = document.getElementById("registrationDialog");
+    if (window.GreenCertWallet.address && window.GreenCertWallet.role === "None" && dialog && !dialog.open) dialog.showModal();
+  },
   // Show the role read from the authenticated session's on-chain lookup.
   renderRole() {
     const label = document.getElementById("walletRole");
@@ -8,9 +12,17 @@ window.GreenCertApp = {
     const unregistered = wallet.role === "None";
     if (label) label.textContent = wallet.address ? (unregistered ? "Role: Not registered" : `Role: ${wallet.role}`) : "";
     if (registration) registration.hidden = !wallet.address || !unregistered;
+    const dialog = document.getElementById("registrationDialog");
+    if (!unregistered && dialog?.open) dialog.close();
   },
   // Display a short status message above the current page.
   notice(message, error = false) {
+    const registrationNotice = document.getElementById("registrationNotice");
+    if (registrationNotice) {
+      registrationNotice.textContent = message;
+      registrationNotice.classList.toggle("error", error);
+      registrationNotice.hidden = false;
+    }
     const notice = document.getElementById("notice");
     if (!notice) return;
     notice.textContent = message;
@@ -134,6 +146,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         GreenCertApp.notice("Requesting MetaMask account access.");
         await window.GreenCertWallet.connect();
         showConnectedWallet();
+        GreenCertApp.openRegistration();
         await refreshNetworkBadge();
         await window.GreenCertPages?.refresh();
         window.GreenCertApp.notice(`Connected as ${window.GreenCertWallet.shortAddress()}.`);
@@ -165,6 +178,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   try {
     if (await window.GreenCertWallet.restore()) {
       showConnectedWallet();
+      GreenCertApp.openRegistration();
       await window.GreenCertTransactions?.resumePending();
     }
   } catch (error) {

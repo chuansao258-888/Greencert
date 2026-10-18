@@ -81,6 +81,17 @@ window.GreenCertWallet = {
     return this.address;
   },
 
+  // Recheck on-chain registration before a business operation.
+  async requireRegistration() {
+    const session = await window.GreenCertApi.get("/auth/me");
+    this.role = session.role;
+    window.GreenCertApp.renderRole();
+    if (!["Producer", "Buyer", "Admin"].includes(this.role)) {
+      window.GreenCertApp.openRegistration();
+      throw new Error("Register as Producer or Buyer before continuing.");
+    }
+  },
+
   // Show a compact wallet address.
   shortAddress() {
     return this.address ? `${this.address.slice(0, 6)}…${this.address.slice(-4)}` : "";

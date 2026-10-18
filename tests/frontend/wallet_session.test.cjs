@@ -70,6 +70,7 @@ async function run() {
     removeAttribute() {},
   };
   let onReady;
+  const registrationDialog = { open: false, showModal() { this.open = true; }, close() { this.open = false; } };
   const appContext = {
     window: {
       GreenCertWallet: {
@@ -89,7 +90,7 @@ async function run() {
     },
     document: {
       addEventListener(name, handler) { if (name === "DOMContentLoaded") onReady = handler; },
-      getElementById(id) { return id === "connectWallet" ? button : null; },
+      getElementById(id) { return id === "connectWallet" ? button : id === "registrationDialog" ? registrationDialog : null; },
     },
   };
   const appSource = fs.readFileSync(path.resolve(__dirname, "../../static/js/app.js"), "utf8");
@@ -104,6 +105,9 @@ async function run() {
   await onConnect();
   assert.equal(button.textContent, "0x280d…33ff", "first connection should retain the wallet address");
   assert.equal(button.disabled, false);
+  appContext.window.GreenCertWallet.role = "None";
+  await onConnect();
+  assert.equal(registrationDialog.open, true, "first unregistered connection should open role selection");
 
   process.stdout.write("Wallet session restoration checks passed.\n");
 }
