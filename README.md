@@ -29,10 +29,7 @@ Coursework materials and supporting evidence are collected in [submission/](subm
 | Testing report and evidence | [Test results](submission/testing/test-results.md), [local contract test output](submission/testing/contract-test-local.txt), [test source](tests/), [testing plan](docs/development/08-testing.md), [Sepolia checklist](tests/manual/sepolia-checklist.md), [automated Sepolia run](tests/manual/sepolia-automated-run.md) |
 | Gas estimation and optimization | [Gas analysis](submission/gas/gas-analysis.md), [receipt measurements](submission/gas/gas-results.csv) |
 | User manual | [User manual](docs/user-manual.md) |
-| Presentation and video | [Demonstration video](https://www.youtube.com/watch?v=dHrIokU-WzI&t=2s); presentation files are submitted separately |
-| Technical report and individual contributions | Submitted separately |
-
-The complete lifecycle receipts and gas measurements in the gas evidence were collected from an earlier Sepolia deployment. The evidence files identify that deployment and state the limits of verification for the current contracts.
+| Demonstration video | [YouTube](https://www.youtube.com/watch?v=dHrIokU-WzI&t=2s) |
 
 ## Local setup
 
@@ -84,7 +81,7 @@ contracts/             Solidity contracts and interfaces
 static/                Browser JavaScript, CSS and contract ABIs
 templates/             HTML pages
 tests/                 Backend, frontend, contract and Sepolia workflow tests
-submission/            Test and gas evidence, evaluation and presentation information
+submission/            Test and gas evidence and problem evaluation
 docs/                  Product, technical, testing and user documentation
 deployment.json        Sepolia contract addresses and compiler settings
 render.yaml            Render deployment configuration
