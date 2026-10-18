@@ -1,66 +1,65 @@
-# Gas Estimation and Optimisation Analysis
+# Gas Estimation and Optimization Analysis
 
-## Scope
+## Measurement scope
 
-This note separates two kinds of evidence:
+The measurements in [gas-results.csv](gas-results.csv) were produced from the current guarded contract source on 18 October 2026. The script deployed fresh contracts to an isolated Ganache Shanghai EVM, used solc 0.8.30 with optimizer setting 200, sent 16 state-changing transactions and checked the final contract state. All 16 receipts had status 1.
 
-- `gas-results.csv` contains mined receipts from the 13 October Sepolia deployment: RoleRegistry `0xc6ddfdef0eef7b9d2bb6df9e60bf439a2725a369`, Registry `0x338c972fcab0892448fa0ee939f3330fb42f6c04` and Market `0xd7f2b6c233e7044ab4a76317b834c58c2ff23f01`. Its configuration was recorded at commit `c93a5bf` (solc 0.8.30, Prague, optimizer 200). Blockscout returned the CSV receipt statuses, blocks, targets and gas used on 18 October.
-- The current Registry and Market include an `onlyRegistered` check and were deployed on 18 October 2026. The receipt figures below remain measurements of the earlier full lifecycle; an equivalent guarded lifecycle measurement has not yet been recorded. Deployment and guard verification are in [registration deployment](../../docs/development/09-registration-deployment.md).
-
-All values are for a testnet prototype. They are useful for comparing this implementation's transaction paths; they are not a production cost forecast.
+These values measure EVM gas for the current implementation. They are suitable for comparing transaction paths in this project. They are not Sepolia transaction hashes, network fees or a production cost forecast.
 
 ## Estimation before signing
 
-The browser prepares a transaction only after checking the connected account and Sepolia chain. For the scripted Sepolia workflow, `scripts/sepolia_e2e.py` first performs a read-only preflight call and calls `estimate_gas`. It then creates a gas limit with a buffer:
+The Sepolia workflow runner performs a read-only preflight and calls `estimate_gas` before broadcasting. It creates a buffered limit using:
 
 ```text
 max(estimatedGas × 1.3 + 50,000, estimatedGas + 100,000)
 ```
 
-The runner rejects a transaction if that calculated limit is above its configured cap or if the test wallet lacks the required value plus estimated gas cost. A successful receipt records actual `gasUsed` and the effective gas price. Actual cost is calculated as:
+The runner also checks its configured cap and the wallet balance. The website lets MetaMask prepare transactions and display fee settings. An estimate is preparation information. The final receipt records actual gas used.
 
-```text
-gasUsed × effectiveGasPrice
-```
+## Current contract measurements
 
-The website does not display its own explicit gas estimate; MetaMask handles transaction preparation and fee settings. The script estimate is preparation information, not a guarantee. A rejected or pending wallet request is not retried automatically.
-
-## Recorded receipt measurements
-
-The following successful workflow receipts are copied from `gas-results.csv`. They cover ten distinct state-changing paths after the certificate was issued and listed.
+One measured call for each of the eleven business transaction types is shown below.
 
 | Transaction | Gas used |
 |---|---:|
-| Reprice listing | 34,416 |
-| Cancel listing | 43,735 |
-| Relist certificate | 174,472 |
-| Buy complete batch | 511,850 |
-| Withdraw seller proceeds | 53,021 |
-| Retire certificate | 151,054 |
-| Submit application for withdrawal test | 924,679 |
-| Withdraw application | 33,826 |
-| Submit application for rejection test | 924,679 |
-| Reject application | 146,202 |
-| **Total** | **2,997,934** |
+| Register role | 45,508 |
+| Submit application | 236,619 |
+| Withdraw application | 38,120 |
+| Approve application | 221,735 |
+| Reject application | 56,682 |
+| List certificate | 133,206 |
+| Update listing price | 38,680 |
+| Cancel listing | 46,436 |
+| Buy whole batch | 143,062 |
+| Withdraw seller proceeds | 54,328 |
+| Retire certificate | 61,536 |
+| **Total** | **1,075,912** |
 
-The receipts used an effective gas price of 1,000,015 wei. Their combined transaction fee was 2,997,978,969,010 wei, or 0.00000299797896901 SepoliaETH. The batch purchase also transfers its separately displayed listing value; that value is not a gas fee.
+The full CSV also contains market binding, both role registrations, relisting and the additional applications used for withdrawal and rejection checks. Those 16 transactions used 1,688,193 gas in total.
 
-The larger costs occur where the contracts create a new application record or coordinate multiple state updates. A purchase updates the listing, certificate ownership and seller credit atomically. Low-cost operations such as repricing or withdrawing an already-recorded credit alter fewer storage locations.
+Application submission and approval use more gas because they create several stored values. Purchase updates the listing, certificate owner and seller credit in one transaction. Price update and application withdrawal change fewer storage fields. A first listing and a relisting can use different gas because their storage conditions differ.
 
-## Design choices affecting gas
+## Optimization choices
 
 | Choice | Effect and trade-off |
 |---|---|
-| Optimizer enabled with 200 runs | The historical deployment configuration records Solidity optimisation for a repeated-use application contract. The same setting must be used when comparing a replacement deployment. |
-| Compact timestamp and quantity fields | `uint64` is used for timestamps and `uint32` for quantity and batch index inside record structs, reducing storage footprint where Solidity can pack fields. |
-| Immutable contract references | Registry references are assigned once in constructors, avoiding mutable configuration storage on ordinary calls. |
-| Mappings with bounded count reads | Applications, certificates, listings and credits use mappings. Counts support bounded page reads instead of storing unbounded arrays of full records. |
-| Event-based history | Events provide transaction history without duplicating a separate on-chain history table. The application reads logs for audit views. |
-| Pull payments | A purchase credits the seller; the seller withdraws separately. This avoids sending Ether to an arbitrary seller during the purchase, at the cost of a later withdrawal transaction. |
-| Complete-batch trading | Listing, purchase and retirement do not require quantity-splitting accounting. The trade-off is that partial sale and partial retirement are outside scope. |
+| Optimizer enabled with 200 runs | Reduces repeated execution cost while accepting a larger deployment bytecode trade-off. |
+| Compact timestamp and quantity fields | `uint64` and `uint32` values allow storage packing inside records. |
+| Immutable contract references | Registry addresses are assigned once and do not require mutable configuration reads. |
+| Mappings and bounded count reads | Records are retrieved by identifier without storing full unbounded arrays. |
+| Event-based history | Events provide audit history without a second on-chain history table. |
+| Pull payments | Purchase credits the seller, who withdraws separately. This reduces external-call risk during purchase but adds one transaction. |
+| Complete-batch trading | The contracts avoid partial quantity accounting at the cost of excluding partial sale and retirement. |
 
-The new `onlyRegistered` modifier adds an external role lookup on each ordinary write. It improves enforcement consistency but may increase gas use. No saving or increase is claimed until the same full set of paths is measured on the guarded contracts.
+The registration guard performs an external role lookup on ordinary writes. The current measurements include this check. No percentage saving is claimed because the project did not benchmark an alternative contract implementation under the same conditions.
 
-## Limits and next measurement
+## Reproduction
 
-Receipt `gasUsed` is the reliable measurement for a completed transaction. It varies with the transaction path and storage state, so a single estimate cannot represent every case. For the guarded contracts, repeat registration, application, listing, purchase, withdrawal and retirement with the same test quantities; save the new receipts beside the historical CSV and compare like-for-like paths. Do not compare compiler or EVM settings unless they match the recorded deployment configuration.
+After installing the local EVM dependencies, run:
+
+```powershell
+$env:NODE_PATH = (Resolve-Path tmp/evm-tools/node_modules).Path
+node scripts/measure_current_gas.cjs
+```
+
+The command recreates `submission/gas/gas-results.csv` from a fresh local deployment and fails if a receipt or final state check fails.

@@ -1,24 +1,23 @@
-# Problem and scenario evaluation evidence
+# Problem and Scenario Evaluation Evidence
 
-## The problem and its limits
+## Problem and limits
 
-In a REC market, a producer, buyer and reviewer need to establish which generation attributes are represented, who holds them, and whether they have been retired before a claim is made. The [US EPA explanation of RECs](https://www.epa.gov/green-power-markets/renewable-energy-certificates-recs) describes ownership and tracking of attributes for one MWh of renewable generation. Its [double-counting guidance](https://www.epa.gov/green-power-markets/double-counting) describes competing claims and retirement as a control. These are US market sources, not evidence of GreenCert users, their costs, or Singapore regulatory acceptance.
+In a REC market, a producer, buyer and reviewer need to establish which generation attributes a certificate represents, who holds it and whether it has been retired before a claim is made. GreenCert models a shared ownership and retirement history for simulated REC batches.
 
-GreenCert models a shared, inspectable ownership and retirement history across parties. A conventional central database can also implement those controls; blockchain makes signed state transitions and public event history independently inspectable but adds gas, key management and dependence on an RPC and chain. It does not make a generation claim true, prevent duplicate certificates in other systems, ensure privacy for on-chain data, or replace an accredited registry. Admin review and truthful evidence remain necessary. Producer/Buyer labels do not restrict ordinary business functions to one role. The current UI does not prevent an Admin from approving when evidence is unavailable.
+A central database can also implement these controls. GreenCert uses blockchain so different participants can inspect signed state changes and public events. This adds gas, wallet management and dependence on an RPC and chain. It does not prove that generation evidence is true, detect duplicates in another registry or replace an accredited REC system. Admin review remains necessary.
 
-Practical barriers include accredited registry integration, cross-system duplicate detection, actual generation measurement, local legal and accounting requirements, key loss, wallet usability, public data exposure, RPC availability, operating costs and durability of off-chain evidence. The public service is a free prototype with an ephemeral SQLite and upload filesystem; it is not a production-ready storage arrangement.
+The prototype also depends on off-chain metadata and uploaded evidence. The free Render filesystem can lose those files after a restart or deployment. A chain record may remain available while its supporting evidence is incomplete.
 
-## Scenario evaluation and measurable indicators
+## Scenario results
 
-These measures evaluate the prototype within the observed scenarios, not its effect on an operating REC market. The expected outcomes below are project evaluation criteria, not extra requirements prescribed by the course.
-
-| Indicator and scenario | Expected outcome | Observed result | Evidence and scope |
+| Indicator | Expected outcome | Current result | Evidence and scope |
 |---|---|---|---|
-| Current contract test cases passing | Each selected assertion succeeds | 14 of 14 test functions passed; 0 failed | [Local output](../testing/contract-test-local.txt), solc 0.8.30 and Ganache Shanghai. This is a selected test suite, not a measure of all possible contract behaviour. |
-| Unregistered writes in two selected cases | Both submission and purchase are rejected | 2 of 2 local cases passed; earlier read-only calls against the current Sepolia contracts also reverted | [Test results](../testing/test-results.md). The calls were not signed transactions. |
-| Historical scripted lifecycle continuation | All ten selected transactions receive successful receipts and expected state checks | 10 of 10 succeeded | [Test results](../testing/test-results.md), [CSV](../gas/gas-results.csv) and [independent historical check](../testing/historical-receipt-check.txt). This is the earlier 13 October deployment; it excludes the earlier failed protected-call attempts. |
-| Evidence verification with controlled test data | Matching data verifies; missing data is incomplete; changed data or inconsistent application is a mismatch | All three backend verification test functions passed on 18 October | `tests/backend/test_verification.py`; fixtures use temporary local storage and mocked chain reads, not real uploaded evidence. |
-| Public integrity availability | Record is verifiable only if its linked metadata and file are available and checks pass | 0 of 1 certificate records was fully verified in the observed public response; one was incomplete | [Public observation](../testing/public-observation-2026-10-18.txt). This single dated observation cannot estimate long-term availability or identify the cause of missing data. |
-| Gas used by ten historical scripted writes | Record actual gas and fees for comparison between these paths | 2,997,934 gas and 2,997,978,969,010 wei in fees in total | [Gas analysis](../gas/gas-analysis.md); excludes purchase value and earlier issuance/listing and does not represent production cost. |
+| Backend behaviour | Selected API, authentication, verification and persistence checks pass | 18 of 18 tests passed | [Test results](../testing/test-results.md); local automated tests |
+| Frontend behaviour | Selected dashboard, wallet, mobile, transaction and registration checks pass | 7 of 7 scripts passed | [Test results](../testing/test-results.md); browser logic tests |
+| Current contract tests | Selected state and rejection assertions pass | 14 of 14 functions passed | [Local output](../testing/contract-test-local.txt); current source on Ganache Shanghai |
+| Registration guard | Unregistered submission and purchase are rejected | 2 of 2 local cases passed; deployed read-only calls also reverted | [Test results](../testing/test-results.md) |
+| Current contract workflow | Every recorded state transaction succeeds and final states match | 16 of 16 transactions succeeded | [Gas CSV](../gas/gas-results.csv); fresh local deployment of current source |
+| Gas for eleven business types | Record one successful receipt for every defined business transaction type | 1,075,912 gas in total | [Gas analysis](../gas/gas-analysis.md); local EVM gas, not a Sepolia fee |
+| Evidence verification | Matching data verifies; missing data is incomplete; changed data is a mismatch | Selected verification tests passed | Backend fixtures use temporary storage and mocked chain reads |
 
-The historical lifecycle demonstrates recorded state changes and a receipt trail for one simulated case. The current local tests show the selected controls respond as expected. The public observation shows a practical failure of evidence availability, so these results do not establish durable evidence access in the hosted service. No baseline for a conventional workflow or real user measurement was collected; cost reduction, processing-time savings, user satisfaction and adoption therefore cannot be quantified from this evidence. The final technical report can assess the measured prototype outcomes and explicitly state that wider real-world impact remains unproven, without inventing a comparison.
+These figures evaluate the prototype scenarios only. No conventional workflow baseline, user satisfaction survey, operating-cost comparison or adoption study was conducted. The results therefore do not establish real-world time savings, cost reduction or market adoption.

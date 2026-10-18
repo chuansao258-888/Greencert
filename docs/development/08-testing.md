@@ -42,6 +42,6 @@ npm run test:frontend
 
 ## Manual acceptance
 
-`tests/manual/sepolia-checklist.md` covers deployment, role registration, rejection of unregistered writes, submission, withdrawal, rejection, approval, listing, repricing, cancellation, purchase, seller withdrawal and retirement. Use separate wallets for the three roles. Record transaction hash, receipt status, gas used and effective gas price for each successful write in `submission/gas/gas-results.csv`. Calculate cost as `gasUsed × effectiveGasPrice`.
+`tests/manual/sepolia-checklist.md` covers deployment, role registration, rejection of unregistered writes, submission, withdrawal, rejection, approval, listing, repricing, cancellation, purchase, seller withdrawal and retirement. Use separate wallets for the three roles. Record transaction hash, receipt status, gas used and effective gas price for each successful Sepolia write in `submission/gas/sepolia-gas-results.csv`. Calculate cost as `gasUsed × effectiveGasPrice`.
 
 Do not mark a manual step or Solidity test as passed before it has been run. Existing addresses and gas receipts document the earlier open-wallet deployment. Add a separate dated record when the registration-guard deployment is tested.

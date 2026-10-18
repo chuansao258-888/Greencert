@@ -147,7 +147,7 @@ This layout is fixed for the first implementation. Do not add service layers, a 
 | `scripts/backup_data.py` | Use SQLite backup and copy uploads into a named backup directory. |
 | `instance/` | Runtime database and uploads; never committed. |
 | `submission/README.md` | Explain evidence naming and distinguish planned from completed results. |
-| `submission/gas/gas-results.csv` | Receipt measurements entered after Sepolia checks. |
+| `submission/gas/gas-results.csv` | Current local EVM receipt measurements generated from a fresh deployment. |
 | `submission/testing/test-results.md` | Test run commands, environment, results and links to supporting evidence. |
 | `deployment.json` | Chain, addresses, deployment blocks, compiler, EVM target and optimizer settings. |
 | `requirements.txt` | Runtime Python packages with compatible pinned versions. |

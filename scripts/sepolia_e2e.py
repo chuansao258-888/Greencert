@@ -20,7 +20,7 @@ from web3.logs import DISCARD
 ROOT = Path(__file__).resolve().parents[1]
 KEY_FILE = ROOT / ".sepolia-test.env"
 STATE_FILE = ROOT / "instance" / "sepolia-e2e-state.json"
-GAS_CSV = ROOT / "submission" / "gas" / "gas-results.csv"
+GAS_CSV = ROOT / "submission" / "gas" / "sepolia-gas-results.csv"
 CHAIN_ID = 11155111
 CERTIFICATE_ID = 1
 INITIAL_PRICE = 100_000_000_000_000
