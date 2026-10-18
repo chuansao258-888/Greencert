@@ -124,7 +124,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         showConnectedWallet();
         await refreshNetworkBadge();
         await window.GreenCertPages?.refresh();
-        window.GreenCertApp.notice(`Connected as ${window.GreenCertWallet.role}.`);
+        window.GreenCertApp.notice(`Connected as ${window.GreenCertWallet.address}.`);
       });
     } catch (error) {
       window.GreenCertApp.notice(GreenCertApp.walletError(error), true);
