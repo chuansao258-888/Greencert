@@ -60,7 +60,13 @@ function showConnectedWallet() {
   const connectButton = document.getElementById("connectWallet");
   if (connectButton) connectButton.textContent = window.GreenCertWallet.shortAddress();
   const status = document.getElementById("walletStatus");
-  if (status) status.textContent = `Connected: ${window.GreenCertWallet.address}`;
+  if (status) status.textContent = `Connected as ${window.GreenCertWallet.shortAddress()}`;
+  const addressDetails = document.getElementById("walletAddressDetails");
+  const fullAddress = document.getElementById("walletFullAddress");
+  if (addressDetails && fullAddress) {
+    fullAddress.textContent = window.GreenCertWallet.address;
+    addressDetails.hidden = false;
+  }
 }
 
 // Show the wallet's actual chain rather than only the application's target chain.
@@ -122,7 +128,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         showConnectedWallet();
         await refreshNetworkBadge();
         await window.GreenCertPages?.refresh();
-        window.GreenCertApp.notice(`Connected as ${window.GreenCertWallet.address}.`);
+        window.GreenCertApp.notice(`Connected as ${window.GreenCertWallet.shortAddress()}.`);
       });
     } catch (error) {
       window.GreenCertApp.notice(GreenCertApp.walletError(error), true);

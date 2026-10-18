@@ -54,6 +54,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 .chart-empty { margin: 0; color: var(--muted); }
 .steps { margin: 0; padding-left: 22px; line-height: 2; color: var(--muted); }
 .page-heading { margin-bottom: 24px; }
+.wallet-full-address { overflow-wrap: anywhere; }
 .empty-state { text-align: center; padding: 48px 20px; }
 .button-row { display: flex; flex-wrap: wrap; gap: 10px; }
 .notice { margin-bottom: 18px; padding: 12px; border-radius: 10px; background: #e7f6ee; color: var(--green-dark); }
