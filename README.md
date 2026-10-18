@@ -30,7 +30,7 @@ Submission materials and supporting evidence are collected in [submission/](subm
 | Gas estimation and optimization | [Gas analysis](submission/gas/gas-analysis.md), [receipt measurements](submission/gas/gas-results.csv) |
 | User manual | [User manual](docs/user-manual.md) |
 | Presentation and video | [Demonstration video](https://www.youtube.com/watch?v=dHrIokU-WzI&t=2s)|
-| Technical report and individual contributions | To be completed together later |
+
 
 The complete lifecycle receipt and gas evidence is from the earlier Sepolia deployment; see the reports for its addresses and the limits of current-deployment verification.
 
