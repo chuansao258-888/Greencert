@@ -1,7 +1,8 @@
 # Presentation materials
 
-The group has completed its slides and demonstration recording. The PowerPoint files and video are kept outside Git and must be supplied separately when submitting. The assignment brief does not specify the upload destination or a media container.
+The group has completed its slides and demonstration recording. The PowerPoint and video files are kept outside Git. The demonstration video is available on YouTube; supply the slides separately when submitting. The assignment brief does not specify the upload destination or a media container.
 
+- [Demonstration video on YouTube](https://www.youtube.com/watch?v=dHrIokU-WzI&t=2s).
 - Local PowerPoint files: `docs/presentation/` (ignored by Git).
 - Local demonstration video: `C:/Users/guany/Videos/GreenCert_Demo_Combined.mp4` (outside this repository).
 

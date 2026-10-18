@@ -29,7 +29,7 @@ Submission materials and supporting evidence are collected in [submission/](subm
 | Testing report and evidence | [Test results](submission/testing/test-results.md), [local contract test output](submission/testing/contract-test-local.txt), [test source](tests/), [testing plan](docs/development/08-testing.md), [Sepolia checklist](tests/manual/sepolia-checklist.md), [automated Sepolia run](tests/manual/sepolia-automated-run.md) |
 | Gas estimation and optimization | [Gas analysis](submission/gas/gas-analysis.md), [receipt measurements](submission/gas/gas-results.csv) |
 | User manual | [User manual](docs/user-manual.md) |
-| Presentation and video | [Presentation materials](submission/presentation/README.md); files are kept outside Git |
+| Presentation and video | [Demonstration video](https://www.youtube.com/watch?v=dHrIokU-WzI&t=2s), [presentation materials](submission/presentation/README.md); media files are kept outside Git |
 | Technical report and individual contributions | To be completed together later |
 
 The complete lifecycle receipt and gas evidence is from the earlier Sepolia deployment; see the reports for its addresses and the limits of current-deployment verification.
