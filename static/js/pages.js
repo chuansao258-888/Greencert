@@ -85,20 +85,13 @@ window.GreenCertPages = {
       `<article class="record-card"><h2>Certificate #${item.id}</h2><p>${GreenCertApp.escape(item.metadata?.siteName || "Metadata unavailable")} · ${item.quantity} RECs</p><p class="status-row">${this.statusBadge(item.status)}${item.listed ? this.statusBadge("Listed") : ""}</p><p><a href="/certificates/${item.id}">View public record</a></p></article>`
     ).join("") : "<div class='empty-state'><h2>No certificates issued yet</h2></div>";
   },
-  // Show the connected Producer's applications or the Admin queue.
+  // Show the connected wallet's applications or the Admin review queue.
   async applications() {
     const role = GreenCertWallet.role;
     const list = document.getElementById("applicationList");
-    document.getElementById("applicationFormPanel").hidden = role !== "Producer";
+    document.getElementById("applicationFormPanel").hidden = !GreenCertWallet.address;
     if (!GreenCertWallet.address) {
-      list.innerHTML = "<div class='empty-state'><p>Connect a wallet to view applications.</p></div>";
-      return;
-    }
-    if (!["Producer", "Admin"].includes(role)) {
-      const message = role === "Buyer"
-        ? "Connected as Buyer. Applications are available to Producer and Admin accounts."
-        : "Register as a Producer to submit applications, or use an Admin account to review them.";
-      list.innerHTML = `<div class="empty-state"><h2>Producer or Admin only</h2><p>${message}</p><a class="button secondary" href="${role === "Buyer" ? "/my-certificates" : "/account"}">${role === "Buyer" ? "View my certificates" : "Open account"}</a></div>`;
+      list.innerHTML = "<div class='empty-state'><p>Connect a wallet to view or submit applications.</p></div>";
       return;
     }
     const items = await GreenCertApi.get("/applications");
@@ -113,15 +106,14 @@ window.GreenCertPages = {
       return `<article class="record-card"><h2>Application #${item.id}</h2><p class="status-row">${this.statusBadge(item.status)}<span>· ${item.quantity} RECs</span></p>${site}<p>Producer: ${GreenCertApp.escape(item.producer)}</p><div class="button-row"><button class="button secondary" data-action="details" data-id="${item.id}" aria-expanded="false">View details</button>${actions}</div><div class="application-details" id="applicationDetails${item.id}" hidden></div><p class="evidence-state">${evidence}</p></article>`;
     }).join("") : "<div class='empty-state'><h2>No applications</h2></div>";
   },
-  // Show owned certificates and their available actions.
+  // Show owned certificates and actions allowed by ownership, not account type.
   async owned() {
     const items = await GreenCertApi.get(`/certificates?owner=${GreenCertWallet.address}`);
     document.getElementById("ownedList").innerHTML = items.length ? items.reverse().map((item) => {
       let actions = "";
-      if (item.status === "Active" && GreenCertWallet.role === "Producer") actions = item.listed
+      if (item.status === "Active") actions = item.listed
         ? `<button class="button secondary" data-action="reprice" data-id="${item.id}">Change price</button><button class="button secondary" data-action="cancel" data-id="${item.id}">Cancel listing</button>`
-        : `<button class="button primary" data-action="list" data-id="${item.id}">List batch</button>`;
-      if (item.status === "Active" && GreenCertWallet.role === "Buyer") actions = `<button class="button primary" data-action="retire" data-id="${item.id}">Retire whole batch</button>`;
+        : `<button class="button primary" data-action="list" data-id="${item.id}">List batch</button><button class="button secondary" data-action="retire" data-id="${item.id}">Retire whole batch</button>`;
       return `<article class="record-card"><h2>Certificate #${item.id}</h2><p>${GreenCertApp.escape(item.metadata?.siteName || "Metadata unavailable")} · ${item.quantity} RECs</p><p class="status-row">${this.statusBadge(item.status)}${item.listed ? this.statusBadge("Listed") : ""}</p>${item.listed ? `<p>Total price: ${GreenCertApp.eth(item.listing.totalPriceWei)}</p>` : ""}<p><a href="/certificates/${item.id}">View public record</a></p><div class="button-row">${actions}</div></article>`;
     }).join("") : "<div class='empty-state'><h2>No certificates owned</h2></div>";
   },

@@ -37,7 +37,7 @@ class ContentTests(AppTestCase):
     def test_application_content_api(self) -> None:
         _, csrf = self.sign_in()
         chain = self.app.extensions["chain"]
-        chain.role_name = lambda address: "Producer"
+        chain.role_name = lambda address: "None"
         chain.contract_address = lambda name: "0x" + "1" * 40
         uploaded = self.client.post("/api/files", data={"file": (BytesIO(b"%PDF-1.4\ndemo"), "proof.pdf")}, headers={"X-CSRF-Token": csrf})
         self.assertEqual(uploaded.status_code, 201)

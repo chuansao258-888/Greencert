@@ -14,16 +14,15 @@ contract CertificateRegistryTest {
         Assert.ok(rejected, "Wallet address was accepted as role registry");
     }
 
-    // Create a registry with one registered Producer.
+    // Create a registry and an unregistered application wallet.
     function fixture() private returns (CertificateRegistry registry, TestActor producer) {
         RoleRegistry roles = new RoleRegistry(address(this));
         producer = new TestActor();
-        producer.register(roles, 1);
         registry = new CertificateRegistry(address(roles));
     }
 
     // Store the quantity and Pending status of a submitted batch.
-    function test_producer_submits_batch_application() public {
+    function test_any_wallet_submits_batch_application() public {
         (CertificateRegistry registry, TestActor producer) = fixture();
         producer.submit(registry, 1, 25);
         CertificateRegistry.Application memory application = registry.getApplication(1);

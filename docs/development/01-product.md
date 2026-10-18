@@ -10,25 +10,24 @@ The proposed problem is fragmented evidence: a buyer needs to understand where a
 
 | Role | Responsibilities |
 |---|---|
-| Producer | Upload evidence; submit or withdraw pending applications; list, reprice or cancel listings; withdraw sales proceeds. |
-| Buyer | Browse available certificates and evidence-integrity summaries; purchase; view holdings; retire owned certificates. |
+| Connected wallet | Upload evidence; submit or withdraw its pending applications; list, reprice, cancel, purchase or retire certificates according to ownership and listing state; withdraw its sales proceeds. |
 | Admin | Review generation evidence and approve or reject pending applications. |
 | Visitor | Browse public certificate records, evidence-integrity summaries, market listings, dashboard data and the read-only audit. |
 
-The Admin address is fixed at deployment. Other addresses may register once as Producer or Buyer. Registration does not verify a person's identity or an organisation's legal status. Roles cannot be changed in this version, and users cannot self-register as Admin.
+The Admin address is fixed at deployment. The role registry identifies the Admin for review decisions; Producer and Buyer labels are not used to authorize ordinary certificate operations.
 
 ## Functional Requirements
 
 | ID | Requirement | Acceptance condition |
 |---|---|---|
-| FR-01 | Wallet connection and role registration | The interface identifies the connected address, network and registered role. |
-| FR-02 | Evidence submission | A Producer uploads an accepted file and submits an application linked to immutable metadata. |
+| FR-01 | Wallet connection | The interface identifies the connected address and actual wallet network. |
+| FR-02 | Evidence submission | A signed-in wallet uploads an accepted file and submits an application linked to immutable metadata. |
 | FR-03 | Review and issuance | An Admin can approve or reject a pending application after inspecting its evidence. Approval creates exactly one certificate record containing the approved batch quantity. |
-| FR-04 | Application withdrawal | A Producer can withdraw their own pending application. |
-| FR-05 | Fixed-price listing | A Producer can list, reprice and cancel a complete active certificate batch they own. |
+| FR-04 | Application withdrawal | The submitting wallet can withdraw its own pending application. |
+| FR-05 | Fixed-price listing | A certificate owner can list, reprice and cancel a complete active certificate batch. |
 | FR-06 | Purchase | Exact payment of the batch's total test ETH price transfers the complete quantity and credits the seller in a single transaction. |
 | FR-07 | Proceeds withdrawal | A seller can withdraw their credited proceeds without changing another seller's balance. |
-| FR-08 | Retirement | A Buyer can permanently retire a complete active certificate batch they own, with a beneficiary and purpose. |
+| FR-08 | Retirement | A certificate owner can permanently retire a complete active unlisted batch, with a beneficiary and purpose. |
 | FR-09 | Traceability | Certificate details show issuance, sale and retirement records with transaction links. |
 | FR-10 | Dashboard | Issued, listed, sold and retired totals and two labeled charts reflect contract records. The source chart sums REC quantity by energy source; the status chart counts Active and Retired batches. |
 | FR-11 | Mobile access | The complete role workflows work in a mobile wallet browser. |
@@ -40,11 +39,11 @@ The Admin address is fixed at deployment. Other addresses may register once as P
 
 1. Each application represents one batch containing 1–100 simulated RECs and can produce at most one certificate record. Each REC corresponds to 1 MWh, so `quantity` also states the batch's total MWh.
 2. The generation period must satisfy `periodStart < periodEnd <= block.timestamp`; `batchIndex` and `quantity` must be positive, and `quantity` cannot exceed 100.
-3. A batch is identified by the chain, Producer address, normalised site code, generation period and batch index. Its key is permanently reserved when the application is submitted.
+3. A batch is identified by the chain, submitting wallet address, normalised site code, generation period and batch index. Its key is permanently reserved when the application is submitted.
 4. Rejected and withdrawn applications remain visible in history. Editing or resubmitting the same batch key is not supported.
 5. Only pending applications may be approved, rejected or withdrawn.
-6. Only the Producer owner may list a certificate. A listing requires an active certificate and a positive price.
-7. A purchase requires a Buyer, an active listing and exact payment at the buyer's expected price. A changed price causes the transaction to revert.
+6. Only the current owner may list a certificate. A listing requires an active certificate and a positive price.
+7. A purchase requires a wallet other than the seller, an active listing and exact payment at the purchaser's expected price. A changed price causes the transaction to revert.
 8. A purchased certificate batch may be held or retired. Purchase and retirement always apply to its complete quantity; it cannot be resold, split or partially retired.
 9. Retirement is permanent. The owner and historical records remain available after retirement.
 10. The Admin has no arbitrary ownership transfer, balance withdrawal or retirement reversal function.

@@ -21,23 +21,23 @@ The certificate registry constructor rejects wallet addresses and checks that it
 | ApplicationStatus | None = 0, Pending = 1, Approved = 2, Rejected = 3, Withdrawn = 4 |
 | CertificateStatus | None = 0, Active = 1, Retired = 2 |
 
-Identifiers start at 1. Zero denotes an absent record. The Admin is immutable; role registration is permanent.
+Identifiers start at 1. Zero denotes an absent record. The Admin is immutable. The role registry is used to identify the reviewer; ordinary certificate operations are authorized by wallet ownership and lifecycle state rather than Producer or Buyer labels.
 
 ## User Transactions
 
 | ID | Contract method | Permission and preconditions | Result |
 |---|---|---|---|
-| TX-01 | `RoleRegistry.register(uint8 role)` | Unregistered address; role must be Producer or Buyer. | Fix the address's role; emit `RoleRegistered`. |
-| TX-02 | `CertificateRegistry.submitApplication(bytes32 siteHash, uint64 periodStart, uint64 periodEnd, uint32 batchIndex, uint32 quantity, bytes32 metadataHash)` | Producer; nonzero hashes; start < end <= block timestamp; positive batch index; quantity from 1 to 100; unused batch key. | Create Pending application; reserve batch key; emit `ApplicationSubmitted`. |
+| TX-01 | `RoleRegistry.register(uint8 role)` | Unregistered address; role must be Producer or Buyer. | Optional legacy role label; emit `RoleRegistered`. |
+| TX-02 | `CertificateRegistry.submitApplication(bytes32 siteHash, uint64 periodStart, uint64 periodEnd, uint32 batchIndex, uint32 quantity, bytes32 metadataHash)` | Any wallet; nonzero hashes; start < end <= block timestamp; positive batch index; quantity from 1 to 100; unused batch key. | Create Pending application; reserve batch key; emit `ApplicationSubmitted`. |
 | TX-03 | `CertificateRegistry.withdrawApplication(uint256 applicationId)` | Applicant; Pending application. | Set Withdrawn; emit `ApplicationWithdrawn`. |
-| TX-04 | `CertificateRegistry.approveApplication(uint256 applicationId)` | Admin; Pending application whose evidence supports its quantity. | Set Approved; issue one Active certificate record containing the complete batch quantity to Producer; emit `CertificateIssued`. |
+| TX-04 | `CertificateRegistry.approveApplication(uint256 applicationId)` | Admin; Pending application whose evidence supports its quantity. | Set Approved; issue one Active certificate record containing the complete batch quantity to the submitting wallet; emit `CertificateIssued`. |
 | TX-05 | `CertificateRegistry.rejectApplication(uint256 applicationId, bytes32 reasonHash)` | Admin; Pending application; nonzero reason hash. | Set Rejected; retain reason hash; emit `ApplicationRejected`. |
-| TX-06 | `CertificateMarket.listCertificate(uint256 certificateId, uint256 totalPriceWei)` | Producer owner; Active and unlisted certificate batch; positive total price. | List the complete batch; set registry listing flag; emit `CertificateListed`. |
+| TX-06 | `CertificateMarket.listCertificate(uint256 certificateId, uint256 totalPriceWei)` | Current owner; Active and unlisted certificate batch; positive total price. | List the complete batch; set registry listing flag; emit `CertificateListed`. |
 | TX-07 | `CertificateMarket.updatePrice(uint256 certificateId, uint256 newTotalPriceWei)` | Current seller; active listing; positive total price. | Change the complete batch price; emit `ListingPriceUpdated`. |
 | TX-08 | `CertificateMarket.cancelListing(uint256 certificateId)` | Current seller; active listing. | Deactivate listing and clear registry flag; emit `ListingCancelled`. |
-| TX-09 | `CertificateMarket.buyCertificate(uint256 certificateId, uint256 expectedPriceWei)` payable | Buyer other than seller; active listing; current total price = expected price = msg.value. | Transfer ownership of the complete batch, close listing and credit seller; emit `CertificatePurchased`. |
+| TX-09 | `CertificateMarket.buyCertificate(uint256 certificateId, uint256 expectedPriceWei)` payable | Any wallet other than seller; active listing; current total price = expected price = msg.value. | Transfer ownership of the complete batch, close listing and credit seller; emit `CertificatePurchased`. |
 | TX-10 | `CertificateMarket.withdraw()` | Caller has positive credit. | Clear caller's credit, reduce total credits and transfer proceeds; emit `Withdrawal`. |
-| TX-11 | `CertificateRegistry.retireCertificate(uint256 certificateId, bytes32 retirementHash)` | Buyer owner; Active and unlisted certificate batch; nonzero declaration hash. | Retire the complete quantity; retain owner, quantity, hash and retirement timestamp; emit `CertificateRetired`. |
+| TX-11 | `CertificateRegistry.retireCertificate(uint256 certificateId, bytes32 retirementHash)` | Current owner; Active and unlisted certificate batch; nonzero declaration hash. | Retire the complete quantity; retain owner, quantity, hash and retirement timestamp; emit `CertificateRetired`. |
 
 Registration counts as one transaction type. Deployment, binding, read calls, wallet connection, message signatures and file uploads are separate operations and are not included in these eleven types.
 
@@ -45,8 +45,8 @@ Registration counts as one transaction type. Deployment, binding, read calls, wa
 
 | Method | Access and behaviour |
 |---|---|
-| `registry.setListed(uint256 certificateId, address seller, bool listed)` | Bound market only. Require an Active certificate, matching owner and a genuine flag change. Setting the flag requires a Producer owner. |
-| `registry.transferOnSale(uint256 certificateId, address seller, address buyer)` | Bound market only. Require Active, listed, owner = seller and Buyer role for the recipient. Update owner and clear the listing flag. |
+| `registry.setListed(uint256 certificateId, address seller, bool listed)` | Bound market only. Require an Active certificate, matching owner and a genuine flag change. |
+| `registry.transferOnSale(uint256 certificateId, address seller, address buyer)` | Bound market only. Require Active, listed and owner = seller. Update owner and clear the listing flag. |
 | `market.roleRegistry()` | Return the configured role contract address. |
 | `market.certificateRegistry()` | Return the configured certificate contract address. |
 | `roles.roleOf(address account)` | Return the account's role. |
@@ -101,7 +101,7 @@ CertificateRetired(certificateId, owner, retirementHash, retiredAt)
 ## Accounting and Correctness
 
 - Repeated review, purchase, retirement or withdrawal must not duplicate effects.
-- A stale total price causes a revert. The interface asks the Buyer to refresh and confirm the new price.
+- A stale total price causes a revert. The interface asks the purchaser to refresh and confirm the new price.
 - Listing, purchase, ownership transfer and retirement always apply to the complete immutable quantity. No function accepts a purchase or retirement quantity.
 - The purchase updates the listing, registry ownership and accounting atomically. Any failed internal call reverts the whole transaction.
 - Withdrawal clears the balance before sending ETH and uses a reentrancy guard. A failed transfer reverts the balance update.

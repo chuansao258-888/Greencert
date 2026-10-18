@@ -52,7 +52,7 @@ class PageTests(AppTestCase):
         address, _ = self.sign_in()
         chain = self.app.extensions["chain"]
         chain.configured = lambda: True
-        chain.role_name = lambda wallet_address: "Producer"
+        chain.role_name = lambda wallet_address: "None"
         saved_hash = "0x" + "1" * 64
         missing_hash = "0x" + "2" * 64
         chain.applications = lambda: [

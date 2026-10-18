@@ -14,7 +14,7 @@ class FileTests(AppTestCase):
     # Upload a PDF and download it with the same wallet.
     def test_evidence_upload_and_download(self) -> None:
         address, csrf = self.sign_in()
-        self.app.extensions["chain"].role_name = lambda wallet: "Producer"
+        self.app.extensions["chain"].role_name = lambda wallet: "None"
         response = self.client.post("/api/files", data={"file": (BytesIO(b"%PDF-1.4\ndemo"), "evidence.pdf")}, headers={"X-CSRF-Token": csrf})
         self.assertEqual(response.status_code, 201)
         file_id = response.json["data"]["fileId"]

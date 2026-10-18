@@ -19,14 +19,14 @@ The challenge message includes the origin, chain ID, wallet address, nonce and e
 
 | Method | Path | Access | Purpose |
 |---|---|---|---|
-| POST | `/api/files` | Producer | Upload multipart `file`; return `fileId`, SHA-256, size and media type. |
+| POST | `/api/files` | Signed-in wallet | Upload multipart `file`; return `fileId`, SHA-256, size and media type. |
 | GET | `/api/files/{fileId}` | Uploader or Admin | Download the original evidence. |
-| POST | `/api/content` | Producer, Admin or Buyer | Store canonical application, rejection or retirement content. |
+| POST | `/api/content` | Signed-in wallet; Admin for rejection | Store canonical application, rejection or retirement content. |
 | GET | `/api/content/{contentHash}` | Public | Return the exact canonical JSON and hash. |
 
-Evidence is limited to 5 MiB and PDF, PNG or JPEG file headers. The server generates stored filenames. Producer application payloads contain `siteCode`, `siteName`, `source`, `country`, `periodStart`, `periodEnd`, `batchIndex`, `quantity` and `proofFileId`. Quantity is an integer from 1 to 100; one REC represents 1 MWh in this simulation. The evidence file must belong to the signed-in Producer.
+Evidence is limited to 5 MiB and PDF, PNG or JPEG file headers. The server generates stored filenames. Application payloads contain `siteCode`, `siteName`, `source`, `country`, `periodStart`, `periodEnd`, `batchIndex`, `quantity` and `proofFileId`. Quantity is an integer from 1 to 100; one REC represents 1 MWh in this simulation. The evidence file must belong to the signed-in wallet.
 
-An Admin rejection payload contains `applicationId` and `reason`. A Buyer retirement payload contains `certificateId`, `beneficiary` and `purpose`. The server checks the relevant pending application or owned active certificate before preparing these content records; the contract rechecks state when the transaction executes.
+An Admin rejection payload contains `applicationId` and `reason`. A retirement payload contains `certificateId`, `beneficiary` and `purpose`. The server checks the relevant pending application or owned active certificate before preparing these content records; the contract rechecks state when the transaction executes.
 
 For all kinds, the canonical envelope contains `schemaVersion`, `kind`, `chainId`, `targetContract`, `creator` and normalized `payload`. JSON keys are sorted and serialized without optional whitespace. `contentHash = keccak256(UTF8(canonicalJson))`. The browser checks the returned hash before sending it to the contract. An application payload stores the proof SHA-256 instead of its local file ID. The response also returns `chainArgs` for the matching contract method.
 
@@ -34,7 +34,7 @@ For all kinds, the canonical envelope contains `schemaVersion`, `kind`, `chainId
 
 | Method | Path | Access | Purpose |
 |---|---|---|---|
-| GET | `/api/applications` | Producer or Admin | List own applications or the Admin queue; optional `status`. |
+| GET | `/api/applications` | Signed-in wallet or Admin | List the wallet's applications or the Admin queue; optional `status`. |
 | GET | `/api/applications/{id}` | Applicant or Admin | Return application state, metadata and evidence file ID. |
 | GET | `/api/certificates` | Public | List certificates; optional `owner`, `status`, `listed=true`. |
 | GET | `/api/certificates/{id}` | Public | Return certificate, listing, metadata and retirement statement. |

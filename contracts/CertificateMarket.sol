@@ -42,7 +42,6 @@ contract CertificateMarket {
 
     // List an owned batch at one total price.
     function listCertificate(uint256 certificateId, uint256 totalPriceWei) external {
-        require(roleRegistry.roleOf(msg.sender) == IRoleRegistry.Role.Producer, "Producer only");
         require(totalPriceWei > 0, "Price is required");
         require(!listings[certificateId].active, "Certificate already listed");
 
@@ -73,7 +72,6 @@ contract CertificateMarket {
     // Exchange exact payment for the whole listed batch.
     function buyCertificate(uint256 certificateId, uint256 expectedPriceWei) external payable {
         Listing storage listing = activeListing(certificateId);
-        require(roleRegistry.roleOf(msg.sender) == IRoleRegistry.Role.Buyer, "Buyer only");
         require(listing.seller != msg.sender, "Seller cannot buy");
         require(listing.totalPriceWei == expectedPriceWei && msg.value == expectedPriceWei, "Exact current price required");
 

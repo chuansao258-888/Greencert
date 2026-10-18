@@ -2,13 +2,13 @@
 
 ## Purpose and scope
 
-GreenCert records the lifecycle of a simulated renewable energy certificate batch on Sepolia. A batch moves through Producer submission, Admin review, Producer listing, and Buyer purchase and retirement. One REC represents one MWh in this prototype. Transactions use Sepolia test ETH and have no real-world monetary value.
+GreenCert records the lifecycle of a simulated renewable energy certificate batch on Sepolia. A batch moves through wallet submission, Admin review, listing, purchase and retirement. One REC represents one MWh in this prototype. Transactions use Sepolia test ETH and have no real-world monetary value.
 
 Each certificate is traded and retired as a whole batch. The application does not support partial purchases, partial retirement, secondary resale, or reversal of retirement.
 
 ## Before you start
 
-You need MetaMask, a Sepolia wallet, the correct role, and Sepolia test ETH for transactions. A Buyer also needs enough test ETH to cover the total listing price. Visitors can open Home, Market, certificate details and Audit without connecting a wallet.
+You need MetaMask, a Sepolia wallet and test ETH for transactions. A wallet that purchases a batch needs enough test ETH to cover the total listing price. Visitors can open Home, Market, certificate details and Audit without connecting a wallet.
 
 ### Mobile browser access
 
@@ -16,18 +16,16 @@ On a phone, use the MetaMask in-app browser. If a normal mobile browser does not
 
 The header reports the wallet's actual network. **Wallet: Sepolia** means the connected wallet is on the required network. **Wallet: wrong network** means switch MetaMask to Sepolia before connecting, reading wallet-controlled contract data or sending a transaction. Select **Switch to Sepolia** to request the change from MetaMask.
 
-## Connect a wallet and register a role
+## Connect a wallet
 
 1. Open the application and select the wallet button in the header.
 2. Select the intended MetaMask account.
 3. Switch MetaMask to Sepolia if prompted.
 4. Sign the login message.
 
-The login signature creates an application session. It does not send a blockchain transaction or consume gas. The application reads the wallet role from `RoleRegistry`.
+The login signature creates an application session. It does not send a blockchain transaction or consume gas. Any signed-in wallet can submit an application, sell a certificate it owns, buy a listing and retire an unlisted certificate it owns. The Admin account is set when `RoleRegistry` is deployed and is the only account allowed to approve or reject applications.
 
-An account with no role can open **Account** and register as Producer or Buyer. The Admin account is set when `RoleRegistry` is deployed and cannot register through the page. Role registration is an on-chain transaction.
-
-## Producer
+## Any signed-in wallet
 
 ### Submit a batch application
 
@@ -52,13 +50,13 @@ The status message follows the transaction through wallet and network checks, Me
 
 ### Withdraw a pending application
 
-Open a Pending application in **Applications** and select **Withdraw**. Confirm the MetaMask transaction. Only the Producer who created the application can withdraw it, and it cannot be withdrawn after review.
+Open a Pending application in **Applications** and select **Withdraw**. Confirm the MetaMask transaction. Only the wallet that created the application can withdraw it, and it cannot be withdrawn after review.
 
 `CertificateRegistry.withdrawApplication` changes the application status to **Withdrawn**. The batch key remains reserved and cannot be reused.
 
 ### List a certificate
 
-After an application is approved, open **My RECs**. Find the Active certificate and select **List batch**. Enter one total ETH price for the complete batch, then confirm in MetaMask.
+After an application is approved, open **My RECs** using the wallet that owns the Active certificate and select **List batch**. Enter one total ETH price for the complete batch, then confirm in MetaMask.
 
 `CertificateMarket.listCertificate` creates an active listing and marks the certificate as listed. The certificate quantity does not change.
 
@@ -69,13 +67,13 @@ For an active listing in **My RECs**:
 - Select **Change price** to set a new total price for the complete batch.
 - Select **Cancel listing** to remove it from Market.
 
-Both actions require MetaMask confirmation. Cancelling a listing does not transfer ownership; the certificate remains Active and owned by the Producer.
+Both actions require MetaMask confirmation. Cancelling a listing does not transfer ownership; the certificate remains Active and owned by the same wallet.
 
 ### Withdraw sale proceeds
 
-After a Buyer purchases a batch, open **Account**. The **Claimable sales** amount shows the proceeds credited to the Producer. Select **Withdraw proceeds** and confirm the transaction.
+After another wallet purchases a batch, open **Account**. The **Claimable sales** amount shows the proceeds credited to the seller. Select **Withdraw proceeds** and confirm the transaction.
 
-`CertificateMarket.withdraw` transfers the credited test ETH to the Producer and clears the claimable balance. Purchase and withdrawal are separate transactions.
+`CertificateMarket.withdraw` transfers the credited test ETH to the seller and clears the claimable balance. Purchase and withdrawal are separate transactions.
 
 ## Admin
 
@@ -91,7 +89,7 @@ Rejecting requires a reason and calls `CertificateRegistry.rejectApplication`. T
 
 Only Pending applications can be reviewed. Evidence review is a manual decision; a matching hash shows record consistency, not independent proof of electricity generation.
 
-## Buyer
+## Purchase and retirement
 
 ### Review a listing
 
@@ -101,15 +99,15 @@ Open **Market**. Each entry represents one complete certificate batch and shows 
 
 Select **Buy whole batch**. Confirm the quantity and total price, then confirm the MetaMask transaction. The value sent must equal the current total listing price.
 
-`CertificateMarket.buyCertificate` checks the Buyer role, listing status and expected price. It transfers the whole certificate to the Buyer, closes the listing and credits sale proceeds to the Producer in one transaction. If the Producer changes the price before confirmation, refresh Market and start again.
+`CertificateMarket.buyCertificate` checks the listing status and expected price. It transfers the whole certificate to the purchasing wallet, closes the listing and credits sale proceeds to the seller in one transaction. If the seller changes the price before confirmation, refresh Market and start again.
 
-After a successful receipt, the batch is removed from Market and appears in the Buyer's **My RECs** page.
+After a successful receipt, the batch is removed from Market and appears in the purchasing wallet's **My RECs** page.
 
 ### Retire a certificate
 
-Open **My RECs**, select an Active certificate owned by the Buyer, and choose **Retire whole batch**. Enter the retirement beneficiary and purpose, then confirm in MetaMask.
+Open **My RECs**, select an Active unlisted certificate owned by the connected wallet, and choose **Retire whole batch**. Enter the retirement beneficiary and purpose, then confirm in MetaMask.
 
-`CertificateRegistry.retireCertificate` records a hash of the retirement statement and changes the certificate status to **Retired**. The certificate remains owned by the Buyer, but cannot be listed or traded again.
+`CertificateRegistry.retireCertificate` records a hash of the retirement statement and changes the certificate status to **Retired**. The certificate remains owned by the same wallet, but cannot be listed or traded again.
 
 ## Public audit and activity records
 
@@ -140,13 +138,13 @@ After connecting a wallet, open **Activity** to view transactions that the serve
 
 | Item | Status | Meaning |
 | --- | --- | --- |
-| Application | Pending | Submitted by a Producer and waiting for Admin review. |
+| Application | Pending | Submitted by a wallet and waiting for Admin review. |
 | Application | Approved | Reviewed by Admin; a certificate was issued. |
 | Application | Rejected | Rejected by Admin; no certificate was issued. |
-| Application | Withdrawn | Withdrawn by its Producer before review. |
+| Application | Withdrawn | Withdrawn by its submitting wallet before review. |
 | Certificate | Active | Issued and not retired. |
 | Certificate | Listed | An Active certificate with a current Market listing. |
-| Certificate | Retired | Permanently removed from trading after the Buyer retirement transaction. |
+| Certificate | Retired | Permanently removed from trading after its owner's retirement transaction. |
 
 ## Common issues
 

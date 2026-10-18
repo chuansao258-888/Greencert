@@ -21,9 +21,8 @@ def create_content():
     if kind not in ("application", "rejection", "retirement"):
         return error("Unknown content kind.", 400, "INVALID_KIND")
     chain = current_app.extensions["chain"]
-    required_role = {"application": "Producer", "rejection": "Admin", "retirement": "Buyer"}[kind]
-    if chain.role_name(g.wallet_address) != required_role:
-        return error(f"A {required_role} account is required.", 403, "WRONG_ROLE")
+    if kind == "rejection" and chain.role_name(g.wallet_address) != "Admin":
+        return error("An Admin account is required.", 403, "WRONG_ROLE")
     body = payload.get("payload")
     if not isinstance(body, dict):
         return error("Application payload is required.", 400, "INVALID_PAYLOAD")
@@ -36,7 +35,7 @@ def create_content():
             with open_database(current_app.config["DATABASE_PATH"]) as database:
                 file_record = database.execute("SELECT * FROM files WHERE id = ?", (proof_file_id,)).fetchone()
             if not file_record or file_record["uploader"] != g.wallet_address:
-                return error("Upload evidence with this Producer wallet first.", 422, "INVALID_EVIDENCE")
+                return error("Upload evidence with this signed-in wallet first.", 422, "INVALID_EVIDENCE")
             normalised, chain_args = normalise_application(body, file_record["sha256"])
         elif kind == "rejection":
             normalised, chain_args = normalise_rejection(body)

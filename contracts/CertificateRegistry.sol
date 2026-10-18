@@ -89,7 +89,7 @@ contract CertificateRegistry is ICertificateRegistry {
         market = marketAddress;
     }
 
-    // Submit a unique generation batch for review.
+    // Submit a unique generation batch for review from any wallet.
     function submitApplication(
         bytes32 siteHash,
         uint64 periodStart,
@@ -98,7 +98,6 @@ contract CertificateRegistry is ICertificateRegistry {
         uint32 quantity,
         bytes32 metadataHash
     ) external returns (uint256 applicationId) {
-        require(roleRegistry.roleOf(msg.sender) == IRoleRegistry.Role.Producer, "Producer only");
         require(siteHash != bytes32(0) && metadataHash != bytes32(0), "Hashes are required");
         require(periodStart < periodEnd && periodEnd <= block.timestamp, "Invalid period");
         require(batchIndex > 0 && quantity > 0 && quantity <= 100, "Invalid batch");
@@ -168,10 +167,9 @@ contract CertificateRegistry is ICertificateRegistry {
         emit ApplicationRejected(applicationId, msg.sender, reasonHash);
     }
 
-    // Retire the complete batch held by its Buyer owner.
+    // Retire the complete batch held by its current owner.
     function retireCertificate(uint256 certificateId, bytes32 retirementHash) external {
         Certificate storage certificate = certificateFor(certificateId);
-        require(roleRegistry.roleOf(msg.sender) == IRoleRegistry.Role.Buyer, "Buyer only");
         require(certificate.owner == msg.sender, "Certificate owner only");
         require(certificate.status == CertificateStatus.Active && !certificate.listed, "Certificate is unavailable");
         require(retirementHash != bytes32(0), "Retirement hash is required");
@@ -187,16 +185,14 @@ contract CertificateRegistry is ICertificateRegistry {
         require(certificate.owner == seller, "Seller is not owner");
         require(certificate.status == CertificateStatus.Active, "Certificate is unavailable");
         require(certificate.listed != listed, "Listing unchanged");
-        if (listed) require(roleRegistry.roleOf(seller) == IRoleRegistry.Role.Producer, "Producer only");
         certificate.listed = listed;
     }
 
-    // Transfer an entire listed batch to the Buyer.
+    // Transfer an entire listed batch to its purchaser.
     function transferOnSale(uint256 certificateId, address seller, address buyer) external onlyMarket {
         Certificate storage certificate = certificateFor(certificateId);
         require(certificate.owner == seller && certificate.listed, "Certificate is not listed");
         require(certificate.status == CertificateStatus.Active, "Certificate is unavailable");
-        require(roleRegistry.roleOf(buyer) == IRoleRegistry.Role.Buyer, "Buyer only");
         certificate.owner = buyer;
         certificate.listed = false;
     }

@@ -1,6 +1,6 @@
 # Testing Plan
 
-Testing concentrates on the Producer, Admin and Buyer workflows and the core accounting rules. Python `unittest` covers server behavior with temporary SQLite and upload folders. Solidity test functions target Remix Solidity Unit Testing, the tool used for contract exercises. Sepolia workflow verification is recorded manually because it requires real wallet signatures.
+Testing concentrates on the open-wallet workflow, Admin review and the core accounting rules. Python `unittest` covers server behavior with temporary SQLite and upload folders. Solidity test functions target Remix Solidity Unit Testing, the tool used for contract exercises. Sepolia workflow verification is recorded manually because it requires real wallet signatures.
 
 ## Automated checks
 

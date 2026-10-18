@@ -4,7 +4,7 @@
 
 | Location | Records | Authority |
 |---|---|---|
-| RoleRegistry | Admin and registered roles | Authoritative role assignment. |
+| RoleRegistry | Immutable Admin and optional legacy labels | Authoritative Admin identity for review decisions. |
 | CertificateRegistry | Applications, reserved batch keys, immutable quantities, certificates and retirement | Authoritative lifecycle and ownership. |
 | CertificateMarket | Listings, seller credits and cumulative sales | Authoritative price and payment accounting. |
 | SQLite | Login state, file metadata, immutable content and verified transaction references | Supporting application data. |

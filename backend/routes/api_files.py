@@ -31,12 +31,10 @@ def current_role() -> str:
     return current_app.extensions["chain"].role_name(g.wallet_address)
 
 
-# Save an evidence file and its SHA-256 digest.
+# Save an evidence file and its SHA-256 digest for the signed-in wallet.
 @files_blueprint.post("")
 @require_session(write=True)
 def upload_file():
-    if current_role() != "Producer":
-        return error("A Producer account is required.", 403, "WRONG_ROLE")
     uploaded = request.files.get("file")
     if not uploaded or not uploaded.filename:
         return error("Select an evidence file.", 400, "FILE_REQUIRED")

@@ -17,13 +17,11 @@ contract CertificateMarketTest {
         Assert.ok(rejected, "Mismatched registries were accepted");
     }
 
-    // Deploy a listed batch and separate Producer and Buyer actors.
+    // Deploy a listed batch and separate unregistered wallet actors.
     function fixture() private returns (CertificateRegistry registry, CertificateMarket market, TestActor producer, TestActor buyer) {
         RoleRegistry roles = new RoleRegistry(address(this));
         producer = new TestActor();
         buyer = new TestActor();
-        producer.register(roles, 1);
-        buyer.register(roles, 2);
         registry = new CertificateRegistry(address(roles));
         market = new CertificateMarket(address(roles), address(registry));
         registry.setMarket(address(market));
@@ -32,7 +30,7 @@ contract CertificateMarketTest {
     }
 
     // List, reprice and cancel the complete certificate batch.
-    function test_producer_lists_updates_and_cancels() public {
+    function test_owner_lists_updates_and_cancels() public {
         (CertificateRegistry registry, CertificateMarket market, TestActor producer, ) = fixture();
         producer.list(market, 1, 100);
         producer.updatePrice(market, 1, 120);
@@ -43,7 +41,7 @@ contract CertificateMarketTest {
 
     // Purchase the complete batch for its exact total price.
     /// #value: 100
-    function test_buyer_purchases_complete_batch() public payable {
+    function test_any_other_wallet_purchases_complete_batch() public payable {
         (CertificateRegistry registry, CertificateMarket market, TestActor producer, TestActor buyer) = fixture();
         producer.list(market, 1, 100);
         buyer.buy{value: 100}(market, 1, 100);
@@ -66,7 +64,7 @@ contract CertificateMarketTest {
 
     // Retire the purchased batch while keeping its quantity.
     /// #value: 100
-    function test_buyer_retires_owned_batch() public payable {
+    function test_owner_retires_owned_batch() public payable {
         (CertificateRegistry registry, CertificateMarket market, TestActor producer, TestActor buyer) = fixture();
         producer.list(market, 1, 100);
         buyer.buy{value: 100}(market, 1, 100);

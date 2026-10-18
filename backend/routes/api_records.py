@@ -29,7 +29,7 @@ def health():
     return jsonify({"data": {"status": "ready" if chain.configured() else "unconfigured"}}), 200 if chain.configured() else 503
 
 
-# Return applications visible to the signed-in role.
+# Return all applications to Admin, or only the signed-in wallet's applications.
 @records_blueprint.get("/applications")
 @require_session()
 def applications():
@@ -37,10 +37,8 @@ def applications():
     if not chain.configured():
         return error("Contracts are not configured.", 503, "CHAIN_UNAVAILABLE")
     role = chain.role_name(g.wallet_address)
-    if role not in ("Producer", "Admin"):
-        return error("A Producer or Admin account is required.", 403, "WRONG_ROLE")
     items = chain.applications()
-    if role == "Producer":
+    if role != "Admin":
         items = [item for item in items if item["producer"].lower() == g.wallet_address]
     status = request.args.get("status")
     if status:

@@ -4,7 +4,7 @@
 
 ```mermaid
 flowchart TB
-    User[Producer / Buyer / Admin] --> UI[Mobile-first web interface]
+    User[Connected wallet / Admin] --> UI[Mobile-first web interface]
     UI --> Wallet[MetaMask]
     Wallet -->|Signed transactions| Chain[Sepolia]
     UI -->|Same-origin HTTP API| Flask[Flask application]
@@ -60,18 +60,17 @@ Pin compatible dependency versions during implementation. A single server proces
 
 ```mermaid
 flowchart TD
-    A[Producer connects wallet] --> B[Register Producer role if needed]
-    B --> C[Upload generation evidence]
+    A[Wallet connects] --> C[Upload generation evidence]
     C --> D[Create immutable application metadata]
     D --> E[Submit application transaction]
     E --> F[Pending application]
-    F --> G{Producer withdraws?}
+    F --> G{Submitting wallet withdraws?}
     G -->|Yes| H[Withdrawn]
     G -->|No| I[Admin checks evidence and metadata hash]
     I --> J{Evidence acceptable?}
     J -->|No| K[Store rejection reason and reject]
     J -->|Yes| L[Approve and issue certificate]
-    L --> M[Active certificate batch owned by Producer]
+    L --> M[Active certificate batch owned by submitting wallet]
 ```
 
 The Admin must compare the metadata hash and application fields with the on-chain record. Missing or inconsistent evidence blocks approval in the interface. The contract enforces permissions and state transitions; the reviewer's judgement supplies the evidence assessment.
@@ -80,17 +79,17 @@ The Admin must compare the metadata hash and application fields with the on-chai
 
 ```mermaid
 flowchart TD
-    A[Producer owns active certificate batch] --> B[List complete batch at a fixed total price]
+    A[Wallet owns active certificate batch] --> B[List complete batch at a fixed total price]
     B --> C{Next action}
     C -->|Reprice| D[Update listing price]
     D --> C
     C -->|Cancel| A
-    C -->|Buy| E[Buyer confirms current price]
+    C -->|Buy| E[Another wallet confirms current price]
     E --> F[Pay exact total test ETH price]
     F --> G[Close listing and transfer complete batch]
     G --> H[Credit seller proceeds]
     H --> I[Seller withdraws proceeds]
-    G --> J[Buyer holds certificate]
+    G --> J[Purchasing wallet holds certificate]
     J --> K[Create retirement declaration]
     K --> L[Retire complete batch permanently]
 ```
@@ -102,15 +101,17 @@ Closing the listing, transferring ownership and crediting the seller form one at
 ```mermaid
 stateDiagram-v2
     [*] --> Pending: Submit application
-    Pending --> Withdrawn: Producer withdraws
+    Pending --> Withdrawn: Submitting wallet withdraws
     Pending --> Rejected: Admin rejects
     Pending --> Approved: Admin approves
-    Approved --> ActiveProducer: Issue certificate
-    ActiveProducer --> Listed: Producer lists
-    Listed --> Listed: Producer changes price
-    Listed --> ActiveProducer: Producer cancels
-    Listed --> ActiveBuyer: Buyer purchases
-    ActiveBuyer --> Retired: Buyer retires
+    Approved --> ActiveSubmitter: Issue certificate
+    ActiveSubmitter --> Listed: Owner lists
+    Listed --> Listed: Owner changes price
+    Listed --> ActiveSubmitter: Owner cancels
+    Listed --> ActivePurchaser: Another wallet purchases
+    ActiveSubmitter --> Retired: Owner retires
+    ActivePurchaser --> Listed: Owner lists
+    ActivePurchaser --> Retired: Owner retires
     Withdrawn --> [*]
     Rejected --> [*]
     Retired --> [*]
@@ -122,7 +123,7 @@ This diagram combines the application and certificate lifecycles. In storage, ap
 
 ```mermaid
 sequenceDiagram
-    actor Buyer
+    actor Buyer as Purchasing wallet
     participant UI as Browser
     participant API as Flask API
     participant Wallet as MetaMask
@@ -134,7 +135,7 @@ sequenceDiagram
     Buyer->>UI: Confirm purchase
     UI->>Wallet: buyCertificate(id, expectedPrice), value=price
     Wallet->>Market: Signed transaction
-    Market->>Market: Check Buyer, listing and exact price
+    Market->>Market: Check purchaser, listing and exact price
     Market->>Registry: transferOnSale(id, seller, buyer)
     Registry-->>Market: Ownership updated; listed=false
     Market->>Market: Close listing; credit seller; emit event
