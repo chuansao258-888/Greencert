@@ -6,7 +6,7 @@ Flask serves the pages and same-origin JSON endpoints under `/api`. MetaMask sub
 
 | Method | Path | Purpose |
 |---|---|---|
-| GET | `/api/health` | Report whether RPC and all contract deployment settings are present. |
+| GET | `/api/health` | Report whether an RPC client and deployment addresses and blocks are configured; it does not test RPC connectivity. |
 | GET | `/api/config` | Return chain ID, currency, addresses and configuration status. |
 | POST | `/api/auth/challenge` | Create a five-minute signing message for `address`. |
 | POST | `/api/auth/verify` | Check `address`, `nonce` and `signature`; set an eight-hour session cookie. |
@@ -39,6 +39,8 @@ For all kinds, the canonical envelope contains `schemaVersion`, `kind`, `chainId
 | GET | `/api/certificates` | Public | List certificates; optional `owner`, `status`, `listed=true`. |
 | GET | `/api/certificates/{id}` | Public | Return certificate, listing, metadata and retirement statement. |
 | GET | `/api/certificates/{id}/events` | Public | Return matching issue, market and retirement events. |
+| GET | `/api/audit` | Public | Return integrity reports and certificate event history, or an unavailable event status. |
+| GET | `/api/certificates/{id}/evidence-summary` | Public | Return evidence integrity checks without exposing the original file. |
 | GET | `/api/dashboard` | Public | Return issued, active, listed, sold and retired totals, total MWh and source chart data. |
 | GET | `/api/wallet` | Signed-in wallet | Return role, ETH balance and claimable sale proceeds. |
 

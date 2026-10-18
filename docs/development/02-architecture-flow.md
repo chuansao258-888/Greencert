@@ -50,9 +50,9 @@ Flask sums each certificate's on-chain quantity once. Its stored metadata suppli
 | Wallet | MetaMask | Address connection, message signatures and transaction approval. |
 | Server | Python, Flask and Jinja | Page rendering, API routes and application services. |
 | Chain reads | web3.py and eth-account | Contract reads, receipt decoding and message signature recovery. |
-| Storage | SQLite through sqlite3; local files on persistent disk | Sessions, immutable metadata and generation evidence. |
+| Storage | SQLite through sqlite3 and local files | Sessions, metadata and generation evidence; Render service files may be lost on restart or redeploy. |
 | Network | Sepolia | Demonstration transactions using test ETH. |
-| Hosting | Render with persistent storage | Public Flask application and durable local data. |
+| Hosting | Render free service | Public Flask application with ephemeral service storage. |
 
 Pin compatible dependency versions during implementation. A single server process and bounded chain reads are sufficient for the coursework dataset.
 
@@ -60,7 +60,7 @@ Pin compatible dependency versions during implementation. A single server proces
 
 ```mermaid
 flowchart TD
-    A[Wallet connects] --> C[Upload generation evidence]
+    A[Wallet connects and registers a role] --> C[Upload generation evidence]
     C --> D[Create immutable application metadata]
     D --> E[Submit application transaction]
     E --> F[Pending application]
@@ -73,7 +73,7 @@ flowchart TD
     L --> M[Active certificate batch owned by submitting wallet]
 ```
 
-The Admin must compare the metadata hash and application fields with the on-chain record. Missing or inconsistent evidence blocks approval in the interface. The contract enforces permissions and state transitions; the reviewer's judgement supplies the evidence assessment.
+The Admin must compare the metadata hash and application fields with the on-chain record. The interface may display unavailable evidence or metadata but does not enforce evidence availability before approval. The Admin must inspect the supporting records before approving. The contract enforces permissions and state transitions, not evidence quality.
 
 ## Trading and Retirement Flow
 
@@ -131,7 +131,7 @@ sequenceDiagram
     participant Registry as CertificateRegistry
     Buyer->>UI: Open certificate
     UI->>API: Read certificate, metadata and listing
-    API-->>UI: Current state and snapshot block
+    API-->>UI: Current state and available metadata
     Buyer->>UI: Confirm purchase
     UI->>Wallet: buyCertificate(id, expectedPrice), value=price
     Wallet->>Market: Signed transaction

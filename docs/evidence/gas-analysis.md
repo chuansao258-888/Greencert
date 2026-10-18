@@ -4,7 +4,7 @@
 
 This note separates two kinds of evidence:
 
-- `gas-results.csv` contains mined receipts from the earlier Sepolia Registry and Market deployment.
+- `gas-results.csv` contains mined receipts from the 13 October Sepolia deployment: RoleRegistry `0xc6ddfdef0eef7b9d2bb6df9e60bf439a2725a369`, Registry `0x338c972fcab0892448fa0ee939f3330fb42f6c04` and Market `0xd7f2b6c233e7044ab4a76317b834c58c2ff23f01`. Its configuration was recorded at commit `c93a5bf` (solc 0.8.30, Prague, optimizer 200). Blockscout returned the CSV receipt statuses, blocks, targets and gas used on 18 October.
 - The current Registry and Market include an `onlyRegistered` check and were deployed on 18 October 2026. The receipt figures below remain measurements of the earlier full lifecycle; an equivalent guarded lifecycle measurement has not yet been recorded. Deployment and guard verification are in [registration deployment](../development/09-registration-deployment.md).
 
 All values are for a testnet prototype. They are useful for comparing this implementation's transaction paths; they are not a production cost forecast.
@@ -23,7 +23,7 @@ The runner rejects a transaction if that calculated limit is above its configure
 gasUsed × effectiveGasPrice
 ```
 
-The interface treats an estimate as preparation information, not a guarantee. The wallet still decides the final fee settings, and a rejected or pending wallet request is not retried automatically.
+The website does not display its own explicit gas estimate; MetaMask handles transaction preparation and fee settings. The script estimate is preparation information, not a guarantee. A rejected or pending wallet request is not retried automatically.
 
 ## Recorded receipt measurements
 
@@ -51,7 +51,7 @@ The larger costs occur where the contracts create a new application record or co
 
 | Choice | Effect and trade-off |
 |---|---|
-| Optimizer enabled with 200 runs | The recorded deployment configuration uses Solidity optimisation for a repeated-use application contract. The same setting must be used when comparing a replacement deployment. |
+| Optimizer enabled with 200 runs | The historical deployment configuration records Solidity optimisation for a repeated-use application contract. The same setting must be used when comparing a replacement deployment. |
 | Compact timestamp and quantity fields | `uint64` is used for timestamps and `uint32` for quantity and batch index inside record structs, reducing storage footprint where Solidity can pack fields. |
 | Immutable contract references | Registry references are assigned once in constructors, avoiding mutable configuration storage on ordinary calls. |
 | Mappings with bounded count reads | Applications, certificates, listings and credits use mappings. Counts support bounded page reads instead of storing unbounded arrays of full records. |

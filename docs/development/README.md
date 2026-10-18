@@ -2,7 +2,7 @@
 
 GreenCert is a mobile-first web application for issuing, trading and retiring simulated renewable energy certificates (RECs). It uses test ETH and a small set of smart contracts to demonstrate a complete certificate lifecycle.
 
-Status: design specification. Implementation, testing and deployment are pending.
+This specification describes the implemented prototype. Current test and deployment evidence is linked from the repository README; some acceptance checks remain open.
 
 ## Documents
 
@@ -23,7 +23,7 @@ Mermaid diagrams can be viewed in a compatible Markdown reader or on GitHub. Pri
 - Three interacting contracts: RoleRegistry, CertificateRegistry and CertificateMarket.
 - Each certificate record represents a batch of 1–100 simulated RECs. Each REC corresponds to 1 MWh.
 - Producers submit evidence for manual review, then list an approved batch at one fixed total price.
-- Buyers purchase, hold or retire the complete batch. Partial purchase, batch splitting and secondary resale are outside the scope.
+- Buyers purchase, hold or retire the complete batch. Partial purchase and batch splitting are outside the scope. The current registered owner may relist an active, unlisted batch.
 - The application uses Solidity, Remix, HTML, CSS, JavaScript, ethers.js, MetaMask, Flask and SQLite.
 - The interface is a responsive website, accessible through a mobile wallet browser.
 

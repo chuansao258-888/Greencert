@@ -8,7 +8,7 @@
 | CertificateRegistry | Applications, reserved batch keys, immutable quantities, certificates and retirement | Authoritative lifecycle and ownership. |
 | CertificateMarket | Listings, seller credits and cumulative sales | Authoritative price and payment accounting. |
 | SQLite | Login state, file metadata, immutable content and verified transaction references | Supporting application data. |
-| Persistent filesystem | Uploaded evidence | Original file bytes referenced by SHA-256. |
+| Service filesystem | Uploaded evidence | Original file bytes referenced by SHA-256; durability depends on the host. |
 
 Do not store editable role, price or ownership copies as independent database truth. Read contract values for business decisions. SQLite uses standard Python `sqlite3`, foreign keys and short transactions.
 
@@ -147,6 +147,6 @@ Use parameterised SQL. Enable foreign keys on each connection. Create the initia
 
 ## Persistence and Demonstration Data
 
-Store the database and evidence directory on the hosting platform's persistent disk. An ephemeral application filesystem is insufficient. Back up SQLite with its backup API and preserve evidence files and deployment configuration alongside it. Backups must not contain wallet private keys.
+The current free Render service uses SQLite and an upload directory on its service filesystem. They may be lost when the instance restarts or is redeployed; the current deployment has no persistent disk. On-chain records remain but metadata and evidence may be unavailable. For local installations, back up SQLite with its backup API and preserve uploads and deployment configuration alongside it. Backups must not contain wallet private keys.
 
 Use fictional sites, organisations and generation reports. Create example application, listing, purchase and retirement states through actual testnet transactions. Do not fabricate contract states in SQLite to populate a demonstration.

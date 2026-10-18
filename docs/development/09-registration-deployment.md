@@ -19,4 +19,4 @@ On 18 October 2026, the contracts were compiled in Remix with Solidity `0.8.34`,
 - `CertificateRegistry.submitApplication(...)`; and
 - `CertificateMarket.buyCertificate(1, 0)`.
 
-The application stores the new addresses and deployment blocks in `deployment.json`. A new Registry and Market begin empty: records and sale credits at the previous contract addresses are not migrated. Earlier workflow receipts remain historical evidence only.
+The application stores the new addresses and deployment blocks in `deployment.json`. A new Registry and Market begin empty: records and sale credits at the previous contract addresses are not migrated. The current deployment subsequently acquired records; see the dated live observation in the test results. Earlier workflow receipts remain historical evidence only.

@@ -4,7 +4,7 @@
 
 GreenCert gives small renewable energy producers and business buyers a simple way to demonstrate certificate issuance, purchase and retirement. The project focuses on completing this workflow with clear ownership records, visible transaction history and a usable mobile interface.
 
-The proposed problem is fragmented evidence: a buyer needs to understand where a certificate came from, who owns it and whether its environmental attributes have already been claimed. GreenCert links reviewed generation evidence to a certificate record and makes retirement a permanent state change. Research or user interviews should substantiate this problem before it is presented as a validated finding.
+The proposed problem is fragmented evidence: a buyer needs to understand where a certificate came from, who owns it and whether its environmental attributes have already been claimed. GreenCert links reviewed generation evidence to a certificate record and makes retirement a permanent state change. Domain sources and a bounded scenario evaluation are recorded in [problem and evaluation evidence](../evidence/problem-evaluation.md). They do not establish user adoption or real-world impact.
 
 ## Roles
 
@@ -33,7 +33,7 @@ The Admin address is fixed at deployment. First connection prompts unregistered 
 | FR-09 | Traceability | Certificate details show issuance, sale and retirement records with transaction links. |
 | FR-10 | Dashboard | Issued, listed, sold and retired totals and two labeled charts reflect contract records. The source chart sums REC quantity by energy source; the status chart counts Active and Retired batches. |
 | FR-11 | Mobile access | The complete role workflows work in a mobile wallet browser. |
-| FR-12 | Recovery | Refreshing the browser or restarting the server does not lose confirmed business records or stored evidence. |
+| FR-12 | Recovery | Confirmed business records remain on-chain. Local metadata and evidence survive a process restart only while the same SQLite file and upload directory remain available; the free Render filesystem can be reset. |
 | FR-13 | Evidence integrity | A certificate's public summary distinguishes matching, missing and inconsistent application, metadata and evidence-file hashes without releasing the uploaded file. |
 | FR-14 | Read-only audit | The public audit lists certificate integrity results and on-chain certificate events with transaction links and a status filter. |
 
@@ -46,7 +46,7 @@ The Admin address is fixed at deployment. First connection prompts unregistered 
 5. Only pending applications may be approved, rejected or withdrawn.
 6. Only the current owner may list a certificate. A listing requires an active certificate and a positive price.
 7. A purchase requires a wallet other than the seller, an active listing and exact payment at the purchaser's expected price. A changed price causes the transaction to revert.
-8. A purchased certificate batch may be held or retired. Purchase and retirement always apply to its complete quantity; it cannot be resold, split or partially retired.
+8. A purchased certificate batch may be held, relisted by its registered current owner, or retired. Purchase and retirement always apply to its complete quantity; it cannot be split or partially retired.
 9. Retirement is permanent. The owner and historical records remain available after retirement.
 10. The Admin has no arbitrary ownership transfer, balance withdrawal or retirement reversal function.
 
@@ -70,4 +70,4 @@ The submission checklist should be checked against the final assignment brief be
 
 ## Scope Limits
 
-The project excludes secondary trading, fungible token payments, NFT standards, lending, carbon accounting, live meter integration, automated accreditation, oracles and complex scaling infrastructure. Basic permission checks, consistent accounting and recoverable storage remain required for a working application.
+The project excludes fungible token payments, NFT standards, lending, carbon accounting, live meter integration, automated accreditation, oracles and complex scaling infrastructure. Basic permission checks, consistent accounting and recoverable storage remain required for a working application.

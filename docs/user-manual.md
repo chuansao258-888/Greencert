@@ -4,7 +4,9 @@
 
 GreenCert records the lifecycle of a simulated renewable energy certificate batch on Sepolia. A batch moves through wallet submission, Admin review, listing, purchase and retirement. One REC represents one MWh in this prototype. Transactions use Sepolia test ETH and have no real-world monetary value.
 
-Each certificate is traded and retired as a whole batch. The application does not support partial purchases, partial retirement, secondary resale, or reversal of retirement.
+Each certificate is traded and retired as a whole batch. A registered current owner may relist an active, unlisted batch. Partial purchases, partial retirement and reversal of retirement are not supported.
+
+The public free Render service stores SQLite and uploaded evidence on its service filesystem, which can be lost on restart or redeployment. An on-chain certificate can therefore remain visible while its supporting metadata and file are unavailable.
 
 ## Before you start
 

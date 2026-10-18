@@ -1,0 +1,25 @@
+This version of µWS is not compatible with your Node.js build:
+
+Error: Cannot find module '../binaries/uws_win32_x64_137.node'
+Require stack:
+- C:\Users\guany\Desktop\SC6113\Group Work\tmp\evm-tools\node_modules\ganache\node_modules\@trufflesuite\uws-js-unofficial\src\uws.js
+- C:\Users\guany\Desktop\SC6113\Group Work\tmp\evm-tools\node_modules\ganache\dist\node\core.js
+- C:\Users\guany\Desktop\SC6113\Group Work\scripts\run_contract_tests.cjs
+Falling back to a NodeJS implementation; performance may be degraded.
+
+
+PASS RoleRegistry.test_registers_producer_and_buyer
+PASS RoleRegistry.test_rejects_role_change
+PASS CertificateRegistry.test_admin_approval_issues_certificate_batch
+PASS CertificateRegistry.test_application_can_be_withdrawn_or_rejected
+PASS CertificateRegistry.test_approval_cannot_repeat
+PASS CertificateRegistry.test_registered_buyer_submits_batch_application
+PASS CertificateRegistry.test_rejects_wallet_as_role_registry
+PASS CertificateRegistry.test_unregistered_wallet_cannot_submit
+PASS CertificateMarket.test_owner_lists_updates_and_cancels
+PASS CertificateMarket.test_owner_retires_owned_batch
+PASS CertificateMarket.test_registered_producer_purchases_complete_batch
+PASS CertificateMarket.test_rejects_mismatched_registries
+PASS CertificateMarket.test_seller_withdraws_sale_proceeds
+PASS CertificateMarket.test_unregistered_purchase_reverts
+RESULT 14 passed, 0 failed; solc 0.8.30+commit.73712a01.Emscripten.clang; local Ganache Shanghai EVM

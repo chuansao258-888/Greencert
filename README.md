@@ -18,6 +18,8 @@ Certificate ownership, listings, purchases and retirements are stored on Sepolia
 
 | Document | Description |
 | --- | --- |
+| [Course requirement checklist](docs/submission-checklist.md) | Assignment requirements, evidence and outstanding submission actions. |
+| [Problem and evaluation evidence](docs/evidence/problem-evaluation.md) | Domain sources and bounded scenario observations. |
 | [User manual](docs/user-manual.md) | Wallet connection, registration, marketplace and Admin-review workflows. |
 | [Product and requirements](docs/development/01-product.md) | Scope, roles, business rules and requirements. |
 | [Architecture and workflow](docs/development/02-architecture-flow.md) | Application components, state flow and transaction sequence. |
@@ -30,7 +32,7 @@ Certificate ownership, listings, purchases and retirements are stored on Sepolia
 | [Gas measurements](docs/evidence/gas-results.csv) | Mined transaction receipts, gas used and transaction cost. |
 | [Gas analysis](docs/evidence/gas-analysis.md) | Estimation method, receipt-based measurements and design trade-offs. |
 | [Registration deployment](docs/development/09-registration-deployment.md) | Current guarded contracts, deployment transactions and on-chain verification. |
-| [Sepolia workflow](tests/manual/sepolia-checklist.md) | Completed on-chain workflow and expected state checks. |
+| [Sepolia workflow](tests/manual/sepolia-checklist.md) | Earlier on-chain workflow and current deployment checks. |
 | [Automated Sepolia run](tests/manual/sepolia-automated-run.md) | Test-wallet setup and resumable workflow runner. |
 
 ## Local setup
@@ -64,7 +66,7 @@ npm run test:contracts:compile
 npm run test:frontend
 ```
 
-Run the Solidity test functions in `tests/contracts` using Remix Solidity Unit Testing. The local Solidity command checks compilation only; it does not execute the Remix test functions.
+The local Solidity compilation command does not execute tests. The current test functions have also been executed on an isolated local EVM; see [test results](docs/evidence/test-results.md) for the commands, versions and limitations. Remix execution of the revised tests has not been recorded.
 
 For the deployed Sepolia contracts, run:
 

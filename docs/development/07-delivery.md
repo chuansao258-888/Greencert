@@ -147,7 +147,7 @@ This layout is fixed for the first implementation. Do not add service layers, a 
 | `docs/evidence/README.md` | Explain evidence naming and distinguish planned from completed results. |
 | `docs/evidence/gas-results.csv` | Receipt measurements entered after Sepolia checks. |
 | `docs/evidence/test-results.md` | Test run commands, environment, results and links to supporting evidence. |
-| `deployment.json` | Chain, addresses, deployment blocks, compiler, Prague EVM target and optimizer settings. |
+| `deployment.json` | Chain, addresses, deployment blocks, compiler, EVM target and optimizer settings. |
 | `requirements.txt` | Runtime Python packages with compatible pinned versions. |
 | `requirements-dev.txt` | Test-only Python packages, if any; keep `unittest` in the standard library. |
 | `.env.example` | Safe variable names and non-secret examples. |
@@ -161,7 +161,7 @@ This layout is fixed for the first implementation. Do not add service layers, a 
 | P2: Issuance | Implement evidence upload, canonical content, batch quantity, applications, withdrawal and Admin review. | A registered wallet can obtain a certificate record with an immutable quantity; rejected and withdrawn applications remain traceable. |
 | P3: Market | Implement whole-batch listing, repricing, cancellation, purchase, credit withdrawal and retirement. | Quantity, ownership, listing status and seller balances remain consistent through the full workflow. |
 | P4: Evaluation | Add dashboard, history, receipt verification, functional tests and gas measurements. | All eleven transaction types and critical failure cases have recorded results. |
-| P5: Deployment | Deploy contracts and hosted application; configure persistent storage. | Public URL works; durable evidence storage requires a host plan with persistent disk support. |
+| P5: Deployment | Deploy contracts and hosted application; configure persistent storage. | Public URL works. The current free service uses ephemeral files; durable evidence storage would require a separate supported storage arrangement. |
 | P6: Submission | Prepare report, user guide, contribution records, slides and demonstration evidence. | Submission materials match the implemented and verified behaviour. |
 
 Complete each core workflow before adding visual polish. Deferred features should remain outside the implementation unless a coursework requirement makes them necessary.
@@ -183,14 +183,14 @@ Collect transaction hashes, `gasUsed` and effective gas price for all eleven use
 | SECRET_KEY | Random server secret, supplied through the host's environment configuration. |
 | RPC_URL | Sepolia RPC endpoint; keep provider credentials on the server. |
 | CHAIN_ID | Expected chain ID, 11155111. |
-| DATABASE_PATH | SQLite file on persistent storage. |
-| UPLOAD_DIR | Evidence directory on persistent storage. |
+| DATABASE_PATH | SQLite file location; default is the service filesystem. |
+| UPLOAD_DIR | Evidence directory location; default is the service filesystem. |
 | DEPLOYMENT_FILE | Path to contract addresses, deployment blocks and compilation settings. |
 | COOKIE_SECURE | Enabled for the deployed HTTPS application. |
 
 `deployment.json` contains the network, three contract addresses, deployment blocks, compiler version, EVM target and optimizer settings. Export matching ABIs for the server and frontend. Never store wallet private keys in application configuration or the repository.
 
-Use one Flask application worker for the initial deployment. On Render, place SQLite and uploads under the mounted persistent path, such as `/var/data`. Verify the selected hosting plan supports persistent storage and confirm its cost before provisioning. Do not rely on an ephemeral filesystem for submitted evidence.
+The current free Render configuration runs one Flask worker and uses the default service filesystem for SQLite and uploads. These files may disappear on restart or redeployment. A persistent disk is not configured. Preserve evidence separately when needed and describe the limitation when demonstrating the service.
 
 ## Deployment Checks
 
@@ -213,7 +213,7 @@ Back up the database with the SQLite backup API and preserve uploads and deploym
 - [ ] Public application URL and three testnet contract addresses.
 - [ ] Evidence for all eleven transaction types, including receipts and measured gas use.
 - [ ] Functional test results and representative failure cases.
-- [ ] Screenshots and observations from mobile wallet testing.
+- [ ] Optional mobile wallet observations, if collected; the assignment does not explicitly require device screenshots.
 - [ ] User instructions for Producer, Buyer and Admin.
 - [ ] Presentation slides and a ten-minute demonstration.
 - [ ] A final check against the assignment brief and submission instructions.
