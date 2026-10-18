@@ -4,7 +4,7 @@
 
 | Location | Records | Authority |
 |---|---|---|
-| RoleRegistry | Immutable Admin and optional legacy labels | Authoritative Admin identity for review decisions. |
+| RoleRegistry | Immutable Admin and one-time Producer or Buyer registrations | Authoritative identity and registration state for contract access checks. |
 | CertificateRegistry | Applications, reserved batch keys, immutable quantities, certificates and retirement | Authoritative lifecycle and ownership. |
 | CertificateMarket | Listings, seller credits and cumulative sales | Authoritative price and payment accounting. |
 | SQLite | Login state, file metadata, immutable content and verified transaction references | Supporting application data. |
@@ -40,7 +40,7 @@ Do not store editable role, price or ownership copies as independent database tr
 | Column | Type | Constraint |
 |---|---|---|
 | id | TEXT | Primary key; random public identifier. |
-| uploader | TEXT | Lowercase Producer address. |
+| uploader | TEXT | Lowercase registered wallet address. |
 | original_name | TEXT | Display name only. |
 | stored_name | TEXT | Unique server-generated filename. |
 | sha256 | TEXT | Digest of original bytes. |

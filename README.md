@@ -18,7 +18,7 @@ Certificate ownership, listings, purchases and retirements are stored on Sepolia
 
 | Document | Description |
 | --- | --- |
-| [User manual](docs/user-manual.md) | Wallet connection, open marketplace and Admin-review workflows. |
+| [User manual](docs/user-manual.md) | Wallet connection, registration, marketplace and Admin-review workflows. |
 | [Product and requirements](docs/development/01-product.md) | Scope, roles, business rules and requirements. |
 | [Architecture and workflow](docs/development/02-architecture-flow.md) | Application components, state flow and transaction sequence. |
 | [Smart contracts](docs/development/03-contracts.md) | Contract responsibilities, permissions, functions and events. |
@@ -28,6 +28,8 @@ Certificate ownership, listings, purchases and retirements are stored on Sepolia
 | [Testing plan](docs/development/08-testing.md) | Automated and Sepolia workflow checks. |
 | [Test results](docs/evidence/test-results.md) | Recorded local, Remix and Sepolia results. |
 | [Gas measurements](docs/evidence/gas-results.csv) | Mined transaction receipts, gas used and transaction cost. |
+| [Gas analysis](docs/evidence/gas-analysis.md) | Estimation method, receipt-based measurements and design trade-offs. |
+| [Registration deployment transition](docs/development/09-registration-deployment.md) | Steps and validation required before deploying the new on-chain registration guards. |
 | [Sepolia workflow](tests/manual/sepolia-checklist.md) | Completed on-chain workflow and expected state checks. |
 | [Automated Sepolia run](tests/manual/sepolia-automated-run.md) | Test-wallet setup and resumable workflow runner. |
 
@@ -46,7 +48,7 @@ python app.py
 
 Open `http://127.0.0.1:5000`. Copy `.env.example` to `.env` and set `RPC_URL` to a Sepolia endpoint. `deployment.json` contains the deployed contract addresses and their deployment blocks.
 
-For a fresh deployment, deploy `RoleRegistry` with the Admin wallet address, deploy `CertificateRegistry` with the role registry address, then deploy `CertificateMarket` with both registry addresses. The Admin must call `CertificateRegistry.setMarket` once. Any connected wallet can submit applications, list an owned certificate, purchase a listing and retire an owned unlisted certificate. Only the Admin can approve or reject applications.
+For a fresh deployment, deploy `RoleRegistry` with the Admin wallet address, deploy `CertificateRegistry` with the role registry address, then deploy `CertificateMarket` with both registry addresses. The Admin must call `CertificateRegistry.setMarket` once. A registered Producer, Buyer or Admin can submit applications, list an owned certificate, purchase a listing and retire an owned unlisted certificate. Only the Admin can approve or reject applications.
 
 ## Tests
 

@@ -21,7 +21,7 @@ The certificate registry constructor rejects wallet addresses and checks that it
 | ApplicationStatus | None = 0, Pending = 1, Approved = 2, Rejected = 3, Withdrawn = 4 |
 | CertificateStatus | None = 0, Active = 1, Retired = 2 |
 
-Identifiers start at 1. Zero denotes an absent record. The Admin is immutable. The role registry is used to identify the reviewer; ordinary certificate operations are authorized by wallet ownership and lifecycle state rather than Producer or Buyer labels.
+Identifiers start at 1. Zero denotes an absent record. The Admin is immutable. A non-None role is required for ordinary state-changing operations; ownership, price and lifecycle state then determine whether that registered participant may complete the action. Producer and Buyer have the same ordinary business permissions.
 
 ## User Transactions
 
@@ -29,17 +29,17 @@ All ordinary state-changing user operations require a registered Producer, Buyer
 
 | ID | Contract method | Permission and preconditions | Result |
 |---|---|---|---|
-| TX-01 | `RoleRegistry.register(uint8 role)` | Unregistered address; role must be Producer or Buyer. | Register a permanent primary participation role from Account; emit `RoleRegistered`. Ordinary operations remain open to all wallets. |
-| TX-02 | `CertificateRegistry.submitApplication(bytes32 siteHash, uint64 periodStart, uint64 periodEnd, uint32 batchIndex, uint32 quantity, bytes32 metadataHash)` | Any wallet; nonzero hashes; start < end <= block timestamp; positive batch index; quantity from 1 to 100; unused batch key. | Create Pending application; reserve batch key; emit `ApplicationSubmitted`. |
-| TX-03 | `CertificateRegistry.withdrawApplication(uint256 applicationId)` | Applicant; Pending application. | Set Withdrawn; emit `ApplicationWithdrawn`. |
+| TX-01 | `RoleRegistry.register(uint8 role)` | Unregistered address; role must be Producer or Buyer. | Register a permanent primary participation role from Account; emit `RoleRegistered`. |
+| TX-02 | `CertificateRegistry.submitApplication(bytes32 siteHash, uint64 periodStart, uint64 periodEnd, uint32 batchIndex, uint32 quantity, bytes32 metadataHash)` | Registered Producer, Buyer or Admin; nonzero hashes; start < end <= block timestamp; positive batch index; quantity from 1 to 100; unused batch key. | Create Pending application; reserve batch key; emit `ApplicationSubmitted`. |
+| TX-03 | `CertificateRegistry.withdrawApplication(uint256 applicationId)` | Registered applicant; Pending application. | Set Withdrawn; emit `ApplicationWithdrawn`. |
 | TX-04 | `CertificateRegistry.approveApplication(uint256 applicationId)` | Admin; Pending application whose evidence supports its quantity. | Set Approved; issue one Active certificate record containing the complete batch quantity to the submitting wallet; emit `CertificateIssued`. |
 | TX-05 | `CertificateRegistry.rejectApplication(uint256 applicationId, bytes32 reasonHash)` | Admin; Pending application; nonzero reason hash. | Set Rejected; retain reason hash; emit `ApplicationRejected`. |
-| TX-06 | `CertificateMarket.listCertificate(uint256 certificateId, uint256 totalPriceWei)` | Current owner; Active and unlisted certificate batch; positive total price. | List the complete batch; set registry listing flag; emit `CertificateListed`. |
-| TX-07 | `CertificateMarket.updatePrice(uint256 certificateId, uint256 newTotalPriceWei)` | Current seller; active listing; positive total price. | Change the complete batch price; emit `ListingPriceUpdated`. |
-| TX-08 | `CertificateMarket.cancelListing(uint256 certificateId)` | Current seller; active listing. | Deactivate listing and clear registry flag; emit `ListingCancelled`. |
-| TX-09 | `CertificateMarket.buyCertificate(uint256 certificateId, uint256 expectedPriceWei)` payable | Any wallet other than seller; active listing; current total price = expected price = msg.value. | Transfer ownership of the complete batch, close listing and credit seller; emit `CertificatePurchased`. |
-| TX-10 | `CertificateMarket.withdraw()` | Caller has positive credit. | Clear caller's credit, reduce total credits and transfer proceeds; emit `Withdrawal`. |
-| TX-11 | `CertificateRegistry.retireCertificate(uint256 certificateId, bytes32 retirementHash)` | Current owner; Active and unlisted certificate batch; nonzero declaration hash. | Retire the complete quantity; retain owner, quantity, hash and retirement timestamp; emit `CertificateRetired`. |
+| TX-06 | `CertificateMarket.listCertificate(uint256 certificateId, uint256 totalPriceWei)` | Registered current owner; Active and unlisted certificate batch; positive total price. | List the complete batch; set registry listing flag; emit `CertificateListed`. |
+| TX-07 | `CertificateMarket.updatePrice(uint256 certificateId, uint256 newTotalPriceWei)` | Registered current seller; active listing; positive total price. | Change the complete batch price; emit `ListingPriceUpdated`. |
+| TX-08 | `CertificateMarket.cancelListing(uint256 certificateId)` | Registered current seller; active listing. | Deactivate listing and clear registry flag; emit `ListingCancelled`. |
+| TX-09 | `CertificateMarket.buyCertificate(uint256 certificateId, uint256 expectedPriceWei)` payable | Registered Producer, Buyer or Admin other than seller; active listing; current total price = expected price = msg.value. | Transfer ownership of the complete batch, close listing and credit seller; emit `CertificatePurchased`. |
+| TX-10 | `CertificateMarket.withdraw()` | Registered caller has positive credit. | Clear caller's credit, reduce total credits and transfer proceeds; emit `Withdrawal`. |
+| TX-11 | `CertificateRegistry.retireCertificate(uint256 certificateId, bytes32 retirementHash)` | Registered current owner; Active and unlisted certificate batch; nonzero declaration hash. | Retire the complete quantity; retain owner, quantity, hash and retirement timestamp; emit `CertificateRetired`. |
 
 Registration counts as one transaction type. Deployment, binding, read calls, wallet connection, message signatures and file uploads are separate operations and are not included in these eleven types.
 

@@ -19,12 +19,12 @@ The challenge message includes the origin, chain ID, wallet address, nonce and e
 
 | Method | Path | Access | Purpose |
 |---|---|---|---|
-| POST | `/api/files` | Signed-in wallet | Upload multipart `file`; return `fileId`, SHA-256, size and media type. |
+| POST | `/api/files` | Registered wallet | Upload multipart `file`; return `fileId`, SHA-256, size and media type. |
 | GET | `/api/files/{fileId}` | Uploader or Admin | Download the original evidence. |
-| POST | `/api/content` | Signed-in wallet; Admin for rejection | Store canonical application, rejection or retirement content. |
+| POST | `/api/content` | Registered wallet; Admin for rejection | Store canonical application, rejection or retirement content. |
 | GET | `/api/content/{contentHash}` | Public | Return the exact canonical JSON and hash. |
 
-Evidence is limited to 5 MiB and PDF, PNG or JPEG file headers. The server generates stored filenames. Application payloads contain `siteCode`, `siteName`, `source`, `country`, `periodStart`, `periodEnd`, `batchIndex`, `quantity` and `proofFileId`. Quantity is an integer from 1 to 100; one REC represents 1 MWh in this simulation. The evidence file must belong to the signed-in wallet.
+Evidence is limited to 5 MiB and PDF, PNG or JPEG file headers. The server generates stored filenames. Application payloads contain `siteCode`, `siteName`, `source`, `country`, `periodStart`, `periodEnd`, `batchIndex`, `quantity` and `proofFileId`. Quantity is an integer from 1 to 100; one REC represents 1 MWh in this simulation. The evidence file must belong to the registered signed-in wallet.
 
 An Admin rejection payload contains `applicationId` and `reason`. A retirement payload contains `certificateId`, `beneficiary` and `purpose`. The server checks the relevant pending application or owned active certificate before preparing these content records; the contract rechecks state when the transaction executes.
 

@@ -122,7 +122,7 @@ This layout is fixed for the first implementation. Do not add service layers, a 
 | `templates/dashboard.html` | Public certificate totals, source/status charts and workflow overview. |
 | `templates/market.html` | Active whole-batch listings. |
 | `templates/certificate_detail.html` | Certificate metadata, ownership and event history. |
-| `templates/applications.html` | Producer application form and Admin review queue. |
+| `templates/applications.html` | Registered-wallet application form and Admin review queue. |
 | `templates/my_certificates.html` | Producer and Buyer holdings with permitted actions. |
 | `templates/activity.html` | Personal verified transactions. |
 | `templates/account.html` | Wallet, network, role registration, session and proceeds. |
@@ -158,10 +158,10 @@ This layout is fixed for the first implementation. Do not add service layers, a 
 | Milestone | Work | Completion condition |
 |---|---|---|
 | P1: Foundation | Confirm requirement mapping; create Flask structure, database, responsive navigation, wallet connection and roles. | Application starts; roles are read from the deployed role contract; protected actions enforce the role. |
-| P2: Issuance | Implement evidence upload, canonical content, batch quantity, applications, withdrawal and Admin review. | A Producer can obtain a certificate record with an immutable quantity; rejected and withdrawn applications remain traceable. |
+| P2: Issuance | Implement evidence upload, canonical content, batch quantity, applications, withdrawal and Admin review. | A registered wallet can obtain a certificate record with an immutable quantity; rejected and withdrawn applications remain traceable. |
 | P3: Market | Implement whole-batch listing, repricing, cancellation, purchase, credit withdrawal and retirement. | Quantity, ownership, listing status and seller balances remain consistent through the full workflow. |
 | P4: Evaluation | Add dashboard, history, receipt verification, functional tests and gas measurements. | All eleven transaction types and critical failure cases have recorded results. |
-| P5: Deployment | Deploy contracts and hosted application; configure persistent storage. | Public URL works and stored evidence survives a restart. |
+| P5: Deployment | Deploy contracts and hosted application; configure persistent storage. | Public URL works; durable evidence storage requires a host plan with persistent disk support. |
 | P6: Submission | Prepare report, user guide, contribution records, slides and demonstration evidence. | Submission materials match the implemented and verified behaviour. |
 
 Complete each core workflow before adding visual polish. Deferred features should remain outside the implementation unless a coursework requirement makes them necessary.

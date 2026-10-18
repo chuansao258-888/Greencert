@@ -2,16 +2,22 @@
 
 ## Local checks
 
-On 18 October 2026, the frontend suite passed including the restored Account role-registration flow. Mocked checks cover unregistered, Producer, Buyer and Admin displays, both registration choices, reading back the role after confirmation, and cancellation before submission. Ordinary-wallet application and ownership tests also passed. These are automated frontend checks, not a new signed Sepolia registration run.
+On 18 October 2026, the current source was checked after adding mandatory Producer/Buyer registration for business operations. The automated checks cover role display, both registration choices, cancellation, the hidden application form for an unregistered wallet, and the client-side gate before application, listing, purchase, retirement and withdrawal actions. Backend checks confirm that an unregistered session cannot upload evidence or create content. These are local automated checks; they are not evidence of a signed Sepolia registration or of the new guards being deployed.
 
 | Check | Result |
 |---|---|
-| Python `unittest` suite | 11 tests passed |
-| Application Solidity compilation | Passed with solc 0.8.30 |
-| Solidity test-source compilation | Passed with solc 0.8.30 |
-| JavaScript syntax checks | Passed with Node.js |
-| Dashboard chart rendering | Passed with the Node.js frontend check |
-| Local browser layout preview | Navigation, market empty state and dashboard chart panels rendered; chart panels showed the configuration message while contracts were unavailable |
+| Python `unittest` suite | 18 tests passed |
+| Application Solidity compilation | Passed with local solc `0.8.30+commit.73712a01.Emscripten.clang` |
+| Solidity test-source compilation | Passed with local solc `0.8.30+commit.73712a01.Emscripten.clang` |
+| Frontend checks | 7 Node.js scripts passed: dashboard, wallet session, mobile deep link, transaction stages, application role, audit and role registration |
+| Registration-gate API checks | Passed: unregistered upload and content requests are rejected |
+| Registration-gate contract source checks | Passed: submission and purchase tests include unregistered rejection cases |
+
+## Current registration-guard status
+
+The frontend and Flask API now require a registered role before evidence upload, application creation and ordinary business actions. The revised `CertificateRegistry` and `CertificateMarket` source also checks `roleOf(msg.sender) != None` for ordinary writes.
+
+The addresses in `deployment.json` still point to the earlier Registry and Market contracts. They do not contain these new Solidity checks, so a user who calls those old contracts directly is not restricted by the new contract-level rule. The required redeployment and verification work is described in [registration deployment transition](../development/09-registration-deployment.md). Until that work is complete, the existing Sepolia workflow below is historical evidence for the earlier deployment and must not be represented as validation of the revised on-chain guard.
 
 ## Remix Solidity Unit Testing
 
@@ -22,7 +28,7 @@ On 18 October 2026, the frontend suite passed including the restored Account rol
 | `RoleRegistry_test.sol` | 2 | 0 |
 | **Total** | **12** | **0** |
 
-The results above were reported by Remix Solidity Unit Testing with the updated tests in `remix-deploy/tests/contracts`. They replace the earlier inconclusive `Passed: 0, Failed: 0` run and include the constructor address checks. The automated Sepolia end-to-end workflow is recorded below.
+The results above were reported by Remix Solidity Unit Testing for the earlier contract revision. They are retained as recorded execution evidence for its workflow. The current test sources have been compiled locally but have not yet been executed in Remix after the registration-guard changes. The automated Sepolia end-to-end workflow is recorded below.
 
 ## Current Sepolia deployment
 
@@ -50,9 +56,9 @@ Admin approved application `1` directly through Remix in transaction `0xed15b7ff
 
 Producer listed certificate `1` directly through Remix in transaction `0xbef6a00ab752e5ac6c32c407ac87014565646c29c9ab1243584a21f24ba42c48`. Its receipt status was `0x1` in block 11907923. `getListing(1)` returned the Producer as seller, total batch price `100000000000000` wei, and `active=true`; `getCertificate(1)` returned `listed=true` with quantity `5`. Gas used was 488,232, costing 732,348,007,323,480 wei.
 
-## Automated Sepolia execution
+## Historical automated Sepolia execution
 
-The signed runner `scripts/sepolia_e2e.py` completed ten direct transactions in blocks 11908037–11908048. Each step passed a pre-send read-only call and gas estimate, then a successful receipt, expected event and immediate contract-state check before the next transaction was sent. An independent read-only pass checked all ten receipts and final storage again. Exact transaction hashes, gas used, gas price and costs are in `gas-results.csv`; the ten transactions together used 2,997,934 gas and cost 2,997,978,969,010 wei (0.00000299797896901 SepoliaETH).
+The signed runner `scripts/sepolia_e2e.py` completed ten direct transactions in blocks 11908037–11908048 against the earlier open-wallet Registry and Market. Each step passed a pre-send read-only call and gas estimate, then a successful receipt, expected event and immediate contract-state check before the next transaction was sent. An independent read-only pass checked all ten receipts and final storage again. Exact transaction hashes, gas used, gas price and costs are in `gas-results.csv`; the ten transactions together used 2,997,934 gas and cost 2,997,978,969,010 wei (0.00000299797896901 SepoliaETH). Repeat the same measurement after deploying the current guarded source.
 
 | Step | Block | Verified result |
 |---|---:|---|

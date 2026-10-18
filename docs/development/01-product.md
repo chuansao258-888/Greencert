@@ -10,9 +10,9 @@ The proposed problem is fragmented evidence: a buyer needs to understand where a
 
 | Role | Responsibilities |
 |---|---|
-| Connected wallet | Upload evidence; submit or withdraw its pending applications; list, reprice, cancel, purchase or retire certificates according to ownership and listing state; withdraw its sales proceeds. |
-| Producer | Optional on-chain primary role for generation participants; retains all connected-wallet operations. |
-| Buyer | Optional on-chain primary role for purchasers; retains all connected-wallet operations. |
+| Registered Producer or Buyer | Upload evidence; submit or withdraw its pending applications; list, reprice, cancel, purchase or retire certificates according to ownership and listing state; withdraw its sales proceeds. |
+| Producer | One-time on-chain role chosen by a generation participant. It grants the same ordinary business permissions as Buyer. |
+| Buyer | One-time on-chain role chosen by a purchaser. It grants the same ordinary business permissions as Producer. |
 | Admin | Review generation evidence and approve or reject pending applications. |
 | Visitor | Browse public certificate records, evidence-integrity summaries, market listings, dashboard data and the read-only audit. |
 
@@ -23,7 +23,7 @@ The Admin address is fixed at deployment. First connection prompts unregistered 
 | ID | Requirement | Acceptance condition |
 |---|---|---|
 | FR-01 | Wallet connection | The interface identifies the connected address and actual wallet network. |
-| FR-02 | Evidence submission | A signed-in wallet uploads an accepted file and submits an application linked to immutable metadata. |
+| FR-02 | Evidence submission | A registered wallet uploads an accepted file and submits an application linked to immutable metadata. |
 | FR-03 | Review and issuance | An Admin can approve or reject a pending application after inspecting its evidence. Approval creates exactly one certificate record containing the approved batch quantity. |
 | FR-04 | Application withdrawal | The submitting wallet can withdraw its own pending application. |
 | FR-05 | Fixed-price listing | A certificate owner can list, reprice and cancel a complete active certificate batch. |

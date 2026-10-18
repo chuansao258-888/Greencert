@@ -83,13 +83,13 @@ After another wallet purchases a batch, open **Account**. The **Claimable sales*
 
 ## Admin
 
-Open **Applications** using the Admin wallet. Pending applications show the Producer address, batch quantity and review controls.
+Open **Applications** using the Admin wallet. Pending applications show the submitting wallet address, batch quantity and review controls.
 
 1. Select **View details** and check the site, period, quantity and metadata hash.
 2. Select **Download evidence** to inspect the uploaded file.
 3. Choose **Approve** or **Reject**.
 
-Approving calls `CertificateRegistry.approveApplication`. The application becomes **Approved** and one Active certificate is issued to the Producer with the submitted quantity and metadata hash.
+Approving calls `CertificateRegistry.approveApplication`. The application becomes **Approved** and one Active certificate is issued to the submitting wallet with the submitted quantity and metadata hash.
 
 Rejecting requires a reason and calls `CertificateRegistry.rejectApplication`. The application becomes **Rejected** and no certificate is issued.
 
@@ -130,7 +130,7 @@ The evidence-integrity section checks:
 3. Batch details match the approved application.
 4. The locally stored evidence file matches its SHA-256 hash.
 
-**Verified** means these records match. It does not prove that renewable electricity was generated. The uploaded evidence file remains private; visitors and Buyers can view only the integrity summary.
+**Verified** means these records match. It does not prove that renewable electricity was generated. The uploaded evidence file remains private; visitors and non-Admin wallets that did not upload it can view only the integrity summary.
 
 ### Audit
 
