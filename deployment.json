@@ -2,12 +2,12 @@
   "chainId": 11155111,
   "network": "sepolia",
   "contracts": {
-    "roleRegistry": "0xc6ddfdef0eef7b9d2bb6df9e60bf439a2725a369",
-    "certificateRegistry": "0x338c972fcab0892448fa0ee939f3330fb42f6c04",
-    "certificateMarket": "0xd7f2b6c233e7044ab4a76317b834c58c2ff23f01"
+    "roleRegistry": "0x628a94ff69e5bb527ce8b6dbbc1f480458af9d02",
+    "certificateRegistry": "0x7a8b0776910828da7b91144b61e6669d5a3c3723",
+    "certificateMarket": "0xef2db1a0e411c3ded0756493ad5703b8404646fd"
   },
-  "deploymentBlocks": {"roleRegistry": 11907439, "certificateRegistry": 11907610, "certificateMarket": 11907629},
-  "compiler": "0.8.30",
-  "evmVersion": "prague",
+  "deploymentBlocks": {"roleRegistry": 11938276, "certificateRegistry": 11938282, "certificateMarket": 11938285},
+  "compiler": "0.8.34",
+  "evmVersion": "osaka",
   "optimizer": {"enabled": true, "runs": 200}
 }

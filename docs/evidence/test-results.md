@@ -22,6 +22,14 @@
 
 The results above were reported by Remix Solidity Unit Testing with the updated tests in `remix-deploy/tests/contracts`. They replace the earlier inconclusive `Passed: 0, Failed: 0` run and include the constructor address checks. The automated Sepolia end-to-end workflow is recorded below.
 
+## Current Sepolia deployment
+
+The current deployment is recorded in `deployment.json`. `RoleRegistry` was created at `0x628a94ff69e5bb527ce8b6dbbc1f480458af9d02` in transaction `0x2a2f617c23de24a1e47897f1bbc49041e23c7645b623277e7fb2d7dca653a561`, `CertificateRegistry` at `0x7a8b0776910828da7b91144b61e6669d5a3c3723` in transaction `0x421c3f35f3a3753cc2cd1f404b305938aa6e1c4194b6ad2858ac3132c52d9a1f`, and `CertificateMarket` at `0xef2db1a0e411c3ded0756493ad5703b8404646fd` in transaction `0xffd6de89d8f8b96c08089de71acaa6042e2127df191a5e34a89b78615831eed9`.
+
+The Admin then called `setMarket` in transaction `0xfdef98a0ed1b2a539384e0723a123c7e7b5d3434fd17adad0a64c74c89a12981`. The receipt status was `0x1`; a subsequent `market()` call on `CertificateRegistry` returned `0xef2db1a0e411c3ded0756493ad5703b8404646fd`.
+
+The historical workflow record below refers to the previous Sepolia deployment and remains as evidence for the earlier completed test run.
+
 A Sepolia `CertificateRegistry` creation at `0x73ab2452c4ad4d51b64329ece959964efcd39754` succeeded as a transaction but incorrectly pointed to the Admin wallet. It is excluded from `deployment.json` and must not be used. Read-only Sepolia calls confirmed that the updated constructor accepts the deployed `RoleRegistry` and rejects the Admin wallet before a transaction is sent. The replacement `CertificateRegistry` at `0x338c972fcab0892448fa0ee939f3330fb42f6c04` was then deployed successfully; its `roleRegistry()` returned the expected contract address. The `CertificateMarket` at `0xd7f2b6c233e7044ab4a76317b834c58c2ff23f01` was deployed successfully and returned both expected registry addresses.
 
 The first `setMarket` attempt was routed by MetaMask's optional Added protection to `0xdb9b1e94b5b69df7e401ddbede43491141047db3` and reverted in block 11907671. The transaction input contained the intended Registry call and Market address, but the receipt status was `0x0` and the Registry's `market()` remained zero. A direct read-only call from the Admin address to the Registry with the same `setMarket` calldata succeeded, and direct gas estimation returned 135,445. The exact cause of the protected-call revert has not been established.

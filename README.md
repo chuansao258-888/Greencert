@@ -8,9 +8,9 @@ Open the public application at [https://greencert.onrender.com](https://greencer
 
 | Contract | Sepolia address |
 | --- | --- |
-| `RoleRegistry` | [`0xc6ddfdef0eef7b9d2bb6df9e60bf439a2725a369`](https://sepolia.etherscan.io/address/0xc6ddfdef0eef7b9d2bb6df9e60bf439a2725a369) |
-| `CertificateRegistry` | [`0x338c972fcab0892448fa0ee939f3330fb42f6c04`](https://sepolia.etherscan.io/address/0x338c972fcab0892448fa0ee939f3330fb42f6c04) |
-| `CertificateMarket` | [`0xd7f2b6c233e7044ab4a76317b834c58c2ff23f01`](https://sepolia.etherscan.io/address/0xd7f2b6c233e7044ab4a76317b834c58c2ff23f01) |
+| `RoleRegistry` | [`0x628a94ff69e5bb527ce8b6dbbc1f480458af9d02`](https://sepolia.etherscan.io/address/0x628a94ff69e5bb527ce8b6dbbc1f480458af9d02) |
+| `CertificateRegistry` | [`0x7a8b0776910828da7b91144b61e6669d5a3c3723`](https://sepolia.etherscan.io/address/0x7a8b0776910828da7b91144b61e6669d5a3c3723) |
+| `CertificateMarket` | [`0xef2db1a0e411c3ded0756493ad5703b8404646fd`](https://sepolia.etherscan.io/address/0xef2db1a0e411c3ded0756493ad5703b8404646fd) |
 
 Certificate ownership, listings, purchases and retirements are stored on Sepolia. The free Render deployment uses local service storage for uploaded evidence and SQLite records; those local records can be cleared when the service restarts or is redeployed.
 
