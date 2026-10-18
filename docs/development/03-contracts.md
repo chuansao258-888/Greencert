@@ -25,7 +25,7 @@ Identifiers start at 1. Zero denotes an absent record. The Admin is immutable. A
 
 ## User Transactions
 
-All ordinary state-changing user operations require a registered Producer, Buyer or Admin. Owner, price and lifecycle checks apply in addition. This source-level restriction requires the deployment transition described in 09-registration-deployment.md; the previous deployed contracts remain open-wallet.
+All ordinary state-changing user operations require a registered Producer, Buyer or Admin. Owner, price and lifecycle checks apply in addition. The guarded Registry and Market are deployed on Sepolia; deployment and read-only verification are recorded in 09-registration-deployment.md.
 
 | ID | Contract method | Permission and preconditions | Result |
 |---|---|---|---|

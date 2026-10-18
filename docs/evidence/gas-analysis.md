@@ -5,7 +5,7 @@
 This note separates two kinds of evidence:
 
 - `gas-results.csv` contains mined receipts from the existing Sepolia Registry and Market deployment.
-- The current source adds a `onlyRegistered` check to ordinary writes. Those revised Registry and Market contracts have not yet been deployed, so the receipt figures below are not a measurement of that new check. The deployment and re-measurement steps are in [registration deployment transition](../development/09-registration-deployment.md).
+- The current Registry and Market include an `onlyRegistered` check and were deployed on 18 October 2026. The receipt figures below remain measurements of the earlier full lifecycle; an equivalent guarded lifecycle measurement has not yet been recorded. Deployment and guard verification are in [registration deployment](../development/09-registration-deployment.md).
 
 All values are for a testnet prototype. They are useful for comparing this implementation's transaction paths; they are not a production cost forecast.
 
@@ -59,7 +59,7 @@ The larger costs occur where the contracts create a new application record or co
 | Pull payments | A purchase credits the seller; the seller withdraws separately. This avoids sending Ether to an arbitrary seller during the purchase, at the cost of a later withdrawal transaction. |
 | Complete-batch trading | Listing, purchase and retirement do not require quantity-splitting accounting. The trade-off is that partial sale and partial retirement are outside scope. |
 
-The new `onlyRegistered` modifier adds an external role lookup on each ordinary write. It improves enforcement consistency but may increase gas use. No saving or increase is claimed until replacement contracts are deployed and the same paths are measured again.
+The new `onlyRegistered` modifier adds an external role lookup on each ordinary write. It improves enforcement consistency but may increase gas use. No saving or increase is claimed until the same full set of paths is measured on the guarded contracts.
 
 ## Limits and next measurement
 

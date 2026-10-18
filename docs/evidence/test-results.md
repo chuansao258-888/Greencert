@@ -15,9 +15,9 @@ On 18 October 2026, the current source was checked after adding mandatory Produc
 
 ## Current registration-guard status
 
-The frontend and Flask API now require a registered role before evidence upload, application creation and ordinary business actions. The revised `CertificateRegistry` and `CertificateMarket` source also checks `roleOf(msg.sender) != None` for ordinary writes.
+The current Sepolia Registry and Market are the guarded contracts in `deployment.json`. On 18 October 2026, both were compiled in Remix with Solidity `0.8.34`, deployed, and bound by the Admin. The Registry deployment receipt was `0x1` in transaction `0x843a3f939114225f2b93f85978e81ac6ddaf3b5e8a5967e768a1b98b4fa7a4ef`; the Market deployment receipt was `0x1` in transaction `0x5736383495b5f4eff81277a3148a4af64900ab977fc35fe62d895c60bdc73f0d`. Binding transaction `0xd20152cf4832b68e201e983bccc5e9a3ecbeac86a8957188061b1401ad79720b` also had receipt status `0x1`.
 
-The addresses in `deployment.json` still point to the earlier Registry and Market contracts. They do not contain these new Solidity checks, so a user who calls those old contracts directly is not restricted by the new contract-level rule. The required redeployment and verification work is described in [registration deployment transition](../development/09-registration-deployment.md). Until that work is complete, the existing Sepolia workflow below is historical evidence for the earlier deployment and must not be represented as validation of the revised on-chain guard.
+A read-only call from unregistered address `0x1111111111111111111111111111111111111111` reverted with `Register a role first` for both `submitApplication(...)` and `buyCertificate(1, 0)`. This confirms that direct contract calls are gated independently of the website and API.
 
 ## Remix Solidity Unit Testing
 

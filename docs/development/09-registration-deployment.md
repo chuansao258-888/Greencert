@@ -1,26 +1,22 @@
-# Required-registration deployment transition
+# Registration-guard deployment
 
-The frontend prompts unregistered wallets after login and restored sessions. Cancelling allows public browsing only. Before business actions it rechecks the authenticated wallet's role. Upload and content APIs independently reject unregistered callers. Registration transactions and their receipt verification remain available.
+The role gate is deployed on Sepolia. `CertificateRegistry` and `CertificateMarket` both reject ordinary state-changing calls from an address whose `roleOf` value is `None`. Admin review remains limited to the original Admin address.
 
-The modified CertificateRegistry and CertificateMarket sources require a non-None on-chain role for every ordinary user write. Admin review remains Admin-only. Producer and Buyer both retain submission, buying and ownership-based management permissions.
+## Deployed contracts
 
-## Current deployment status
+| Contract | Address | Block | Deployment transaction |
+| --- | --- | ---: | --- |
+| RoleRegistry (reused) | `0x628a94ff69e5bb527ce8b6dbbc1f480458af9d02` | 11938276 | recorded in the original deployment evidence |
+| CertificateRegistry | `0xa3456442711ead1110d6f93e0c56b35ab25bebc9` | 11939875 | `0x843a3f939114225f2b93f85978e81ac6ddaf3b5e8a5967e768a1b98b4fa7a4ef` |
+| CertificateMarket | `0x84990af8d7ca3224df64305d1330c50e21c887aa` | 11939890 | `0x5736383495b5f4eff81277a3148a4af64900ab977fc35fe62d895c60bdc73f0d` |
 
-The new contract guards are not yet deployed. `deployment.json` still contains the existing open-wallet Registry and Market addresses. Website/API restrictions do not prevent a caller from using those old contracts directly.
+Admin bound the Market to the Registry in transaction `0xd20152cf4832b68e201e983bccc5e9a3ecbeac86a8957188061b1401ad79720b` at block 11939898. The receipt status was `0x1`. A later `market()` read returned `0x84990af8d7ca3224df64305d1330c50e21c887aa`.
 
-## Deployment sequence
+## Verification
 
-1. Reuse RoleRegistry `0x628a94ff69e5bb527ce8b6dbbc1f480458af9d02` to retain existing registrations and Admin.
-2. Compile the current source and record the actual compiler, EVM target and optimizer settings.
-3. Deploy CertificateRegistry with that RoleRegistry address.
-4. Deploy CertificateMarket with the same RoleRegistry address and the new CertificateRegistry address.
-5. From the existing Admin wallet, call the new Registry's `setMarket(newMarket)` once.
-6. Verify successful deployment/binding receipts and read back both registry references and `market()`.
-7. Update deployment.json, README contract links and matching ABIs; deploy the web service.
-8. Verify an unregistered call to submitApplication and buyCertificate reverts with registration required. Verify registered Producer and Buyer can each apply and buy, subject to ownership and price checks.
+On 18 October 2026, the contracts were compiled in Remix with Solidity `0.8.34`, then deployed from the Admin wallet on Sepolia. An `eth_call` from unregistered address `0x1111111111111111111111111111111111111111` reverted with `Register a role first` for both:
 
-New Registry/Market deployments start with no applications, certificates or sale credits. Old records and any claimable proceeds remain at the old addresses; this procedure does not migrate or erase them. Keep those addresses and transaction evidence available.
+- `CertificateRegistry.submitApplication(...)`; and
+- `CertificateMarket.buyCertificate(1, 0)`.
 
-## Validation
-
-18 October 2026: backend tests passed (18), frontend checks passed (7 scripts), application and Solidity test sources compiled successfully. Added rejection coverage for unregistered API uploads/content, hidden application forms and Solidity submission/purchase checks. Solidity test execution and real-wallet popup/registration verification on this revision remain pending; compilation is not execution.
+The application stores the new addresses and deployment blocks in `deployment.json`. A new Registry and Market begin empty: records and sale credits at the previous contract addresses are not migrated. Earlier workflow receipts remain historical evidence only.

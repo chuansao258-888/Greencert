@@ -3,11 +3,18 @@
   "network": "sepolia",
   "contracts": {
     "roleRegistry": "0x628a94ff69e5bb527ce8b6dbbc1f480458af9d02",
-    "certificateRegistry": "0x7a8b0776910828da7b91144b61e6669d5a3c3723",
-    "certificateMarket": "0xef2db1a0e411c3ded0756493ad5703b8404646fd"
+    "certificateRegistry": "0xa3456442711ead1110d6f93e0c56b35ab25bebc9",
+    "certificateMarket": "0x84990af8d7ca3224df64305d1330c50e21c887aa"
   },
-  "deploymentBlocks": {"roleRegistry": 11938276, "certificateRegistry": 11938282, "certificateMarket": 11938285},
+  "deploymentBlocks": {
+    "roleRegistry": 11938276,
+    "certificateRegistry": 11939875,
+    "certificateMarket": 11939890
+  },
   "compiler": "0.8.34",
   "evmVersion": "osaka",
-  "optimizer": {"enabled": true, "runs": 200}
+  "optimizer": {
+    "enabled": true,
+    "runs": 200
+  }
 }

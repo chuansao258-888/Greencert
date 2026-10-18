@@ -9,8 +9,8 @@ Open the public application at [https://greencert.onrender.com](https://greencer
 | Contract | Sepolia address |
 | --- | --- |
 | `RoleRegistry` | [`0x628a94ff69e5bb527ce8b6dbbc1f480458af9d02`](https://sepolia.etherscan.io/address/0x628a94ff69e5bb527ce8b6dbbc1f480458af9d02) |
-| `CertificateRegistry` | [`0x7a8b0776910828da7b91144b61e6669d5a3c3723`](https://sepolia.etherscan.io/address/0x7a8b0776910828da7b91144b61e6669d5a3c3723) |
-| `CertificateMarket` | [`0xef2db1a0e411c3ded0756493ad5703b8404646fd`](https://sepolia.etherscan.io/address/0xef2db1a0e411c3ded0756493ad5703b8404646fd) |
+| `CertificateRegistry` | [`0xa3456442711ead1110d6f93e0c56b35ab25bebc9`](https://sepolia.etherscan.io/address/0xa3456442711ead1110d6f93e0c56b35ab25bebc9) |
+| `CertificateMarket` | [`0x84990af8d7ca3224df64305d1330c50e21c887aa`](https://sepolia.etherscan.io/address/0x84990af8d7ca3224df64305d1330c50e21c887aa) |
 
 Certificate ownership, listings, purchases and retirements are stored on Sepolia. The free Render deployment uses local service storage for uploaded evidence and SQLite records; those local records can be cleared when the service restarts or is redeployed.
 
@@ -54,7 +54,7 @@ For a fresh deployment, deploy `RoleRegistry` with the Admin wallet address, dep
 
 After signing in, unregistered wallets are prompted to register on-chain as Producer or Buyer. Registration is required for application and trading actions. Both roles share ordinary business permissions; Admin alone grants approval and rejection authority. The account page displays the role read from the chain.
 
-Deployment transition: the website and API enforce registration, but the addresses currently in `deployment.json` still refer to the earlier open-wallet contracts. The new Solidity registration guards require replacement Registry and Market deployments before direct on-chain calls are also restricted. See [registration deployment steps](docs/development/09-registration-deployment.md).
+The deployed Registry and Market require a registered on-chain role for ordinary state-changing operations. See [deployment verification](docs/development/09-registration-deployment.md).
 
 Run the local checks from the repository root:
 
