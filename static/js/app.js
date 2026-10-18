@@ -61,8 +61,6 @@ function showConnectedWallet() {
   if (connectButton) connectButton.textContent = window.GreenCertWallet.shortAddress();
   const status = document.getElementById("walletStatus");
   if (status) status.textContent = `Connected: ${window.GreenCertWallet.address}`;
-  const rolePanel = document.getElementById("rolePanel");
-  if (rolePanel) rolePanel.hidden = window.GreenCertWallet.role !== "None";
 }
 
 // Show the wallet's actual chain rather than only the application's target chain.

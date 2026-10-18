@@ -103,7 +103,7 @@ window.GreenCertPages = {
       const evidence = item.evidenceFileId
         ? `<a href="/api/files/${encodeURIComponent(item.evidenceFileId)}" target="_blank" rel="noopener noreferrer">Download evidence</a>`
         : "<span class=\"muted\">Evidence unavailable</span>";
-      return `<article class="record-card"><h2>Application #${item.id}</h2><p class="status-row">${this.statusBadge(item.status)}<span>· ${item.quantity} RECs</span></p>${site}<p>Producer: ${GreenCertApp.escape(item.producer)}</p><div class="button-row"><button class="button secondary" data-action="details" data-id="${item.id}" aria-expanded="false">View details</button>${actions}</div><div class="application-details" id="applicationDetails${item.id}" hidden></div><p class="evidence-state">${evidence}</p></article>`;
+      return `<article class="record-card"><h2>Application #${item.id}</h2><p class="status-row">${this.statusBadge(item.status)}<span>· ${item.quantity} RECs</span></p>${site}<p>Applicant: ${GreenCertApp.escape(item.producer)}</p><div class="button-row"><button class="button secondary" data-action="details" data-id="${item.id}" aria-expanded="false">View details</button>${actions}</div><div class="application-details" id="applicationDetails${item.id}" hidden></div><p class="evidence-state">${evidence}</p></article>`;
     }).join("") : "<div class='empty-state'><h2>No applications</h2></div>";
   },
   // Show owned certificates and actions allowed by ownership, not account type.
@@ -261,9 +261,9 @@ window.GreenCertPages = {
   }
 };
 
-// Bind buttons for role registration and certificate actions.
+// Bind certificate and proceeds actions.
 document.addEventListener("click", async (event) => {
-  const button = event.target.closest("[data-register-role], [data-action], #withdrawProceeds");
+  const button = event.target.closest("[data-action], #withdrawProceeds");
   if (!button) return;
   try {
     if (button.dataset.action === "details") {
@@ -274,11 +274,7 @@ document.addEventListener("click", async (event) => {
       if (!GreenCertWallet.signer) throw new Error("Connect a wallet first.");
       await GreenCertWallet.ensureTargetNetwork();
       if (!GreenCertContracts.contracts.roleRegistry) await GreenCertContracts.load(GreenCertWallet.signer);
-      if (button.dataset.registerRole) {
-        await GreenCertTransactions.send("Register role", () => GreenCertContracts.contracts.roleRegistry.register(Number(button.dataset.registerRole)));
-        GreenCertWallet.role = Number(button.dataset.registerRole) === 1 ? "Producer" : "Buyer";
-        document.getElementById("rolePanel").hidden = true;
-      } else if (button.id === "withdrawProceeds") {
+      if (button.id === "withdrawProceeds") {
         await GreenCertTransactions.send("Withdraw proceeds", () => GreenCertContracts.contracts.certificateMarket.withdraw());
       } else {
         await GreenCertPages.action(button.dataset.action, button.dataset.id, button);
@@ -290,7 +286,7 @@ document.addEventListener("click", async (event) => {
   }
 });
 
-// Submit the Producer's application form.
+// Submit an application from the connected wallet.
 document.addEventListener("submit", async (event) => {
   if (event.target.id !== "applicationForm") return;
   event.preventDefault();
