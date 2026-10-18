@@ -29,7 +29,7 @@ Certificate ownership, listings, purchases and retirements are stored on Sepolia
 | [Test results](docs/evidence/test-results.md) | Recorded local, Remix and Sepolia results. |
 | [Gas measurements](docs/evidence/gas-results.csv) | Mined transaction receipts, gas used and transaction cost. |
 | [Gas analysis](docs/evidence/gas-analysis.md) | Estimation method, receipt-based measurements and design trade-offs. |
-| [Registration deployment transition](docs/development/09-registration-deployment.md) | Steps and validation required before deploying the new on-chain registration guards. |
+| [Registration deployment](docs/development/09-registration-deployment.md) | Current guarded contracts, deployment transactions and on-chain verification. |
 | [Sepolia workflow](tests/manual/sepolia-checklist.md) | Completed on-chain workflow and expected state checks. |
 | [Automated Sepolia run](tests/manual/sepolia-automated-run.md) | Test-wallet setup and resumable workflow runner. |
 

@@ -4,7 +4,7 @@
 
 This note separates two kinds of evidence:
 
-- `gas-results.csv` contains mined receipts from the existing Sepolia Registry and Market deployment.
+- `gas-results.csv` contains mined receipts from the earlier Sepolia Registry and Market deployment.
 - The current Registry and Market include an `onlyRegistered` check and were deployed on 18 October 2026. The receipt figures below remain measurements of the earlier full lifecycle; an equivalent guarded lifecycle measurement has not yet been recorded. Deployment and guard verification are in [registration deployment](../development/09-registration-deployment.md).
 
 All values are for a testnet prototype. They are useful for comparing this implementation's transaction paths; they are not a production cost forecast.
@@ -63,4 +63,4 @@ The new `onlyRegistered` modifier adds an external role lookup on each ordinary 
 
 ## Limits and next measurement
 
-Receipt `gasUsed` is the reliable measurement for a completed transaction. It varies with the transaction path and storage state, so a single estimate cannot represent every case. After redeployment, repeat registration, application, listing, purchase, withdrawal and retirement with the same test quantities; save the new receipts beside the historical CSV and compare like-for-like paths. Do not compare compiler or EVM settings unless they match the recorded deployment configuration.
+Receipt `gasUsed` is the reliable measurement for a completed transaction. It varies with the transaction path and storage state, so a single estimate cannot represent every case. For the guarded contracts, repeat registration, application, listing, purchase, withdrawal and retirement with the same test quantities; save the new receipts beside the historical CSV and compare like-for-like paths. Do not compare compiler or EVM settings unless they match the recorded deployment configuration.

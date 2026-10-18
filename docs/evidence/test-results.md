@@ -2,7 +2,7 @@
 
 ## Local checks
 
-On 18 October 2026, the current source was checked after adding mandatory Producer/Buyer registration for business operations. The automated checks cover role display, both registration choices, cancellation, the hidden application form for an unregistered wallet, and the client-side gate before application, listing, purchase, retirement and withdrawal actions. Backend checks confirm that an unregistered session cannot upload evidence or create content. These are local automated checks; they are not evidence of a signed Sepolia registration or of the new guards being deployed.
+On 18 October 2026, the current source was checked after adding mandatory Producer/Buyer registration for business operations. The automated checks cover role display, both registration choices, cancellation, the hidden application form for an unregistered wallet, and the client-side gate before application, listing, purchase, retirement and withdrawal actions. Backend checks confirm that an unregistered session cannot upload evidence or create content. These are local automated checks; signed Sepolia registration and guarded lifecycle execution require separate evidence.
 
 | Check | Result |
 |---|---|
@@ -30,9 +30,9 @@ A read-only call from unregistered address `0x1111111111111111111111111111111111
 
 The results above were reported by Remix Solidity Unit Testing for the earlier contract revision. They are retained as recorded execution evidence for its workflow. The current test sources have been compiled locally but have not yet been executed in Remix after the registration-guard changes. The automated Sepolia end-to-end workflow is recorded below.
 
-## Current Sepolia deployment
+## Earlier Sepolia deployment
 
-The current deployment is recorded in `deployment.json`. `RoleRegistry` was created at `0x628a94ff69e5bb527ce8b6dbbc1f480458af9d02` in transaction `0x2a2f617c23de24a1e47897f1bbc49041e23c7645b623277e7fb2d7dca653a561`, `CertificateRegistry` at `0x7a8b0776910828da7b91144b61e6669d5a3c3723` in transaction `0x421c3f35f3a3753cc2cd1f404b305938aa6e1c4194b6ad2858ac3132c52d9a1f`, and `CertificateMarket` at `0xef2db1a0e411c3ded0756493ad5703b8404646fd` in transaction `0xffd6de89d8f8b96c08089de71acaa6042e2127df191a5e34a89b78615831eed9`.
+The following Registry and Market were used for the earlier full lifecycle test; the current guarded addresses are in `deployment.json`. `RoleRegistry` was created at `0x628a94ff69e5bb527ce8b6dbbc1f480458af9d02` in transaction `0x2a2f617c23de24a1e47897f1bbc49041e23c7645b623277e7fb2d7dca653a561`, `CertificateRegistry` at `0x7a8b0776910828da7b91144b61e6669d5a3c3723` in transaction `0x421c3f35f3a3753cc2cd1f404b305938aa6e1c4194b6ad2858ac3132c52d9a1f`, and `CertificateMarket` at `0xef2db1a0e411c3ded0756493ad5703b8404646fd` in transaction `0xffd6de89d8f8b96c08089de71acaa6042e2127df191a5e34a89b78615831eed9`.
 
 The Admin then called `setMarket` in transaction `0xfdef98a0ed1b2a539384e0723a123c7e7b5d3434fd17adad0a64c74c89a12981`. The receipt status was `0x1`; a subsequent `market()` call on `CertificateRegistry` returned `0xef2db1a0e411c3ded0756493ad5703b8404646fd`.
 
