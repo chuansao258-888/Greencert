@@ -29,7 +29,6 @@ window.GreenCertApp = {
   async withWalletRequest(button, work) {
     if (this.walletRequestActive) throw new Error("Another wallet request is already in progress. Finish it in MetaMask before trying again.");
     this.walletRequestActive = true;
-    const originalLabel = button?.textContent;
     if (button) {
       button.disabled = true;
       button.setAttribute?.("aria-busy", "true");
@@ -41,7 +40,6 @@ window.GreenCertApp = {
       if (button) {
         button.disabled = false;
         button.removeAttribute?.("aria-busy");
-        if (originalLabel) button.textContent = originalLabel;
       }
     }
   },

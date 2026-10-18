@@ -62,7 +62,13 @@ async function run() {
   assert.equal(disconnected.calls.length, 0);
 
   const startup = [];
-  const button = { textContent: "Connect wallet", addEventListener() {} };
+  let onConnect;
+  const button = {
+    textContent: "Connect wallet",
+    addEventListener(name, handler) { if (name === "click") onConnect = handler; },
+    setAttribute() {},
+    removeAttribute() {},
+  };
   let onReady;
   const appContext = {
     window: {
@@ -75,6 +81,7 @@ async function run() {
           this.role = "Buyer";
           return true;
         },
+        async connect() { this.address = account; },
         shortAddress() { return "0x280d…33ff"; },
       },
       GreenCertPages: { async refresh() { startup.push("refresh"); } },
@@ -87,9 +94,16 @@ async function run() {
   };
   const appSource = fs.readFileSync(path.resolve(__dirname, "../../static/js/app.js"), "utf8");
   vm.runInNewContext(appSource, appContext);
+  appContext.GreenCertApp = appContext.window.GreenCertApp;
   await onReady();
   assert.deepEqual(startup, ["restore", "refresh"]);
   assert.equal(button.textContent, "0x280d…33ff");
+
+  button.textContent = "Connect wallet";
+  appContext.window.GreenCertWallet.address = null;
+  await onConnect();
+  assert.equal(button.textContent, "0x280d…33ff", "first connection should retain the wallet address");
+  assert.equal(button.disabled, false);
 
   process.stdout.write("Wallet session restoration checks passed.\n");
 }
