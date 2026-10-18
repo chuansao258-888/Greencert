@@ -1,6 +1,6 @@
 # SC6113 submission checklist
 
-Checked against the original local `docs/SC6113 Group Project.docx`, rendered in Word as two pages on 18 October 2026. Section and page references below refer to that source, not the internal delivery plan. This is a working submission checklist, not the 10–15 page technical report. “Complete” means the material exists at the cited location, not that a lecturer has accepted it. The course brief does not specify a file upload destination or require a separate contribution file. Individual contributions are to be included in the future technical report under the user's instruction.
+Checked against the original local `docs/SC6113 Group Project.docx`, rendered in Word as two pages on 18 October 2026. Section and page references below refer to that source, not the internal delivery plan. This is a working submission checklist, not the 10–15 page technical report. “Complete” means the material exists at the cited location, not that a lecturer has accepted it. The course brief does not specify a file upload destination or require a separate contribution file. Individual contributions are planned for the technical report.
 
 ## Project brief — page 1
 
@@ -39,10 +39,10 @@ Checked against the original local `docs/SC6113 Group Project.docx`, rendered in
 |---|---|---|---|
 | “10-15 page technical report” with problem, stakeholders, evidence and measurable impact | Supporting evidence in this checklist and [evaluation](../submission/evaluation/problem-evaluation.md) | With final report | Write the report later; measurable real-world impact is not established. |
 | Architecture, contract interaction, data model, process flow, UI diagrams | [Architecture and interaction](development/02-architecture-flow.md), [data model](development/05-data-model.md), [UI layout and navigation](development/06-ui.md) | Complete in repository | Mermaid needs a compatible viewer such as GitHub; include in submission format chosen by the team. |
-| GitHub source, documentation, setup and contribution history | [README](../README.md) and Git history | Present locally and on GitHub as of handoff; new changes local | Publish the new commit only after considering Render redeployment and possible loss of service files. Verify repository contents afterward. |
+| GitHub source, documentation, setup and contribution history | [README](../README.md) and Git history | Repository available on GitHub | Keep the submitted repository current; the free Render deployment uses ephemeral files. |
 | Public deployment URL, contract details and testing report | [README](../README.md), [deployment record](development/09-registration-deployment.md), [test report](../submission/testing/test-results.md) | Available with limitations | The current evidence file and metadata for certificate 1 are unavailable. The brief does not require this particular record to be restored. |
 | Presentation slides and “a 10-minute demonstration video or live demonstration” | [Presentation materials](../submission/presentation/README.md) | Completed according to the group | The brief specifies no location or exact media format. |
-| User manual and “individual contribution report” | [User manual](user-manual.md); Git history | Manual complete; contribution with final report | Prepare individual contribution information in the final report as instructed; do not invent individual work. |
+| User manual and “individual contribution report” | [User manual](user-manual.md); Git history | Manual complete; contribution with final report | Include the individual contribution information in the final report. |
 
 The learning outcomes in original §2 and the rubric in §6 additionally call for evaluation of security, scalability, usability, feasibility and impact, and describe a production-ready cloud system. The free-service and test limitations above mean production readiness and real-world impact are not established. The brief does not explicitly require phone-device tests, performance benchmarks, screenshots, a paid disk or a separate contribution file.
 
@@ -66,4 +66,4 @@ The methods are distinct transaction types, not read calls or wallet signatures.
 
 ## Presentation and submission materials
 
-The group has stated that its slides and recording are complete. Their locations and Git status are described in [presentation materials](../submission/presentation/README.md). The course brief does not specify an upload destination or media container; use the actual course submission instructions when submitting.
+The slides and demonstration recording are complete. Their locations and Git status are described in [presentation materials](../submission/presentation/README.md). The course brief does not specify an upload destination or media container; use the actual course submission instructions when submitting.
