@@ -80,10 +80,12 @@ greencert/
     uploads/
   docs/
     development/
-    evidence/
-      README.md
-      gas-results.csv
-      test-results.md
+  submission/
+    README.md
+    evaluation/
+    gas/
+    presentation/
+    testing/
   deployment.json
   requirements.txt
   requirements-dev.txt
@@ -144,9 +146,9 @@ This layout is fixed for the first implementation. Do not add service layers, a 
 | `scripts/export_abi.py` | Copy only the three contract ABIs into `static/contracts`. |
 | `scripts/backup_data.py` | Use SQLite backup and copy uploads into a named backup directory. |
 | `instance/` | Runtime database and uploads; never committed. |
-| `docs/evidence/README.md` | Explain evidence naming and distinguish planned from completed results. |
-| `docs/evidence/gas-results.csv` | Receipt measurements entered after Sepolia checks. |
-| `docs/evidence/test-results.md` | Test run commands, environment, results and links to supporting evidence. |
+| `submission/README.md` | Explain evidence naming and distinguish planned from completed results. |
+| `submission/gas/gas-results.csv` | Receipt measurements entered after Sepolia checks. |
+| `submission/testing/test-results.md` | Test run commands, environment, results and links to supporting evidence. |
 | `deployment.json` | Chain, addresses, deployment blocks, compiler, EVM target and optimizer settings. |
 | `requirements.txt` | Runtime Python packages with compatible pinned versions. |
 | `requirements-dev.txt` | Test-only Python packages, if any; keep `unittest` in the standard library. |

@@ -14,26 +14,25 @@ Open the public application at [https://greencert.onrender.com](https://greencer
 
 Certificate ownership, listings, purchases and retirements are stored on Sepolia. The free Render deployment uses local service storage for uploaded evidence and SQLite records; those local records can be cleared when the service restarts or is redeployed.
 
-## Documentation
+## Coursework materials
 
-| Document | Description |
+Submission materials and supporting evidence are collected in [submission/](submission/). Test source files remain in [tests/](tests/) so the test commands continue to work.
+
+| Material | Links |
 | --- | --- |
-| [Course requirement checklist](docs/submission-checklist.md) | Assignment requirements, evidence and outstanding submission actions. |
-| [Problem and evaluation evidence](docs/evidence/problem-evaluation.md) | Domain sources and bounded scenario observations. |
-| [User manual](docs/user-manual.md) | Wallet connection, registration, marketplace and Admin-review workflows. |
-| [Product and requirements](docs/development/01-product.md) | Scope, roles, business rules and requirements. |
-| [Architecture and workflow](docs/development/02-architecture-flow.md) | Application components, state flow and transaction sequence. |
-| [Smart contracts](docs/development/03-contracts.md) | Contract responsibilities, permissions, functions and events. |
-| [API](docs/development/04-api.md) | Flask API endpoints and request/response behaviour. |
-| [Data model](docs/development/05-data-model.md) | SQLite records, uploaded evidence and on-chain references. |
-| [Responsive interface](docs/development/06-ui.md) | Pages, navigation, dashboard content and interaction states. |
-| [Testing plan](docs/development/08-testing.md) | Automated and Sepolia workflow checks. |
-| [Test results](docs/evidence/test-results.md) | Recorded local, Remix and Sepolia results. |
-| [Gas measurements](docs/evidence/gas-results.csv) | Mined transaction receipts, gas used and transaction cost. |
-| [Gas analysis](docs/evidence/gas-analysis.md) | Estimation method, receipt-based measurements and design trade-offs. |
-| [Registration deployment](docs/development/09-registration-deployment.md) | Current guarded contracts, deployment transactions and on-chain verification. |
-| [Sepolia workflow](tests/manual/sepolia-checklist.md) | Earlier on-chain workflow and current deployment checks. |
-| [Automated Sepolia run](tests/manual/sepolia-automated-run.md) | Test-wallet setup and resumable workflow runner. |
+| Course requirements and status | [Requirements checklist](docs/submission-checklist.md) |
+| Problem and evaluation | [Problem and evaluation evidence](submission/evaluation/problem-evaluation.md) |
+| Architecture, contract interaction and process flow | [Architecture and workflow](docs/development/02-architecture-flow.md), [smart contracts](docs/development/03-contracts.md) |
+| Data model and UI diagrams | [Data model](docs/development/05-data-model.md), [responsive interface](docs/development/06-ui.md) |
+| Source, setup and documentation | [Source and repository layout](#repository-layout), [setup](#local-setup), [API](docs/development/04-api.md), [product and requirements](docs/development/01-product.md) |
+| Deployment and contract details | [Public application](https://greencert.onrender.com), [deployment record](docs/development/09-registration-deployment.md), [deployment.json](deployment.json) |
+| Testing report and evidence | [Test results](submission/testing/test-results.md), [local contract test output](submission/testing/contract-test-local.txt), [test source](tests/), [testing plan](docs/development/08-testing.md), [Sepolia checklist](tests/manual/sepolia-checklist.md), [automated Sepolia run](tests/manual/sepolia-automated-run.md) |
+| Gas estimation and optimization | [Gas analysis](submission/gas/gas-analysis.md), [receipt measurements](submission/gas/gas-results.csv) |
+| User manual | [User manual](docs/user-manual.md) |
+| Presentation and video | [Presentation materials](submission/presentation/README.md); files are kept outside Git |
+| Technical report and individual contributions | To be completed together later |
+
+The complete lifecycle receipt and gas evidence is from the earlier Sepolia deployment; see the reports for its addresses and the limits of current-deployment verification.
 
 ## Local setup
 
@@ -66,7 +65,7 @@ npm run test:contracts:compile
 npm run test:frontend
 ```
 
-The local Solidity compilation command does not execute tests. The current test functions have also been executed on an isolated local EVM; see [test results](docs/evidence/test-results.md) for the commands, versions and limitations. Remix execution of the revised tests has not been recorded.
+The local Solidity compilation command does not execute tests. The current test functions have also been executed on an isolated local EVM; see [test results](submission/testing/test-results.md) for the commands, versions and limitations. Remix execution of the revised tests has not been recorded.
 
 For the deployed Sepolia contracts, run:
 
@@ -85,6 +84,7 @@ contracts/             Solidity contracts and interfaces
 static/                Browser JavaScript, CSS and contract ABIs
 templates/             HTML pages
 tests/                 Backend, frontend, contract and Sepolia workflow tests
+submission/            Test and gas evidence, evaluation and presentation information
 docs/                  Product, technical, testing and user documentation
 deployment.json        Sepolia contract addresses and compiler settings
 render.yaml            Render deployment configuration

@@ -4,7 +4,7 @@
 
 GreenCert gives small renewable energy producers and business buyers a simple way to demonstrate certificate issuance, purchase and retirement. The project focuses on completing this workflow with clear ownership records, visible transaction history and a usable mobile interface.
 
-The proposed problem is fragmented evidence: a buyer needs to understand where a certificate came from, who owns it and whether its environmental attributes have already been claimed. GreenCert links reviewed generation evidence to a certificate record and makes retirement a permanent state change. Domain sources and a bounded scenario evaluation are recorded in [problem and evaluation evidence](../evidence/problem-evaluation.md). They do not establish user adoption or real-world impact.
+The proposed problem is fragmented evidence: a buyer needs to understand where a certificate came from, who owns it and whether its environmental attributes have already been claimed. GreenCert links reviewed generation evidence to a certificate record and makes retirement a permanent state change. Domain sources and a bounded scenario evaluation are recorded in [problem and evaluation evidence](../../submission/evaluation/problem-evaluation.md). They do not establish user adoption or real-world impact.
 
 ## Roles
 

@@ -5,7 +5,7 @@
 This note separates two kinds of evidence:
 
 - `gas-results.csv` contains mined receipts from the 13 October Sepolia deployment: RoleRegistry `0xc6ddfdef0eef7b9d2bb6df9e60bf439a2725a369`, Registry `0x338c972fcab0892448fa0ee939f3330fb42f6c04` and Market `0xd7f2b6c233e7044ab4a76317b834c58c2ff23f01`. Its configuration was recorded at commit `c93a5bf` (solc 0.8.30, Prague, optimizer 200). Blockscout returned the CSV receipt statuses, blocks, targets and gas used on 18 October.
-- The current Registry and Market include an `onlyRegistered` check and were deployed on 18 October 2026. The receipt figures below remain measurements of the earlier full lifecycle; an equivalent guarded lifecycle measurement has not yet been recorded. Deployment and guard verification are in [registration deployment](../development/09-registration-deployment.md).
+- The current Registry and Market include an `onlyRegistered` check and were deployed on 18 October 2026. The receipt figures below remain measurements of the earlier full lifecycle; an equivalent guarded lifecycle measurement has not yet been recorded. Deployment and guard verification are in [registration deployment](../../docs/development/09-registration-deployment.md).
 
 All values are for a testnet prototype. They are useful for comparing this implementation's transaction paths; they are not a production cost forecast.
 

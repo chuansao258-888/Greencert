@@ -39,8 +39,12 @@ docs/presentation/
 Thumbs.db
 .DS_Store
 
+# Presentation and video files are kept outside Git
+*.pptx
+*.mp4
+
 # Test output
-docs/evidence/*.xml
-docs/evidence/*.json
-docs/evidence/*.png
-docs/evidence/*.log
+submission/testing/*.xml
+submission/testing/*.json
+submission/testing/*.png
+submission/testing/*.log

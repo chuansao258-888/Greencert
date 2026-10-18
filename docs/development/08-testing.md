@@ -38,10 +38,10 @@ python scripts/export_abi.py
 npm run test:frontend
 ```
 
-`test:contracts:compile` checks Solidity syntax and imports using a local compilation stub for Remix's `Assert` library. It does not execute the test functions. Run the files in `tests/contracts` through Remix Solidity Unit Testing for execution results. Each test emits a Remix assertion event; a result of `Passed: 0, Failed: 0` means no test was counted. The payable market tests use Remix's `#value` directive to supply 100 wei to the test function. Record the observed pass/fail results in `docs/evidence/test-results.md`.
+`test:contracts:compile` checks Solidity syntax and imports using a local compilation stub for Remix's `Assert` library. It does not execute the test functions. Run the files in `tests/contracts` through Remix Solidity Unit Testing for execution results. Each test emits a Remix assertion event; a result of `Passed: 0, Failed: 0` means no test was counted. The payable market tests use Remix's `#value` directive to supply 100 wei to the test function. Record the observed pass/fail results in `submission/testing/test-results.md`.
 
 ## Manual acceptance
 
-`tests/manual/sepolia-checklist.md` covers deployment, role registration, rejection of unregistered writes, submission, withdrawal, rejection, approval, listing, repricing, cancellation, purchase, seller withdrawal and retirement. Use separate wallets for the three roles. Record transaction hash, receipt status, gas used and effective gas price for each successful write in `docs/evidence/gas-results.csv`. Calculate cost as `gasUsed × effectiveGasPrice`.
+`tests/manual/sepolia-checklist.md` covers deployment, role registration, rejection of unregistered writes, submission, withdrawal, rejection, approval, listing, repricing, cancellation, purchase, seller withdrawal and retirement. Use separate wallets for the three roles. Record transaction hash, receipt status, gas used and effective gas price for each successful write in `submission/gas/gas-results.csv`. Calculate cost as `gasUsed × effectiveGasPrice`.
 
 Do not mark a manual step or Solidity test as passed before it has been run. Existing addresses and gas receipts document the earlier open-wallet deployment. Add a separate dated record when the registration-guard deployment is tested.
