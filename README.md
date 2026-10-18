@@ -50,6 +50,8 @@ For a fresh deployment, deploy `RoleRegistry` with the Admin wallet address, dep
 
 ## Tests
 
+After signing in, Account offers optional one-time on-chain registration as Producer or Buyer. Both roles retain the same application and trading permissions; the Admin role alone grants approval and rejection authority. The account page displays the role read from the chain.
+
 Run the local checks from the repository root:
 
 ```powershell

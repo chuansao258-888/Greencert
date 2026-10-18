@@ -27,7 +27,7 @@ Identifiers start at 1. Zero denotes an absent record. The Admin is immutable. T
 
 | ID | Contract method | Permission and preconditions | Result |
 |---|---|---|---|
-| TX-01 | `RoleRegistry.register(uint8 role)` | Unregistered address; role must be Producer or Buyer. | Optional legacy role label; emit `RoleRegistered`. |
+| TX-01 | `RoleRegistry.register(uint8 role)` | Unregistered address; role must be Producer or Buyer. | Register a permanent primary participation role from Account; emit `RoleRegistered`. Ordinary operations remain open to all wallets. |
 | TX-02 | `CertificateRegistry.submitApplication(bytes32 siteHash, uint64 periodStart, uint64 periodEnd, uint32 batchIndex, uint32 quantity, bytes32 metadataHash)` | Any wallet; nonzero hashes; start < end <= block timestamp; positive batch index; quantity from 1 to 100; unused batch key. | Create Pending application; reserve batch key; emit `ApplicationSubmitted`. |
 | TX-03 | `CertificateRegistry.withdrawApplication(uint256 applicationId)` | Applicant; Pending application. | Set Withdrawn; emit `ApplicationWithdrawn`. |
 | TX-04 | `CertificateRegistry.approveApplication(uint256 applicationId)` | Admin; Pending application whose evidence supports its quantity. | Set Approved; issue one Active certificate record containing the complete batch quantity to the submitting wallet; emit `CertificateIssued`. |

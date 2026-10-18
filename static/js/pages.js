@@ -119,6 +119,9 @@ window.GreenCertPages = {
   },
   // Display the connected wallet's balance and sale proceeds.
   async wallet() {
+    const session = await GreenCertApi.get("/auth/me");
+    GreenCertWallet.role = session.role;
+    GreenCertApp.renderRole();
     const data = await GreenCertApi.get("/wallet");
     document.getElementById("walletPanel").hidden = false;
     document.getElementById("walletBalance").textContent = `Balance: ${GreenCertApp.eth(data.balanceWei)}`;
@@ -263,7 +266,7 @@ window.GreenCertPages = {
 
 // Bind certificate and proceeds actions.
 document.addEventListener("click", async (event) => {
-  const button = event.target.closest("[data-action], #withdrawProceeds");
+  const button = event.target.closest("[data-register-role], [data-action], #withdrawProceeds");
   if (!button) return;
   try {
     if (button.dataset.action === "details") {
@@ -274,7 +277,13 @@ document.addEventListener("click", async (event) => {
       if (!GreenCertWallet.signer) throw new Error("Connect a wallet first.");
       await GreenCertWallet.ensureTargetNetwork();
       if (!GreenCertContracts.contracts.roleRegistry) await GreenCertContracts.load(GreenCertWallet.signer);
-      if (button.id === "withdrawProceeds") {
+      if (button.dataset.registerRole) {
+        const role = Number(button.dataset.registerRole);
+        if (![1, 2].includes(role)) throw new Error("Choose Producer or Buyer.");
+        const roleName = role === 1 ? "Producer" : "Buyer";
+        if (!confirm(`Register this wallet as ${roleName}? This cannot be changed and requires a network fee. Both roles can apply and buy.`)) return;
+        await GreenCertTransactions.send("Register role", () => GreenCertContracts.contracts.roleRegistry.register(role));
+      } else if (button.id === "withdrawProceeds") {
         await GreenCertTransactions.send("Withdraw proceeds", () => GreenCertContracts.contracts.certificateMarket.withdraw());
       } else {
         await GreenCertPages.action(button.dataset.action, button.dataset.id, button);

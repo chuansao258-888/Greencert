@@ -11,10 +11,12 @@ The proposed problem is fragmented evidence: a buyer needs to understand where a
 | Role | Responsibilities |
 |---|---|
 | Connected wallet | Upload evidence; submit or withdraw its pending applications; list, reprice, cancel, purchase or retire certificates according to ownership and listing state; withdraw its sales proceeds. |
+| Producer | Optional on-chain primary role for generation participants; retains all connected-wallet operations. |
+| Buyer | Optional on-chain primary role for purchasers; retains all connected-wallet operations. |
 | Admin | Review generation evidence and approve or reject pending applications. |
 | Visitor | Browse public certificate records, evidence-integrity summaries, market listings, dashboard data and the read-only audit. |
 
-The Admin address is fixed at deployment. The role registry identifies the Admin for review decisions; Producer and Buyer labels are not used to authorize ordinary certificate operations.
+The Admin address is fixed at deployment. Account offers one-time Producer or Buyer registration. The signed-in session reads roles from the chain. The role registry identifies the Admin for review decisions; Producer and Buyer share ordinary certificate permissions. Unregistered wallets may also perform ordinary operations. Visitors are not an authenticated role.
 
 ## Functional Requirements
 

@@ -2,6 +2,8 @@
 
 ## Local checks
 
+On 18 October 2026, the frontend suite passed including the restored Account role-registration flow. Mocked checks cover unregistered, Producer, Buyer and Admin displays, both registration choices, reading back the role after confirmation, and cancellation before submission. Ordinary-wallet application and ownership tests also passed. These are automated frontend checks, not a new signed Sepolia registration run.
+
 | Check | Result |
 |---|---|
 | Python `unittest` suite | 11 tests passed |

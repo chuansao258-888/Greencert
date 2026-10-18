@@ -11,6 +11,14 @@
 </section>
 <section class="panel" id="walletPanel" hidden>
   <h2>Wallet summary</h2>
+  <p id="walletRole"></p>
+  <div id="roleRegistration" hidden>
+    <p>Register your primary role on-chain. Producer and Buyer can both apply, buy and manage their own certificates. Registration is optional and cannot be changed for this wallet.</p>
+    <div class="button-row">
+      <button class="button secondary" type="button" data-register-role="1">Register as Producer</button>
+      <button class="button secondary" type="button" data-register-role="2">Register as Buyer</button>
+    </div>
+  </div>
   <p id="walletBalance"></p>
   <p id="walletProceeds"></p>
   <button class="button primary" id="withdrawProceeds" type="button">Withdraw proceeds</button>

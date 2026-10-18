@@ -10,7 +10,7 @@
   "scripts": {
     "compile": "node scripts/compile.cjs",
     "test:contracts:compile": "node scripts/check_contract_tests.cjs",
-    "test:frontend": "node tests/frontend/dashboard.test.cjs && node tests/frontend/wallet_session.test.cjs && node tests/frontend/wallet_mobile.test.cjs && node tests/frontend/transaction_state.test.cjs && node tests/frontend/application_role.test.cjs && node tests/frontend/audit.test.cjs"
+    "test:frontend": "node tests/frontend/dashboard.test.cjs && node tests/frontend/wallet_session.test.cjs && node tests/frontend/wallet_mobile.test.cjs && node tests/frontend/transaction_state.test.cjs && node tests/frontend/application_role.test.cjs && node tests/frontend/audit.test.cjs && node tests/frontend/role_registration.test.cjs"
   },
   "license": "UNLICENSED",
   "type": "commonjs",
