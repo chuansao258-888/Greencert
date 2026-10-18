@@ -1,10 +1,10 @@
 # GreenCert
 
-GreenCert is a coursework prototype for issuing, trading and retiring simulated renewable energy certificate (REC) batches on the Sepolia testnet. One REC represents one MWh in this prototype. The application uses test ETH and does not issue accredited certificates.
+GreenCert is a web application for issuing, trading and retiring simulated renewable energy certificate (REC) batches on the Sepolia testnet. In this system, one REC represents one MWh. The application uses test ETH and does not issue accredited certificates.
 
 ## Live deployment
 
-Open the public application at [https://greencert.onrender.com](https://greencert.onrender.com).
+Public application: [https://greencert.onrender.com](https://greencert.onrender.com)
 
 | Contract | Sepolia address |
 | --- | --- |
@@ -12,11 +12,11 @@ Open the public application at [https://greencert.onrender.com](https://greencer
 | `CertificateRegistry` | [`0xa3456442711ead1110d6f93e0c56b35ab25bebc9`](https://sepolia.etherscan.io/address/0xa3456442711ead1110d6f93e0c56b35ab25bebc9) |
 | `CertificateMarket` | [`0x84990af8d7ca3224df64305d1330c50e21c887aa`](https://sepolia.etherscan.io/address/0x84990af8d7ca3224df64305d1330c50e21c887aa) |
 
-Certificate ownership, listings, purchases and retirements are stored on Sepolia. The free Render deployment uses local service storage for uploaded evidence and SQLite records; those local records can be cleared when the service restarts or is redeployed.
+Certificate ownership, listings, purchases and retirements are recorded on Sepolia. The Render service uses SQLite and local service storage for application records and uploaded evidence. These local files can be cleared when the free service restarts or is redeployed.
 
 ## Coursework materials
 
-Submission materials and supporting evidence are collected in [submission/](submission/). Test source files remain in [tests/](tests/) so the test commands continue to work.
+Coursework materials and supporting evidence are collected in [submission/](submission/). Test source files remain in [tests/](tests/).
 
 | Material | Links |
 | --- | --- |
@@ -29,10 +29,10 @@ Submission materials and supporting evidence are collected in [submission/](subm
 | Testing report and evidence | [Test results](submission/testing/test-results.md), [local contract test output](submission/testing/contract-test-local.txt), [test source](tests/), [testing plan](docs/development/08-testing.md), [Sepolia checklist](tests/manual/sepolia-checklist.md), [automated Sepolia run](tests/manual/sepolia-automated-run.md) |
 | Gas estimation and optimization | [Gas analysis](submission/gas/gas-analysis.md), [receipt measurements](submission/gas/gas-results.csv) |
 | User manual | [User manual](docs/user-manual.md) |
-| Presentation and video | [Demonstration video](https://www.youtube.com/watch?v=dHrIokU-WzI&t=2s)|
+| Presentation and video | [Demonstration video](https://www.youtube.com/watch?v=dHrIokU-WzI&t=2s); presentation files are submitted separately |
+| Technical report and individual contributions | Submitted separately |
 
-
-The complete lifecycle receipt and gas evidence is from the earlier Sepolia deployment; see the reports for its addresses and the limits of current-deployment verification.
+The complete lifecycle receipts and gas measurements in the gas evidence were collected from an earlier Sepolia deployment. The evidence files identify that deployment and state the limits of verification for the current contracts.
 
 ## Local setup
 
@@ -47,13 +47,13 @@ python scripts/init_db.py
 python app.py
 ```
 
-Open `http://127.0.0.1:5000`. Copy `.env.example` to `.env` and set `RPC_URL` to a Sepolia endpoint. `deployment.json` contains the deployed contract addresses and their deployment blocks.
+The local service runs at `http://127.0.0.1:5000`. Copy `.env.example` to `.env` and set `RPC_URL` to a Sepolia endpoint. `deployment.json` contains the deployed contract addresses and deployment blocks.
 
 For a fresh deployment, deploy `RoleRegistry` with the Admin wallet address, deploy `CertificateRegistry` with the role registry address, then deploy `CertificateMarket` with both registry addresses. The Admin must call `CertificateRegistry.setMarket` once. A registered Producer, Buyer or Admin can submit applications, list an owned certificate, purchase a listing and retire an owned unlisted certificate. Only the Admin can approve or reject applications.
 
 ## Tests
 
-After signing in, unregistered wallets are prompted to register on-chain as Producer or Buyer. Registration is required for application and trading actions. Both roles share ordinary business permissions; Admin alone grants approval and rejection authority. The account page displays the role read from the chain.
+Unregistered wallets must register on-chain as Producer or Buyer before application and trading actions. Both roles share ordinary business permissions. Admin alone grants approval and rejection authority. The account page displays the role read from the chain.
 
 The deployed Registry and Market require a registered on-chain role for ordinary state-changing operations. See [deployment verification](docs/development/09-registration-deployment.md).
 
@@ -73,7 +73,7 @@ For the deployed Sepolia contracts, run:
 python scripts/sepolia_e2e.py check
 ```
 
-The signed workflow is documented in [Automated Sepolia run](tests/manual/sepolia-automated-run.md). It uses dedicated test wallets configured only in the ignored `.sepolia-test.env` file. Never commit or share private keys.
+The signed workflow is documented in [Automated Sepolia run](tests/manual/sepolia-automated-run.md). It uses dedicated test wallets configured only in the ignored `.sepolia-test.env` file. Private keys must remain outside the repository.
 
 ## Repository layout
 
